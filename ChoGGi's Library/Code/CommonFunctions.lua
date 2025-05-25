@@ -4,13 +4,14 @@
 --~ ChoGGi_Funcs.Common.TickEnd()
 
 local ChoGGi_Funcs = ChoGGi_Funcs
-local blacklist = ChoGGi.blacklist
-local testing = ChoGGi.testing
 local what_game = ChoGGi.what_game
+local testing = ChoGGi.testing
+local blacklist = ChoGGi.blacklist
 
 -- Strings.lua
 local Translate = ChoGGi_Funcs.Common.Translate
 local T = T
+local IsT = IsT
 
 local pairs, tonumber, type, tostring = pairs, tonumber, type, tostring
 local table, setmetatable = table, setmetatable
@@ -24,7 +25,6 @@ local guic = guic
 local IsBox = IsBox
 local IsKindOf = IsKindOf
 local IsPoint = IsPoint
-local IsT = IsT
 local IsValid = IsValid
 local MapGet = MapGet
 local Max = Max
@@ -124,15 +124,34 @@ local function DotPathToObject(dot_path, root, create)
 end
 ChoGGi_Funcs.Common.DotPathToObject = DotPathToObject
 
+do -- DebugGetInfo
+	local format_value = format_value
+
+	-- this replaces the func added in my library mod (which is just a straight format_value)
+	function ChoGGi_Funcs.Common.DebugGetInfo(obj)
+		if not obj then
+			return
+		end
+		if blacklist then
+			return format_value(obj)
+		else
+			local info = g_env.debug.getinfo(obj)
+			-- sub(2): removes @, Mars is ingame files, mods is mods...
+			local src = info.source ~= "" and info.source or info.short_src
+			return src:sub(2):gsub("Mars/", ""):gsub("AppData/Mods/", "")
+				.. "(" .. info.linedefined .. ")"
+		end
+	end
+end -- do
+local DebugGetInfo = ChoGGi_Funcs.Common.DebugGetInfo
+
 -- ChoGGi_Funcs.Common.RetName_lookup_table()
 do -- RetName
-	local DebugGetInfo = ChoGGi_Funcs.Common.DebugGetInfo
-	local IsT = IsT
-	local missing_text = ChoGGi.Temp.missing_text
 	local TMeta = TMeta
 	local TConcatMeta = TConcatMeta
-
+	local missing_text = ChoGGi.Temp.missing_text
 	local g = _G
+
 	-- we use this table to display names of objects for RetName
 	if not rawget(g, "ChoGGi_lookup_names") then
 		g.ChoGGi_lookup_names = {}
@@ -8750,6 +8769,92 @@ function ChoGGi_Funcs.Common.BlacklistMsg(name)
 	end
 	print(Translate(msg))
 end
+
+do -- ShowAnimDebug_Toggle
+	local OText
+
+	local function AnimDebug_Show(obj, colour)
+		local text = OText:new()
+		text:SetColor1(colour)
+
+		-- so we can delete them easy
+		text.ChoGGi_AnimDebug = true
+		obj:Attach(text, 0)
+
+		local obj_bbox = obj:GetObjectBBox():sizez()
+
+		text:SetAttachOffset(point(0, 0, obj_bbox + 100))
+		CreateGameTimeThread(function()
+			while IsValid(text) do
+				text:SetText(obj:GetAnimDebug())
+				WaitNextFrame()
+			end
+		end)
+	end
+
+	local function AnimDebug_Hide(obj)
+		obj:ForEachAttach("ChoGGi_OText", function(a)
+			if a.ChoGGi_AnimDebug then
+				a:delete()
+			end
+		end)
+	end
+
+	local function AnimDebug_ShowAll(cls, colour)
+		local objs = ChoGGi_Funcs.Common.MapGet(cls)
+		for i = 1, #objs do
+			AnimDebug_Show(objs[i], colour)
+		end
+	end
+
+	local function AnimDebug_HideAll(cls)
+		local objs = ChoGGi_Funcs.Common.MapGet(cls)
+		for i = 1, #objs do
+			AnimDebug_Hide(objs[i])
+		end
+	end
+
+	function ChoGGi_Funcs.Common.ShowAnimDebug_Toggle(obj, params)
+		-- If fired from action menu
+		if IsKindOf(obj, "XAction") then
+			obj = ChoGGi_Funcs.Common.SelObject()
+		else
+			obj = obj or ChoGGi_Funcs.Common.SelObject()
+		end
+		if not OText then
+			OText = ChoGGi_OText
+		end
+		params = params or {}
+		params.colour = params.colour or RandomColourLimited()
+
+		SuspendPassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
+		if IsValid(obj) then
+			if not obj:GetAnimDebug() then
+				return
+			end
+
+			if obj.ChoGGi_ShowAnimDebug then
+				obj.ChoGGi_ShowAnimDebug = nil
+				AnimDebug_Hide(obj)
+			else
+				obj.ChoGGi_ShowAnimDebug = true
+				AnimDebug_Show(obj, params.colour)
+			end
+		else
+			ChoGGi.Temp.ShowAnimDebug = not ChoGGi.Temp.ShowAnimDebug
+			if ChoGGi.Temp.ShowAnimDebug then
+				AnimDebug_ShowAll("Building", params.colour)
+				AnimDebug_ShowAll("Unit", params.colour)
+				AnimDebug_ShowAll("CargoShuttle", params.colour)
+			else
+				AnimDebug_HideAll("Building")
+				AnimDebug_HideAll("Unit")
+				AnimDebug_HideAll("CargoShuttle")
+			end
+		end
+		ResumePassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
+	end
+end -- do
 
 -- loop through all map sectors and fire this func
 --~ function ChoGGi_Funcs.Common.LoopMapSectors(map_id, func)

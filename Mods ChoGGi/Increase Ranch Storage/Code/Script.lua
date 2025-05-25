@@ -8,8 +8,7 @@ end
 local mod_StockMax
 
 local function ProdUpdate(obj)
-	-- const.resourcescale=1000
-	local max_z = (mod_StockMax / 1000) / 4
+	local max_z = (mod_StockMax / const.ResourceScale) / 4
 	obj.stock_max = mod_StockMax
 	obj.max_storage = mod_StockMax
 	-- visual cube bump
@@ -23,7 +22,6 @@ local function UpdateRanchesLoop(label)
 	local objs = ChoGGi_Funcs.Common.GetCityLabels(label)
 	for i = 1, #objs do
 		local obj = objs[i]
---~ 		obj.max_storage1 = mod_StockMax
 		obj.max_storage = mod_StockMax
 		ProdUpdate(obj:GetProducerObj())
 	end
@@ -57,21 +55,14 @@ OnMsg.ModsReloaded = ModOptions
 -- Fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
 
-local changed
-function OnMsg.ClassesPostprocess()
-	if changed then
+OnMsg.CityStart = UpdateRanches
+OnMsg.LoadGame = UpdateRanches
+
+function OnMsg.BuildingInit(obj)
+	if not mod_EnableMod or not obj:IsKindOf("OpenPasture") or not obj:IsKindOf("InsidePasture") then
 		return
 	end
 
-	local ChoOrig_Pasture_GameInit = Pasture.GameInit
-	function Pasture.GameInit(...)
-		ChoOrig_Pasture_GameInit(self, ...)
---~ 		self.max_storage1 = mod_StockMax
-		self.max_storage = mod_StockMax
-		ProdUpdate(self:GetProducerObj())
-	end
-	changed = true
+	obj.max_storage = mod_StockMax
+	ProdUpdate(obj:GetProducerObj())
 end
-
-OnMsg.CityStart = UpdateRanches
-OnMsg.LoadGame = UpdateRanches

@@ -12,9 +12,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "2426931293",
 	"pops_any_uuid", "204e9e89-25af-44e3-a6f2-8b9c824d92e5",
 	"lua_revision", 1007000, -- Picard
-	"version", 3,
+	"version", 4,
 	"version_major", 0,
-	"version_minor", 3,
+	"version_minor", 4,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -30,6 +30,7 @@ Crops Never Fail: Crops will never fail no matter the conditions (you'll get a r
 Constant Soil Quality: Soil quality will always be this amount (0 to disable).
 Mech Farming: Workers not needed.
 Mech Performance: How much performance each farm does without fleshbags.
+Storage Space: Set the amount of storage for harvested crops (used for modded crops, 0 to disable).
 
 Applying mod options will toggle working state on farms, crops might fail?
 ]],

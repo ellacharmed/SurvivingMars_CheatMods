@@ -1,3 +1,6 @@
+v1.1
+Setting InfoBox Delay to 0 didn't actually disable it.
+
 v1.0
 Log spam from delay infobar popup (Thanks Tremualin).
 

@@ -1,3 +1,8 @@
+v0.4
+Added other farms to cheats (mod options to disable).
+Some cheats don't work on Fungal Farm.
+Change storage space for harvested crops.
+
 v0.3
 Forgot to have it apply when new ones built (instead of loadgame only).
 

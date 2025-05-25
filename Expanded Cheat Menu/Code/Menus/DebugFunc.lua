@@ -593,6 +593,7 @@ function ChoGGi_Funcs.Menus.ExaminePersistErrors_Toggle()
 	)
 end
 
+-- Expect a little log spam from a map with no features, and checking for anims on entities without one
 function ChoGGi_Funcs.Menus.ViewAllEntities()
 	local function CallBackFunc(answer)
 		if not answer then
@@ -709,7 +710,6 @@ function ChoGGi_Funcs.Menus.ViewAllEntities()
 							obj.entity = entity
 
 							-- If it has a working state then set it
---~ 							local states_str = obj:GetStates()
 							local default_state = 0
 							local states_str = obj:HasState(default_state) and obj:GetStates() or ""
 							local idx = table.find(states_str, "working")

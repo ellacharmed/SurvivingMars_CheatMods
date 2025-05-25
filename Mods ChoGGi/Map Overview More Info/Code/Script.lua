@@ -226,11 +226,11 @@ end
 -- We don't want them around for saves (I should check that they get saved I suppose...)
 OnMsg.SaveGame = ClearIcons
 
+-- Append counts to sector tooltip
 local ChoOrig_GenerateSectorRolloverContext = OverviewModeDialog.GenerateSectorRolloverContext
 function OverviewModeDialog:GenerateSectorRolloverContext(sector, ...)
 	local ret1, ret2 = ChoOrig_GenerateSectorRolloverContext(self, sector, ...)
 
-	-- append counts to sector tooltip
 	local pile = sector_piles[sector.id]
 	if pile then
 		local ResourceScale = const.ResourceScale
@@ -249,6 +249,10 @@ end
 
 local ChoOrig_OverviewModeDialog_CreateSectorRollover = OverviewModeDialog.CreateSectorRollover
 function OverviewModeDialog:CreateSectorRollover(sector, rollover_pos, forced, ...)
+	if mod_InfoBoxDelay == 0 then
+		return ChoOrig_OverviewModeDialog_CreateSectorRollover(self, sector, rollover_pos, forced, ...)
+	end
+
 	CreateRealTimeThread(function(self, sector, rollover_pos, forced, ...)
 		Sleep(mod_InfoBoxDelay)
 

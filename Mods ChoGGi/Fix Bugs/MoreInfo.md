@@ -81,6 +81,7 @@ Additions are welcome in any language.
 
 ### Mod bug fixes:
 ```
+Fix applicants with a func instead of a time.
 UCP: Never get funding/res points from Observatory.
 Log spam from borked colonist (possibly from a mod, could just be B&B again).
 Fix for whatever odd thing Mars Underground mod is doing with presets.
@@ -136,6 +137,12 @@ If you have B&B I'd recommend SkiRich's [Better Lander Rockets](https://steamcom
 
 # Extra info for incorporated mods/specific fixes:
 
+
+### Fix applicants with a func instead of a time.
+
+Some mod (most likey) is inserting a func instead of a time with GenerateApplicant(time, city).
+
+This will change any applicants without a time to the current time, and check for non-number values in GenerateApplicant.
 
 ### Uneven terrain / Flatten tool
 

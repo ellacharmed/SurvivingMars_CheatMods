@@ -414,7 +414,6 @@ do -- CityStart/LoadGame
 
 		-- Anything that only needs a specific event
 		if event == "LoadGame" then
-
 			--
 			-- Fix Rover In Dome
 			-- Checks on load for rovers stuck in domes (not open air ones).
@@ -2064,6 +2063,23 @@ function TerrainDepositMarker:SpawnDeposit(...)
 	FixDepositsWrongMap_MoveDeposit(deposit, self:GetMapID())
 
 	return deposit
+end
+
+--
+-- Fix applicants with a func instead of a time (2/2)
+-- This will check for funcs in GenerateApplicant.
+local ChoOrig_GenerateApplicant = GenerateApplicant
+function GenerateApplicant(time, ...)
+	if not mod_EnableMod then
+		return ChoOrig_GenerateApplicant(time, ...)
+	end
+
+	-- Best check if it isn't a number, someone might pass on a table or string
+	if type(time) ~= "number" then
+		time = GameTime()
+	end
+
+	return ChoOrig_GenerateApplicant(time, ...)
 end
 
 --

@@ -1,5 +1,4 @@
 -- See LICENSE for terms
-
 local ChoGGi_Funcs = ChoGGi_Funcs
 local what_game = ChoGGi.what_game
 
@@ -841,26 +840,6 @@ function ChoGGi_Funcs.Common.GetDesktopWindow(class)
 	return desktop[table.find(desktop, "class", class)]
 end
 
-do -- DebugGetInfo
-	local format_value = format_value
-
-	-- this replaces the func added in my library mod (which is just a straight format_value)
-	function ChoGGi_Funcs.Common.DebugGetInfo(obj)
-		if not obj then
-			return
-		end
-		if blacklist then
-			return format_value(obj)
-		else
-			local info = debug.getinfo(obj)
-			-- sub(2): removes @, Mars is ingame files, mods is mods...
-			local src = info.source ~= "" and info.source or info.short_src
-			return src:sub(2):gsub("Mars/", ""):gsub("AppData/Mods/", "")
-				.. "(" .. info.linedefined .. ")"
-		end
-	end
-end -- do
-
 do -- ReturnTechAmount/GetResearchedTechValue
 	local floatfloor = floatfloor
 	--[[
@@ -1081,92 +1060,6 @@ function ChoGGi_Funcs.Common.RetBuildingPermissions(traits, settings)
 	return block, restrict
 end
 
-do -- ShowAnimDebug_Toggle
-	local OText
-
-	local function AnimDebug_Show(obj, colour)
-		local text = OText:new()
-		text:SetColor1(colour)
-
-		-- so we can delete them easy
-		text.ChoGGi_AnimDebug = true
-		obj:Attach(text, 0)
-
-		local obj_bbox = obj:GetObjectBBox():sizez()
-
-		text:SetAttachOffset(point(0, 0, obj_bbox + 100))
-		CreateGameTimeThread(function()
-			while IsValid(text) do
-				text:SetText(obj:GetAnimDebug())
-				WaitNextFrame()
-			end
-		end)
-	end
-
-	local function AnimDebug_Hide(obj)
-		obj:ForEachAttach("ChoGGi_OText", function(a)
-			if a.ChoGGi_AnimDebug then
-				a:delete()
-			end
-		end)
-	end
-
-	local function AnimDebug_ShowAll(cls, colour)
-		local objs = ChoGGi_Funcs.Common.MapGet(cls)
-		for i = 1, #objs do
-			AnimDebug_Show(objs[i], colour)
-		end
-	end
-
-	local function AnimDebug_HideAll(cls)
-		local objs = ChoGGi_Funcs.Common.MapGet(cls)
-		for i = 1, #objs do
-			AnimDebug_Hide(objs[i])
-		end
-	end
-
-	function ChoGGi_Funcs.Common.ShowAnimDebug_Toggle(obj, params)
-		-- If fired from action menu
-		if IsKindOf(obj, "XAction") then
-			obj = ChoGGi_Funcs.Common.SelObject()
-		else
-			obj = obj or ChoGGi_Funcs.Common.SelObject()
-		end
-		if not OText then
-			OText = ChoGGi_OText
-		end
-		params = params or {}
-		params.colour = params.colour or RandomColourLimited()
-
-		SuspendPassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
-		if IsValid(obj) then
-			if not obj:GetAnimDebug() then
-				return
-			end
-
-			if obj.ChoGGi_ShowAnimDebug then
-				obj.ChoGGi_ShowAnimDebug = nil
-				AnimDebug_Hide(obj)
-			else
-				obj.ChoGGi_ShowAnimDebug = true
-				AnimDebug_Show(obj, params.colour)
-			end
-		else
-			ChoGGi.Temp.ShowAnimDebug = not ChoGGi.Temp.ShowAnimDebug
-			if ChoGGi.Temp.ShowAnimDebug then
-				AnimDebug_ShowAll("Building", params.colour)
-				AnimDebug_ShowAll("Unit", params.colour)
-				AnimDebug_ShowAll("CargoShuttle", params.colour)
-			else
-				AnimDebug_HideAll("Building")
-				AnimDebug_HideAll("Unit")
-				AnimDebug_HideAll("CargoShuttle")
-			end
-		end
-		ResumePassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
-	end
-end -- do
-
 do -- ChangeSurfaceSignsToMaterials
 	local function ChangeEntity(cls, entity, random)
 		MapForEach("map", cls, function(o)
@@ -1304,20 +1197,22 @@ do -- ToggleFuncHook
 			g_env.collectgarbage()
 			local function hook_func(event)
 
-				local i
+				local info
 				if event == "call" then
-					i = debug.getinfo(2, "Sf")
+					info = debug.getinfo(2, "Sf")
 				else
-					i = debug.getinfo(2, "S")
+					info = debug.getinfo(2, "S")
 				end
 
-				if i.source:sub(1, str_len) == path and (not line or line and i.linedefined == line) then
+				if info.source:sub(1, str_len) == path
+					and (not line or line and info.linedefined == line)
+				then
 
 					local lua_obj
 					if event == "call" then
-						lua_obj = i.func
+						lua_obj = info.func
 					else
-						lua_obj = i.source .. "|" .. i.linedefined
+						lua_obj = info.source .. "|" .. info.linedefined
 					end
 
 					func_str_c = func_str_c + 1
@@ -2037,92 +1932,6 @@ function ChoGGi_Funcs.Common.AttachSpireFrameOffset(obj)
 	obj:SetAttachOffset(point(0, 0, offset:z()))
 end
 
---~ do -- ExpandModOptions
---~ 	local function UpdateProp(xtemplate)
---~ 		local idx = table.find(xtemplate, "MaxWidth", 400)
---~ 		if idx then
---~ 			xtemplate[idx].MaxWidth = 1000000
---~ 		end
---~ 	end
-
---~ 	local function AdjustNumber(self, direction)
---~ 		local slider = self.parent.idSlider
---~ 		if direction then
---~ 			slider:ScrollTo(slider.Scroll + slider.StepSize)
---~ 		else
---~ 			slider:ScrollTo(slider.Scroll - slider.StepSize)
---~ 		end
---~ 	end
-
---~ 	local function AddSliderButtons(xtemplate)
---~ 		local idx = table.find(xtemplate, "Id", "idSlider")
---~ 		if idx then
---~ 			local template_left = PlaceObj("XTemplateWindow", {
---~ 					"Id", "idButtonLower_ChoGGi",
---~ 					"__class", "XTextButton",
---~ 					"Text", T("[-]"),
---~ 					"FXMouseIn", "ActionButtonHover",
---~ 					"FXPress", "ActionButtonClick",
---~ 					"FXPressDisabled", "UIDisabledButtonPressed",
---~ 					"HAlign", "center",
---~ 					"RolloverZoom", 1100,
---~ 					"Background", 0,
---~ 					"FocusedBackground", 0,
---~ 					"RolloverBackground", 0,
---~ 					"PressedBackground", 0,
---~ 					"TextStyle", "MessageTitle",
---~ 					"MouseCursor", "UI/Cursors/Rollover.tga",
---~ 					"OnPress", function(self)
---~ 						AdjustNumber(self, false)
---~ 					end,
---~ 					"RolloverTemplate", "Rollover",
---~ 				})
---~ 			local template_right = PlaceObj("XTemplateWindow", {
---~ 					"__template", "PropName",
---~ 					"__class", "XTextButton",
---~ 					"Id", "idButtonHigher_ChoGGi",
---~ 					"Text", T("[+]"),
---~ 					"FXMouseIn", "ActionButtonHover",
---~ 					"FXPress", "ActionButtonClick",
---~ 					"FXPressDisabled", "UIDisabledButtonPressed",
---~ 					"HAlign", "center",
---~ 					"RolloverZoom", 1100,
---~ 					"Background", 0,
---~ 					"FocusedBackground", 0,
---~ 					"RolloverBackground", 0,
---~ 					"PressedBackground", 0,
---~ 					"TextStyle", "MessageTitle",
---~ 					"MouseCursor", "UI/Cursors/Rollover.tga",
---~ 					"OnPress", function(self)
---~ 						AdjustNumber(self, true)
---~ 					end,
---~ 					"RolloverTemplate", "Rollover",
---~ 				})
---~ 			table.insert(xtemplate, idx, template_left)
---~ 			table.insert(xtemplate, idx+2, template_right)
---~ 		end
---~ 	end
-
---~ 	function ChoGGi_Funcs.Common.ExpandModOptions(XTemplates_param)
---~ 		XTemplates_param = XTemplates_param or XTemplates
-
---~ 		local xtemplate = XTemplates_param.PropBool[1]
---~ 		if xtemplate.ChoGGi_ModOptionsExpanded then
---~ 			return
---~ 		end
---~ 		xtemplate.ChoGGi_ModOptionsExpanded = true
-
---~ 		UpdateProp(xtemplate)
---~ 		UpdateProp(XTemplates_param.PropChoiceOptions[1])
---~ 		xtemplate = XTemplates_param.PropNumber[1]
---~ 		UpdateProp(xtemplate)
---~ 		-- add buttons to number
---~ 		AddSliderButtons(xtemplate)
-
---~ 	end
---~ end -- do
-
-
 do -- UnpublishParadoxMod
 	local function PDX_GetModDetails(mod_title, os_type)
 		local query = {
@@ -2306,3 +2115,89 @@ function ChoGGi_Funcs.Common.InfopanelToolbarConstrain_Toggle(toggle)
 		template.LayoutMethod = "HList"
 	end
 end
+
+
+--~ do -- ExpandModOptions
+--~ 	local function UpdateProp(xtemplate)
+--~ 		local idx = table.find(xtemplate, "MaxWidth", 400)
+--~ 		if idx then
+--~ 			xtemplate[idx].MaxWidth = 1000000
+--~ 		end
+--~ 	end
+
+--~ 	local function AdjustNumber(self, direction)
+--~ 		local slider = self.parent.idSlider
+--~ 		if direction then
+--~ 			slider:ScrollTo(slider.Scroll + slider.StepSize)
+--~ 		else
+--~ 			slider:ScrollTo(slider.Scroll - slider.StepSize)
+--~ 		end
+--~ 	end
+
+--~ 	local function AddSliderButtons(xtemplate)
+--~ 		local idx = table.find(xtemplate, "Id", "idSlider")
+--~ 		if idx then
+--~ 			local template_left = PlaceObj("XTemplateWindow", {
+--~ 					"Id", "idButtonLower_ChoGGi",
+--~ 					"__class", "XTextButton",
+--~ 					"Text", T("[-]"),
+--~ 					"FXMouseIn", "ActionButtonHover",
+--~ 					"FXPress", "ActionButtonClick",
+--~ 					"FXPressDisabled", "UIDisabledButtonPressed",
+--~ 					"HAlign", "center",
+--~ 					"RolloverZoom", 1100,
+--~ 					"Background", 0,
+--~ 					"FocusedBackground", 0,
+--~ 					"RolloverBackground", 0,
+--~ 					"PressedBackground", 0,
+--~ 					"TextStyle", "MessageTitle",
+--~ 					"MouseCursor", "UI/Cursors/Rollover.tga",
+--~ 					"OnPress", function(self)
+--~ 						AdjustNumber(self, false)
+--~ 					end,
+--~ 					"RolloverTemplate", "Rollover",
+--~ 				})
+--~ 			local template_right = PlaceObj("XTemplateWindow", {
+--~ 					"__template", "PropName",
+--~ 					"__class", "XTextButton",
+--~ 					"Id", "idButtonHigher_ChoGGi",
+--~ 					"Text", T("[+]"),
+--~ 					"FXMouseIn", "ActionButtonHover",
+--~ 					"FXPress", "ActionButtonClick",
+--~ 					"FXPressDisabled", "UIDisabledButtonPressed",
+--~ 					"HAlign", "center",
+--~ 					"RolloverZoom", 1100,
+--~ 					"Background", 0,
+--~ 					"FocusedBackground", 0,
+--~ 					"RolloverBackground", 0,
+--~ 					"PressedBackground", 0,
+--~ 					"TextStyle", "MessageTitle",
+--~ 					"MouseCursor", "UI/Cursors/Rollover.tga",
+--~ 					"OnPress", function(self)
+--~ 						AdjustNumber(self, true)
+--~ 					end,
+--~ 					"RolloverTemplate", "Rollover",
+--~ 				})
+--~ 			table.insert(xtemplate, idx, template_left)
+--~ 			table.insert(xtemplate, idx+2, template_right)
+--~ 		end
+--~ 	end
+
+--~ 	function ChoGGi_Funcs.Common.ExpandModOptions(XTemplates_param)
+--~ 		XTemplates_param = XTemplates_param or XTemplates
+
+--~ 		local xtemplate = XTemplates_param.PropBool[1]
+--~ 		if xtemplate.ChoGGi_ModOptionsExpanded then
+--~ 			return
+--~ 		end
+--~ 		xtemplate.ChoGGi_ModOptionsExpanded = true
+
+--~ 		UpdateProp(xtemplate)
+--~ 		UpdateProp(XTemplates_param.PropChoiceOptions[1])
+--~ 		xtemplate = XTemplates_param.PropNumber[1]
+--~ 		UpdateProp(xtemplate)
+--~ 		-- add buttons to number
+--~ 		AddSliderButtons(xtemplate)
+
+--~ 	end
+--~ end -- do

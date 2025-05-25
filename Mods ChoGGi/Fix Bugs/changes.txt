@@ -1,3 +1,6 @@
+v10.0
+Fix applicants with a func instead of a time.
+
 v9.9
 Log spam on new games (thanks Tremualin).
 Also cleaned up some code/comments.

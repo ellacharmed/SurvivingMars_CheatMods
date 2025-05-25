@@ -40,6 +40,8 @@ return PlaceObj("ModDef", {
 		"Code/LXSH.lua",
 		-- CSV export funcs
 		"Code/CSV.lua",
+		-- http://lua-users.org/wiki/PepperfishProfiler
+		"Code/PepperfishProfiler.lua",
 
 		"Code/Classes_Objects.lua",
 		-- custom dialogs

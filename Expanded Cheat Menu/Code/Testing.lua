@@ -996,7 +996,7 @@ function ChoGGi.testing.TextExamine()
 end
 
 function ChoGGi.testing.TableIterate()
-	-- not ipairs (of course)
+	-- not ipairs
 
 	local list = MapGet(true)
 

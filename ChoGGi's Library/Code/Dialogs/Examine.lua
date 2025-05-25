@@ -780,11 +780,14 @@ do -- SafeExamine
 	end
 end -- do
 
+-- Add link to view lua source
 function ChoGGi_DlgExamine:ViewSourceCode()
 	self = GetRootDialog(self)
-	-- add link to view lua source
 	local info = debug.getinfo(self.obj_ref, "S")
-	-- =[C] is 4 chars (huh?)
+	-- empty_func() doesn't have a filepath for some reason?
+	if info.short_src == "[string \"\"]" then
+		info.source = "CommonLua/Core/lib.lua"
+	end
 	local str, path = ChoGGi_Funcs.Common.RetSourceFile(info.source)
 	path = ConvertToOSPath(path)
 	if not str then
@@ -805,12 +808,12 @@ function ChoGGi_DlgExamine:ViewSourceCode()
 		text = str,
 		code = true,
 		scrollto = info.linedefined,
+		file_path = path,
+		_G = _G,
 		title = T(302535920001519--[[View Source]]) .. " " .. info.source,
 		hint_ok = T{302535920000047--[["View Text/Object, and optionally dumps text to <color ChoGGi_yellow><path>logs\DumpedExamine.lua</color>."]],
 			path = ConvertToOSPath("AppData/"),
 		},
-		file_path = path,
-		_G = _G,
 		custom_func = function(overwrite)
 			ChoGGi_Funcs.Common.Dump("\n" .. str, overwrite, "DumpedSource", "lua")
 		end,

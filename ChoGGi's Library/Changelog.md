@@ -1,6 +1,7 @@
 ## Library Changelog
 
 ## v12.7 (Unreleased)
+- Added Pepperfish Profiler, use StartProfiling() / StopProfiling()
 - Added a way for modders to apply mod options from lua code:
 ``CurrentModOptions:SetProperty("ExampleModOption", true)
 ApplyModOptions(CurrentModId)``
