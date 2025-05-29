@@ -9,9 +9,6 @@ local GetTimeFactor = GetTimeFactor
 local GetCursorWorldPos = GetCursorWorldPos
 local GetDomeAtHex = GetDomeAtHex
 local AsyncRand = AsyncRand
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
-
 
 local function Random(m, n)
 	return AsyncRand(n - m + 1) + m
@@ -113,9 +110,9 @@ DefineClass.ChoGGi_TransitoryEntity = {
 -- fade them to brown while shrinking
 function ChoGGi_TransitoryEntity:GameInit()
 	self.shrub_thread = CreateGameTimeThread(function()
-
-		-- Stops dome lag
-		SuspendPassEdits("ChoGGi.MononokeShishiGami.shrubthread")
+		-- Stop dome lag
+		local realm = self:GetRealm()
+		realm:SuspendPassEdits("ChoGGi.MononokeShishiGami.shrubthread")
 
 		-- scale/steps to loop
 		local steps = 30
@@ -141,9 +138,8 @@ function ChoGGi_TransitoryEntity:GameInit()
 
 		-- byebye
 		self:delete()
-
-		ResumePassEdits("ChoGGi.MononokeShishiGami.shrubthread")
-
+		--
+		realm:ResumePassEdits("ChoGGi.MononokeShishiGami.shrubthread")
 	end)
 end
 

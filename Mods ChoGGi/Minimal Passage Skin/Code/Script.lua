@@ -1,7 +1,5 @@
 -- See LICENSE for terms
 
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
 local default_passage_palette = {"none", "none", "none", "none"}
 
 -- add our "skin"
@@ -18,14 +16,15 @@ local ChoOrig_Passage_ChangeSkin = Passage.ChangeSkin
 function Passage:ChangeSkin(skin, ...)
 	self.skin_id = skin
 	if skin == "ChoGGi_MinimalPassageSkin" then
-		SuspendPassEdits("ChoGGi.MinimalPassageSkin.ChangeSkin")
+		local realm = self:GetRealm()
+		realm:SuspendPassEdits("ChoGGi.MinimalPassageSkin.ChangeSkin")
 		for i = 1, #self.elements do
 			local element = self.elements[i]
 			if element ~= self.start_el and element ~= self.end_el then
 				element:ChangeEntity("InvisibleObject")
 			end
 		end
-		ResumePassEdits("ChoGGi.MinimalPassageSkin.ChangeSkin")
+		realm:ResumePassEdits("ChoGGi.MinimalPassageSkin.ChangeSkin")
 	else
 		return ChoOrig_Passage_ChangeSkin(self, skin, ...)
 	end

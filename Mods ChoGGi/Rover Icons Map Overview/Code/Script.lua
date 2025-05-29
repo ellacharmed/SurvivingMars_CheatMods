@@ -6,8 +6,9 @@ local CreateRealTimeThread = CreateRealTimeThread
 
 local step = 33
 
-local function UpdateIcons(time, direction, rovers)
-	SuspendPassEdits("ChoGGi.RoverIconsMapOverview.Update")
+local function UpdateIcons(time, direction, realm)
+	realm:SuspendPassEdits("ChoGGi.RoverIconsMapOverview.Update")
+	--
 	local scale = const.SignsOverviewCameraScaleUp
 
 	g_CurrentDepositScale = direction == "up" and scale or 100
@@ -22,19 +23,20 @@ local function UpdateIcons(time, direction, rovers)
 			signs_scale = 100 + MulDivRound(direction == "up" and i or time-i, scale - 100, time)
 		end
 
+		local rovers = realm:MapGet("map", "BaseRover")
 		for i = 1, #rovers do
 			rovers[i]:SetScale(signs_scale)
 		end
 		i = i + step
 	until i > time or not CameraTransitionThread
-
-	ResumePassEdits("ChoGGi.RoverIconsMapOverview.Update")
+	--
+	realm:ResumePassEdits("ChoGGi.RoverIconsMapOverview.Update")
 end
 
 local ChoOrig_OverviewModeDialog_ScaleSmallObjects = OverviewModeDialog.ScaleSmallObjects
 function OverviewModeDialog:ScaleSmallObjects(time, direction, ...)
 	local ret = ChoOrig_OverviewModeDialog_ScaleSmallObjects(self, time, direction, ...)
-	CreateRealTimeThread(UpdateIcons, time, direction, MapGet("map", "BaseRover"))
+	CreateRealTimeThread(UpdateIcons, time, direction, self:GetRealm())
 	return ret
 end
 

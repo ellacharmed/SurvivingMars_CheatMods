@@ -603,23 +603,24 @@ if what_game == "Mars" then
 	end -- do
 
 	do -- CheatFill (speedup large cheat fills)
-		local function SuspendAndFire(func, ...)
-			SuspendPassEdits("ChoGGi_SuspendAndFire_CheatFill")
-			local ret = func(...)
-			ResumePassEdits("ChoGGi_SuspendAndFire_CheatFill")
+		local function SuspendAndFire(func, self, ...)
+			local realm = self:GetRealm()
+			realm:SuspendPassEdits("ChoGGi_SuspendAndFire_CheatFill")
+			local ret = func(self, ...)
+			realm:ResumePassEdits("ChoGGi_SuspendAndFire_CheatFill")
 			return ret
 		end
 
 		local ChoOrig_MechanizedDepot_CheatFill = MechanizedDepot.CheatFill
 		AddToOriginal("MechanizedDepot.CheatFill")
-		function MechanizedDepot.CheatFill(...)
-			return SuspendAndFire(ChoOrig_MechanizedDepot_CheatFill, ...)
+		function MechanizedDepot:CheatFill(...)
+			return SuspendAndFire(ChoOrig_MechanizedDepot_CheatFill, self, ...)
 		end
 
 		local ChoOrig_UniversalStorageDepot_CheatFill = UniversalStorageDepot.CheatFill
 		AddToOriginal("UniversalStorageDepot.CheatFill")
-		function UniversalStorageDepot.CheatFill(...)
-			return SuspendAndFire(ChoOrig_UniversalStorageDepot_CheatFill, ...)
+		function UniversalStorageDepot:CheatFill(...)
+			return SuspendAndFire(ChoOrig_UniversalStorageDepot_CheatFill, self, ...)
 		end
 	end -- do
 

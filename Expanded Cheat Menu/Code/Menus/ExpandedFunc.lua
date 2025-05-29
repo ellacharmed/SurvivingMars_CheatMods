@@ -254,8 +254,9 @@ do -- ViewObjInfo_Toggle
 	local ptz8000 = point(0, 0, 8000)
 	local ptz2000 = point(0, 0, 2000)
 	local function AddViewObjInfo(label)
-		local objs = MapGet(label)
-		SuspendPassEdits("ChoGGi_Funcs.Menus.BuildingInfo_Toggle.AddViewObjInfo")
+		local realm = GetActiveRealm()
+		local objs = realm:MapGet(label)
+		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.BuildingInfo_Toggle.AddViewObjInfo")
 		for i = 1, #objs do
 			local obj = objs[i]
 			-- only check for valid pos if it isn't a colonist (inside building = invalid pos)
@@ -278,7 +279,7 @@ do -- ViewObjInfo_Toggle
 				end
 			end
 		end
-		ResumePassEdits("ChoGGi_Funcs.Menus.BuildingInfo_Toggle.AddViewObjInfo")
+		realm:ResumePassEdits("ChoGGi_Funcs.Menus.BuildingInfo_Toggle.AddViewObjInfo")
 	end
 
 	local function RemoveViewObjInfo(cls)

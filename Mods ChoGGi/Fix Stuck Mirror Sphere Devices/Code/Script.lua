@@ -14,15 +14,17 @@ OnMsg.ModsReloaded = ModOptions
 -- Fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
 
-local function StartupCode()
+function OnMsg.LoadGame()
 	if not mod_EnableMod then
 		return
 	end
 
 	-- Speeds up obj manipulation
-	SuspendPassEdits("ChoGGi.FixStuckMirrorSphereDevices.Startup")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.FixStuckMirrorSphereDevices.Startup")
 
-	local objs = MapGet("map", "ParSystem", function(o)
+	-- MapDelete doesn't let you add func filters
+	local objs = realm:MapGet("map", "ParSystem", function(o)
 		if o.polyline and o:GetParticlesName() == "PowerDecoy_Capture" then
 			return true
 		end
@@ -31,8 +33,5 @@ local function StartupCode()
 		objs[i]:delete()
 	end
 
-	ResumePassEdits("ChoGGi.FixStuckMirrorSphereDevices.Startup")
+	realm:ResumePassEdits("ChoGGi.FixStuckMirrorSphereDevices.Startup")
 end
-
-OnMsg.CityStart = StartupCode
-OnMsg.LoadGame = StartupCode

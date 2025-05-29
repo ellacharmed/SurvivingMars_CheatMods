@@ -120,7 +120,8 @@ function ChoGGi_Funcs.Menus.PlantRandomLichen()
 
 		if type(choice.value) == "number" then
 
-			SuspendPassEdits("ChoGGi_Funcs.Menus.PlantRandomLichen")
+			local realm = GetRealmByID(MainMapID)
+			realm:SuspendPassEdits("ChoGGi_Funcs.Menus.PlantRandomLichen")
 			PlaceObjectIn("VegFocusTask", MainMapID, {
 				min_foci = 10,
 				max_foci = 20,
@@ -135,7 +136,7 @@ function ChoGGi_Funcs.Menus.PlantRandomLichen()
 					"Lichen"
 				},
 			})
-			ResumePassEdits("ChoGGi_Funcs.Menus.PlantRandomLichen")
+			realm:ResumePassEdits("ChoGGi_Funcs.Menus.PlantRandomLichen")
 
 			MsgPopup(
 				ChoGGi_Funcs.Common.SettingState(choice.value),

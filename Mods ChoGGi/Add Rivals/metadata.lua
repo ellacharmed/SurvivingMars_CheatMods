@@ -35,6 +35,7 @@ You might need to re-apply mod options after starting a couple new games.
 
 *list of rivals*: If you turn on any rivals here, then only those will be spawned (instead of randomly).
 
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=1596612055]All Rivals[/url]
 
 Requested by Art3mis.
 ]],

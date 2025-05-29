@@ -38,9 +38,10 @@ function OnMsg.ClassesPostprocess()
 				OnSoilGridChanged()
 
 				--
-				SuspendPassEdits("ChoGGi.FullyTerraformed.spawning some trees")
-	-- might help speed it up?
-	SuspendTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
+				local realm = GetActiveRealm()
+				realm:SuspendPassEdits("ChoGGi.FullyTerraformed.spawning some trees")
+				-- might help speed it up?
+				SuspendTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
 
 				-- spawn a bunch of trees
 				if rawget(_G, "ChoGGi") and ChoGGi_Funcs.Common.PlantRandomVegetation then
@@ -50,7 +51,7 @@ function OnMsg.ClassesPostprocess()
 				end
 				-- eh... close enough for now
 				for _ = 1, 20 do
-					PlaceObjectIn("VegFocusTask", self:GetMapID(), {
+					PlaceObjectIn("VegFocusTask", MainMapID, {
 						min_foci = 10,
 						max_foci = 20,
 						max_sq = 100 * const.SoilGridScale,
@@ -67,8 +68,8 @@ function OnMsg.ClassesPostprocess()
 				end
 
 				--
-	ResumeTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
-				ResumePassEdits("ChoGGi.FullyTerraformed.spawning some trees")
+				ResumeTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
+				realm:ResumePassEdits("ChoGGi.FullyTerraformed.spawning some trees")
 			end,
 		}),
 	})

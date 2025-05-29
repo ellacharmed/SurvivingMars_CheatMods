@@ -1088,7 +1088,8 @@ do -- ChangeSurfaceSignsToMaterials
 			if choice.nothing_selected then
 				return
 			end
-			SuspendPassEdits("ChoGGi_Funcs.Common.ChangeSurfaceSignsToMaterials")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.ChangeSurfaceSignsToMaterials")
 			if choice[1].value then
 				ChangeEntity("SubsurfaceDepositWater", "DecSpider_01")
 				ChangeEntity("SubsurfaceDepositMetals", "DecDebris_01")
@@ -1108,7 +1109,7 @@ do -- ChangeSurfaceSignsToMaterials
 				ResetEntity("SubsurfaceAnomaly_aliens")
 				ResetEntity("SubsurfaceAnomaly_complete")
 			end
-			ResumePassEdits("ChoGGi_Funcs.Common.ChangeSurfaceSignsToMaterials")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.ChangeSurfaceSignsToMaterials")
 		end
 
 		ChoGGi_Funcs.Common.OpenInListChoice{

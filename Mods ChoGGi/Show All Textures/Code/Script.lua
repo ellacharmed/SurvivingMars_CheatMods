@@ -7,9 +7,11 @@ local function StartupCode()
 		return
 	end
 
-	SuspendPassEdits("ChoGGi.ShowAllTextures.DeleteObjects")
-	MapDelete(true, {"VegetationBillboardObject", "StoneSmall", "Deposition", "WasteRockObstructorSmall", "WasteRockObstructor"})
-	ResumePassEdits("ChoGGi.ShowAllTextures.DeleteObjects")
+	local gamemap = ActiveGameMap
+
+	gamemap.realm:SuspendPassEdits("ChoGGi.ShowAllTextures.DeleteObjects")
+	gamemap.realm:MapDelete(true, {"VegetationBillboardObject", "StoneSmall", "Deposition", "WasteRockObstructorSmall", "WasteRockObstructor"})
+	gamemap.realm:ResumePassEdits("ChoGGi.ShowAllTextures.DeleteObjects")
 
 	CreateRealTimeThread(function()
 		-- Wait for igi so we can add text boxes (loadgame is a little too early)
@@ -31,11 +33,10 @@ local function StartupCode()
 		local offset_y = 0
 		local row = 0
 
-		local terrain = ActiveGameMap.terrain
 		local const = const
 
 		-- Large square
-		terrain:SetHeightCircle(
+		gamemap.terrain:SetHeightCircle(
 			point(447000, 467000), 80000, 40000, terrain_height, const.hsMin
 		)
 
@@ -55,13 +56,13 @@ local function StartupCode()
 			local pos = start_pos:AddX(offset_x):AddY(offset_y)
 
 			-- Make a raised area
-			terrain:SetHeightCircle(
+			gamemap.terrain:SetHeightCircle(
 				pos, 2500, 1000, sign_height, const.hsDefault
 			)
 
 			-- Since we sorted for humans, we need to map name to texture in TerrainTextures
 			local idx = table.find(TerrainTextures, "name", obj.name)
-			terrain:SetTypeCircle(pos, 2600, idx)
+			gamemap.terrain:SetTypeCircle(pos, 2600, idx)
 
 			-- Floating text for texture name
 			local text_dlg = XText:new({

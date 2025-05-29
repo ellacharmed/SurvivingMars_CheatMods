@@ -20,6 +20,6 @@ This adds the rival A.I. sponsors, they aren't the same as regular sponsors.
 Includes mod option to limit the max number of rivals.
 
 
-This mod doesn't work on saves that haven't been started with Space Race DLC, for those use my "Add Rivals" mod.
+This mod doesn't work on saves that haven't been started with Space Race DLC, for those use my [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2550126745]Add Rivals[/url] mod.
 ]],
 })

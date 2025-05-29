@@ -9,16 +9,16 @@ end
 local mod_ToggleBushes
 local mod_EnableVegetation
 
-local function ToggleFunc(veg)
-	SuspendPassEdits("ChoGGi.ToggleVisibleVegetation.ToggleTrees")
+local function ToggleFunc(veg, realm)
+	realm:SuspendPassEdits("ChoGGi.ToggleVisibleVegetation.ToggleTrees")
 	for i = 1, #veg do
 		veg[i]:SetVisible(mod_EnableVegetation)
 	end
-	ResumePassEdits("ChoGGi.ToggleVisibleVegetation.ToggleTrees")
+	realm:ResumePassEdits("ChoGGi.ToggleVisibleVegetation.ToggleTrees")
 end
 
 local function ToggleTrees()
-	local realm = GameMaps[MainMapID].realm
+	local realm = GetRealmByID(MainMapID)
 
 
 	-- get list of veg
@@ -30,9 +30,9 @@ local function ToggleTrees()
 
 	-- don't toggle if already set
 	if mod_EnableVegetation and not veg[1]:GetVisible() then
-		ToggleFunc(veg)
+		ToggleFunc(veg, realm)
 	elseif not mod_EnableVegetation and veg[1]:GetVisible() then
-		ToggleFunc(veg)
+		ToggleFunc(veg, realm)
 	end
 end
 OnMsg.CityStart = ToggleTrees

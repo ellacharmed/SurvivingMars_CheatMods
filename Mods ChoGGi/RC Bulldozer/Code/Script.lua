@@ -8,8 +8,6 @@ local DeleteThread = DeleteThread
 local IsValidThread = IsValidThread
 local CreateRealTimeThread = CreateRealTimeThread
 local IsValid = IsValid
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
 local PlaceObjectIn = PlaceObjectIn
 
 local ToggleCollisions = ChoGGi_Funcs.Common.ToggleCollisions
@@ -194,7 +192,8 @@ local efSelectable = const.efSelectable
 
 -- a very ugly hack to update driveable area
 function RCBulldozer:AddDriveable()
-	SuspendPassEdits("ChoGGi.RCBulldozer.AddDriveable")
+	local realm = self:GetRealm()
+	realm:SuspendPassEdits("ChoGGi.RCBulldozer.AddDriveable")
 	self.site = PlaceObjectIn("ConstructionSite", self:GetMapID())
 --~ 	self.site:SetBuildingClass("DomeBasic")
 	self.site:SetBuildingClass("DomeMega")
@@ -212,7 +211,7 @@ function RCBulldozer:AddDriveable()
 		self.site.resource_stockpile:delete()
 		self.site.resource_stockpile = nil
 	end)
-	ResumePassEdits("ChoGGi.RCBulldozer.AddDriveable")
+	realm:ResumePassEdits("ChoGGi.RCBulldozer.AddDriveable")
 end
 
 function RCBulldozer:StartDozer()

@@ -1,8 +1,7 @@
 -- See LICENSE for terms
 
 local IsKindOf = IsKindOf
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local PlaceObj = PlaceObj
 local GetMaterialProperties = GetMaterialProperties
 local GetStateMaterial = GetStateMaterial
@@ -383,9 +382,10 @@ You can build this if you want it won't hurt anything.]]),
 				"RolloverHint", T(608042494285, "<left_click> Activate"),
 				"OnPress", function(self)
 					-- speeds it up if it's a large scale
-					SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Scale")
+					local realm = GetActiveRealm()
+					realm:SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Scale")
 					self.context:SetScale(self.context:GetScale()+25)
-					ResumePassEdits("ChoGGi.LevelPrefabBuilding.Scale")
+					realm:ResumePassEdits("ChoGGi.LevelPrefabBuilding.Scale")
 				end,
 				"Icon", "UI/Icons/IPButtons/drone_assemble.tga",
 			}),
@@ -395,9 +395,10 @@ You can build this if you want it won't hurt anything.]]),
 				"RolloverText", T(1000081, "Scale") .. " " .. T(1000540, "-"),
 				"RolloverHint", T(608042494285, "<left_click> Activate"),
 				"OnPress", function(self)
-					SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Scale")
+					local realm = GetActiveRealm()
+					realm:SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Scale")
 					self.context:SetScale(self.context:GetScale()-25)
-					ResumePassEdits("ChoGGi.LevelPrefabBuilding.Scale")
+					realm:ResumePassEdits("ChoGGi.LevelPrefabBuilding.Scale")
 				end,
 				"Icon", "UI/Icons/IPButtons/drone_dismantle.tga",
 			}),
@@ -408,10 +409,11 @@ You can build this if you want it won't hurt anything.]]),
 				"RolloverText", T(312752058553, "Rotate Building Left"),
 				"RolloverHint", T(608042494285, "<left_click> Activate"),
 				"OnPress", function(self)
-					SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Rotate")
+					local realm = GetActiveRealm()
+					realm:SuspendPassEdits("ChoGGi.LevelPrefabBuilding.Rotate")
 					self.context:SetAngle((self.context:GetAngle() or 0) + -3600)
 					ObjModified(self.context)
-					ResumePassEdits("ChoGGi.LevelPrefabBuilding.Rotate")
+					realm:ResumePassEdits("ChoGGi.LevelPrefabBuilding.Rotate")
 				end,
 				"Icon", "UI/Icons/IPButtons/automated_mode_on.tga",
 			}),

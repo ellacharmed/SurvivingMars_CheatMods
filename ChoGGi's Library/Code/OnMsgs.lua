@@ -140,24 +140,28 @@ ChoGGi.Temp.UIScale = (LocalStorage.Options.UIScale + 0.0) / 100
 
 -- obj cleanup if mod is removed from saved game
 local function RemoveChoGGiObjects()
-	SuspendPassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
 
 	local GameMaps = GameMaps
 	for _, map in pairs(GameMaps) do
+		map.realm:SuspendPassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
 		-- MapDelete doesn't seem to work with func filtering?
 		map.realm:MapForEach(true, "RotatyThing", function(o)
 			if o.ChoGGi_blinky then
 				o:delete()
 			end
 		end)
+		map.realm:ResumePassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
 	end
 
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
+	--
 	-- any of my Classes_Objects.lua that are still in the save
 	ChoGGi_Funcs.Common.RemoveObjs("ChoGGi_ODeleteObjs", true)
 	-- stop any units with pathing being shown (it'll error out either way)
 	ChoGGi_Funcs.Common.Pathing_StopAndRemoveAll()
-
-	ResumePassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
+	--
+	realm:ResumePassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")
 end
 OnMsg.SaveGame = RemoveChoGGiObjects
 

@@ -18,8 +18,7 @@ local IsKindOf = IsKindOf
 local IsUnitInDome = IsUnitInDome
 local IsValid = IsValid
 local IsValidThread = IsValidThread
-local ResumePassEdits = ResumePassEdits
-local SuspendPassEdits = SuspendPassEdits
+local GetActiveRealm = GetActiveRealm
 local TestSunPanelRange = TestSunPanelRange
 local ValidateBuilding = ValidateBuilding
 local WorldToHex = WorldToHex
@@ -392,12 +391,15 @@ do -- CityStart/LoadGame
 		end
 
 		-- Speed up adding/deleting/etc objs
-		SuspendPassEdits("ChoGGi_FixBugs_Startup")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_FixBugs_Startup")
 
 		-- If this is called on a save from before B&B (it does update, but after LoadGame)
 		local main_city = MainCity or UICity
 		local colony = UIColony or main_city
 		local main_realm = GetRealmByID(main_city.map_id)
+		-- if realm and main_realm are the same it'll just ignore it
+		main_realm:SuspendPassEdits("ChoGGi_FixBugs_Startup")
 		local GameMaps = GameMaps
 		local Cities = Cities
 
@@ -1283,7 +1285,8 @@ do -- CityStart/LoadGame
 		end
 
 		--
-		ResumePassEdits("ChoGGi_FixBugs_Startup")
+		realm:ResumePassEdits("ChoGGi_FixBugs_Startup")
+		main_realm:ResumePassEdits("ChoGGi_FixBugs_Startup")
 	end
 
 	function OnMsg.CityStart()

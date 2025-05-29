@@ -32,8 +32,10 @@ local lines_c = 0
 local OPolyline
 
 -- remove existing lines
-local function CleanUp()
-	SuspendPassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.CleanUp")
+local function CleanUp(realm)
+	local realm = realm or GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.CleanUp")
+	--
 	for i = 1, #lines do
 		local line = lines[i]
 		if IsValid(line) then
@@ -42,20 +44,24 @@ local function CleanUp()
 	end
 	table.iclear(lines)
 	lines_c = 0
-	ResumePassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.CleanUp")
+	--
+	realm:ResumePassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.CleanUp")
 end
 
 local skips = {"ElectricityGridElement", "LifeSupportGridElement"}
 
 local function ToggleLines(obj, tribby)
+	local realm = obj:GetRealm()
+
 	-- It's a toggle so
 	if lines_c > 0 then
-		CleanUp()
+		CleanUp(realm)
 		return
 	else
-		CleanUp()
+		CleanUp(realm)
 	end
-	SuspendPassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.ToggleLines")
+
+	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.ToggleLines")
 
 	-- safety first
 	if not IsValid(obj) then
@@ -77,7 +83,7 @@ local function ToggleLines(obj, tribby)
 		end
 	end
 
-	local objs = GetRealm(obj):MapGet(obj, "hex", affected_range, "DustGridElement", "Building", function(o)
+	local objs = realm:MapGet(obj, "hex", affected_range, "DustGridElement", "Building", function(o)
 		-- skip self, cables, n pipes
 		if o == obj or o:IsKindOfClasses(skips)
 			or (o:IsKindOf("ConstructionSite") and o.building_class_proto
@@ -113,7 +119,7 @@ local function ToggleLines(obj, tribby)
 		lines[lines_c] = line
 	end
 
-	ResumePassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.ToggleLines")
+	realm:ResumePassEdits("ChoGGi.SelectionRemoved.ShowDustAffected.ToggleLines")
 end
 
 -- clear lines when changing selection

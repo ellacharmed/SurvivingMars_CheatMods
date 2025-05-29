@@ -1,12 +1,16 @@
 ## Library Changelog
 
 ## v12.7 (Unreleased)
+- Added Modifiable:RemoveModifier(id, prop): The game doesn't provide a func that allows you to easily remove a modifier.
+- Cleaned up some "Attempt to use an undefined global" log spam.
+- Converted any SuspendPassEdits to use explictly defined realms instead of active.
 - Added Pepperfish Profiler, use StartProfiling() / StopProfiling()
 - Added a way for modders to apply mod options from lua code:
 ``CurrentModOptions:SetProperty("ExampleModOption", true)
 ApplyModOptions(CurrentModId)``
 
 ### Examine:
+- Toolbar>Clear Table question is clearer.
 - Hints for Parents>menuitems weren't showing up (thanks Tremualin).
 
 ## v12.6 (4 May 2025)

@@ -32,7 +32,8 @@ local function StartupCode()
 		return
 	end
 
-	SuspendPassEdits("ChoGGi_SurfaceConcrete_Spawning")
+	local realm = GetRealmByID(MainMapID)
+	realm:SuspendPassEdits("ChoGGi_SurfaceConcrete_Spawning")
 	-- Asteroids have concrete right?
 	local objs = UIColony:GetCityLabels("TerrainDepositMarker")
 	for i = 1, #objs do
@@ -42,7 +43,7 @@ local function StartupCode()
 			SpawnConcreteChunks(obj)
 		end
 	end
-	ResumePassEdits("ChoGGi_SurfaceConcrete_Spawning")
+	realm:ResumePassEdits("ChoGGi_SurfaceConcrete_Spawning")
 
 	g_ChoGGi_SurfaceConcrete_Spawned = true
 end
@@ -80,9 +81,10 @@ OnMsg.ApplyModOptions = ModOptions
 local ChoOrig_TerrainDepositMarker_SpawnDeposit = TerrainDepositMarker.SpawnDeposit
 function TerrainDepositMarker:SpawnDeposit(...)
 	if mod_EnableMod then
-		SuspendPassEdits("ChoGGi_SurfaceConcrete_Spawning")
+		local realm = self:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_SurfaceConcrete_Spawning")
 		SpawnConcreteChunks(self)
-		ResumePassEdits("ChoGGi_SurfaceConcrete_Spawning")
+		realm:ResumePassEdits("ChoGGi_SurfaceConcrete_Spawning")
 	end
 	return ChoOrig_TerrainDepositMarker_SpawnDeposit(self, ...)
 end

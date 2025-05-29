@@ -999,19 +999,24 @@ function ChoGGi.testing.TableIterate()
 	-- not ipairs
 
 	local list = MapGet(true)
+	collectgarbage()
 
-	--faster
 	ChoGGi_Funcs.Common.TickStart("TableIterate.1.Tick")
 	for _ = 1, 1000 do
-		for _ = 1, #list do
+		for i = 1, #list do
+			local id = list[i]
+			type(id)
 		end
 	end
 	ChoGGi_Funcs.Common.TickEnd("TableIterate.1.Tick")
 
+	collectgarbage()
 	local ipairs = ipairs
+
 	ChoGGi_Funcs.Common.TickStart("TableIterate.2.Tick")
 	for _ = 1, 1000 do
-		for _ in ipairs(list) do
+		for _, value in ipairs(list) do
+			type(value)
 		end
 	end
 	ChoGGi_Funcs.Common.TickEnd("TableIterate.2.Tick")

@@ -186,10 +186,11 @@ end
 
 function ChoGGi_Funcs.Menus.CompleteConstructions()
 	-- speed up buildings/ground
-	SuspendPassEdits("ChoGGi_Funcs.Menus.CompleteConstructions")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.CompleteConstructions")
   SuspendTerrainInvalidations("ChoGGi_Funcs.Menus.CompleteConstructions")
 	CheatCompleteAllConstructions()
-	ResumePassEdits("ChoGGi_Funcs.Menus.CompleteConstructions")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.CompleteConstructions")
   ResumeTerrainInvalidations("ChoGGi_Funcs.Menus.CompleteConstructions")
 end
 

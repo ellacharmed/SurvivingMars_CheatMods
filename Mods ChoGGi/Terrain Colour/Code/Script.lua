@@ -52,9 +52,10 @@ local function NewColours()
 	end
 
 	if next(remaps) then
-		SuspendPassEdits("ChoGGi_TerrainColour")
-		GetActiveTerrain():RemapType(remaps)
-		ResumePassEdits("ChoGGi_TerrainColour")
+		local gamemap = ActiveGameMap
+		gamemap.realm:SuspendPassEdits("ChoGGi_TerrainColour")
+		gamemap.terrain:RemapType(remaps)
+		gamemap.realm:ResumePassEdits("ChoGGi_TerrainColour")
 	end
 
 end

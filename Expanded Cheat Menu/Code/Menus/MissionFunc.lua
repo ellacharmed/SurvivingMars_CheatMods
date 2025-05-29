@@ -479,14 +479,15 @@ function ChoGGi_Funcs.Menus.ChangeGameLogo()
 			g_CurrentMissionParams.idMissionLogo = value
 
 			-- might help for large amounts of buildings
-			SuspendPassEdits("ChoGGi_Funcs.Menus.ChangeGameLogo")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Menus.ChangeGameLogo")
 
 			-- loop through rockets and change logo
 			ChangeLogo("SupplyRocket", entity_name)
 			-- same for any buildings that use the logo
 			ChangeLogo("Building", entity_name)
 
-			ResumePassEdits("ChoGGi_Funcs.Menus.ChangeGameLogo")
+			realm:ResumePassEdits("ChoGGi_Funcs.Menus.ChangeGameLogo")
 
 			MsgPopup(
 				choice[1].text,

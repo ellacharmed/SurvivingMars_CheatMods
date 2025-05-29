@@ -1,7 +1,6 @@
 -- See LICENSE for terms
 
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local SetObjWaterMarkers = SetObjWaterMarkers
 local MapGet = MapGet
 local table = table
@@ -30,22 +29,24 @@ OnMsg.ModsReloaded = ModOptions
 OnMsg.ApplyModOptions = ModOptions
 
 local function HideHexes(skip)
-	if not skip then
-		SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Life Support")
+	local realm = not skip and GetActiveRealm()
+	if realm then
+		realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Life Support")
 	end
 
 	for i = 1, life_support_c do
 		SetObjWaterMarkers(life_support[i], false)
 	end
 
-	if not skip then
-		ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Life Support")
+	if realm then
+		realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Life Support")
 	end
 	hexes_visible = false
 end
 
 local function ShowHexes()
-	SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Life Support")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Life Support")
 
 	-- skip pipes and any buildings in domes
 	life_support = MapGet("map", "LifeSupportGridObject", function(o)
@@ -73,7 +74,7 @@ local function ShowHexes()
 		end)
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Life Support")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Life Support")
 	hexes_visible = true
 end
 
@@ -94,7 +95,8 @@ function CursorBuilding:UpdateShapeHexes(...)
 	local range_limit = mod_DistFromCursor > 0 and mod_DistFromCursor
 	local cursor_pos = self:GetPos()
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Life Support")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Life Support")
 
 	-- set visible
 	for i = 1, life_support_c do
@@ -110,7 +112,7 @@ function CursorBuilding:UpdateShapeHexes(...)
 		end)
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Life Support")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Life Support")
 
 	return ChoOrig_CursorBuilding_UpdateShapeHexes(self, ...)
 end

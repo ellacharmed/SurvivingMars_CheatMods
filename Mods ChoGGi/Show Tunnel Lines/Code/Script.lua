@@ -27,13 +27,15 @@ local lines_c = 0
 local tunnels = {}
 local OPolyline
 
-local function CleanUp(skip)
+local function CleanUp(skip, realm)
 	if lines_c == 0 then
 		return
 	end
+
 	-- speed up when spawning/deleting objs
+	local realm = realm or GetActiveRealm()
 	if not skip then
-		SuspendPassEdits("ChoGGi.ShowTunnelLines.Cleanup")
+		realm:SuspendPassEdits("ChoGGi.ShowTunnelLines.Cleanup")
 	end
 
 	for i = 1, lines_c do
@@ -42,12 +44,14 @@ local function CleanUp(skip)
 			line:delete()
 		end
 	end
-	if not skip then
-		ResumePassEdits("ChoGGi.ShowTunnelLines.Cleanup")
-	end
+
 	table.iclear(lines)
 	table.clear(tunnels)
 	lines_c = 0
+
+	if not skip then
+		realm:ResumePassEdits("ChoGGi.ShowTunnelLines.Cleanup")
+	end
 end
 
 function OnMsg.SelectionAdded(obj)
@@ -60,8 +64,9 @@ function OnMsg.SelectionAdded(obj)
 	CreateRealTimeThread(function()
 		WaitMsg("OnRender")
 
-		SuspendPassEdits("ChoGGi.ShowTunnelLines.SpawnTunnels")
-		CleanUp(true)
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi.ShowTunnelLines.SpawnTunnels")
+		CleanUp(true, realm)
 
 		if not OPolyline then
 			OPolyline = ChoGGi_OPolyline
@@ -90,7 +95,7 @@ function OnMsg.SelectionAdded(obj)
 		end
 --~ 		ex{tunnels,lines}
 
-		ResumePassEdits("ChoGGi.ShowTunnelLines.SpawnTunnels")
+		realm:ResumePassEdits("ChoGGi.ShowTunnelLines.SpawnTunnels")
 	end)
 end
 

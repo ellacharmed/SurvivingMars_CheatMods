@@ -48,6 +48,24 @@ function ReportPersistErrors(...)
 end
 
 if what_game == "Mars" then
+
+	-- The game doesn't provide a func that allows you to easily remove a modifier
+	function Modifiable:RemoveModifier(id, prop)
+		if not self.modifications then
+			return
+		end
+
+		local modification = self.modifications[prop]
+		if not modification then
+			return
+		end
+
+		local modifier = table.find_value(modification, "id", id)
+		if modifier then
+			self:SetModifier(prop, id, 0, 0)
+		end
+	end
+
 	local ChoOrig_SetUserUIScale = SetUserUIScale
 	ChoGGi_Funcs.Common.AddToOriginal("SetUserUIScale")
 	function SetUserUIScale(val, ...)

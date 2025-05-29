@@ -8,8 +8,7 @@ local IsValid = IsValid
 local HexRotate = HexRotate
 local HexToWorld = HexToWorld
 local WorldToHex = WorldToHex
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local point = point
 local AveragePoint2D = AveragePoint2D
 local GetCursorWorldPos = GetCursorWorldPos
@@ -253,7 +252,8 @@ local function UpdateMarkers(self, current_pos)
 		return
 	end
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateCursor.UpdateMarkers")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateCursor.UpdateMarkers")
 	-- Loop through domes and show any lines that are close enough
 	for dome, item in pairs(dome_list) do
 		if IsValid(dome) then
@@ -286,7 +286,7 @@ local function UpdateMarkers(self, current_pos)
 			ListCleanup(dome, item)
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateCursor.UpdateMarkers")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateCursor.UpdateMarkers")
 end
 
 local ChoOrig_CursorBuilding_GameInit = CursorBuilding.GameInit
@@ -307,7 +307,8 @@ end
 local ChoOrig_CursorBuilding_Done = CursorBuilding.Done
 function CursorBuilding:Done(...)
 	-- We're done construction hide all the markers
-	SuspendPassEdits("ChoGGi.CursorBuilding.Done.CleanupOldMarkers")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.CleanupOldMarkers")
 	for dome, item in pairs(dome_list) do
 		if IsValid(dome) then
 			UpdateVisibleHide(item)
@@ -315,7 +316,7 @@ function CursorBuilding:Done(...)
 			ListCleanup(dome, item)
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.Done.CleanupOldMarkers")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.CleanupOldMarkers")
 	return ChoOrig_CursorBuilding_Done(self, ...)
 end
 

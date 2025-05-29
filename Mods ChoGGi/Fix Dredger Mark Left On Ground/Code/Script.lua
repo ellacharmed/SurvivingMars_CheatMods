@@ -5,12 +5,11 @@ local function StartupCode()
 		return
 	end
 
-	SuspendPassEdits("ChoGGi.FixDredgerMarkLeftOnGround")
-	--
 	-- Yea I should probably just do the surface map, but it doesn't hurt to check them all...
 	local GameMaps = GameMaps
 	for _, map in pairs(GameMaps) do
-
+		map.realm:SuspendPassEdits("ChoGGi.FixDredgerMarkLeftOnGround")
+		--
 		local markers = map.realm:MapGet("map", "AlienDiggerMarker")
 		for j = 1, #markers do
 			local marker = markers[j]
@@ -24,10 +23,9 @@ local function StartupCode()
 				marker:delete()
 			end
 		end
-
+		--
+		map.realm:ResumePassEdits("ChoGGi.FixDredgerMarkLeftOnGround")
 	end
-	--
-	ResumePassEdits("ChoGGi.FixDredgerMarkLeftOnGround")
 end
 
 OnMsg.CityStart = StartupCode

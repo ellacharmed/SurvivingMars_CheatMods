@@ -1,14 +1,14 @@
 -- See LICENSE for terms
 
 -- local whatever globals we call
+local pairs = pairs
 local ShowHexRanges = ShowHexRanges
 local HideHexRanges = HideHexRanges
 local IsKindOf = IsKindOf
-local pairs = pairs
+local GetActiveRealm = GetActiveRealm
+
 local RGBtoColour = ChoGGi_Funcs.Common.RGBtoColour
 
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
 
 local mod_EnableGrid
 local mod_DistFromCursor
@@ -38,7 +38,8 @@ OnMsg.ApplyModOptions = ModOptions
 local grids_visible
 
 local function ShowGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Show Heater Range")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Show Heater Range")
 	ShowHexRanges(UICity, "SubsurfaceHeater")
 
 	-- edit grids
@@ -58,14 +59,15 @@ local function ShowGrids()
 		end
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Show Heater Range")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Show Heater Range")
 	grids_visible = true
 end
 
 local function HideGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.Done.Show Heater Range")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.Show Heater Range")
 	HideHexRanges(UICity, "SubsurfaceHeater")
-	ResumePassEdits("ChoGGi.CursorBuilding.Done.Show Heater Range")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.Show Heater Range")
 	grids_visible = false
 end
 
@@ -86,7 +88,8 @@ function CursorBuilding:UpdateShapeHexes(...)
 	local range_limit = mod_DistFromCursor > 0 and mod_DistFromCursor
 	local cursor_pos = self:GetPos()
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Show Heater Range")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Show Heater Range")
 	local g_HexRanges = g_HexRanges
 	for range, obj in pairs(g_HexRanges) do
 		if range.SetVisible and IsKindOf(obj, "SubsurfaceHeater") then
@@ -104,7 +107,7 @@ function CursorBuilding:UpdateShapeHexes(...)
 			end
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Show Heater Range")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Show Heater Range")
 
 	return ChoOrig_CursorBuilding_UpdateShapeHexes(self, ...)
 end

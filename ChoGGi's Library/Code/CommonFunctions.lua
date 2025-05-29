@@ -21,6 +21,7 @@ local box = box
 local ClassDescendantsList = ClassDescendantsList
 local FindNearestObject = FindNearestObject -- (list,obj) or (list,pos,filterfunc)
 local GameTime = GameTime
+local GetActiveRealm = GetActiveRealm
 local guic = guic
 local IsBox = IsBox
 local IsKindOf = IsKindOf
@@ -32,12 +33,10 @@ local OpenDialog = OpenDialog
 local point = point
 local point20 = point20
 local PropObjGetProperty = PropObjGetProperty
-local ResumePassEdits = ResumePassEdits
 local RGB = RGB
 local SelectionGamepadObj = SelectionGamepadObj
 local SelectionMouseObj = SelectionMouseObj
 local Sleep = Sleep
-local SuspendPassEdits = SuspendPassEdits
 local ViewAndSelectObject = ViewAndSelectObject
 local WaitMsg = WaitMsg
 local XDestroyRolloverWindow = XDestroyRolloverWindow
@@ -479,9 +478,13 @@ do -- RetName
 				return Translate(302535920001700--[[Map]]) .. ": " .. obj.map_id
 			end
 
+			-- we need to use rawget to check, as some stuff like mod.env uses the metatable from _G.__index and causes sm to log an error msg (attempt to use undefined global)
+			local index = getmetatable(obj)
+			index = index and index.__index
+
 			-- we check in order of less generic "names"
---~ 			local name_type = rawget(obj, "name") and type(obj.name)
-			local name_type = type(obj.name)
+			local name_type = index and rawget(obj, "name") and type(obj.name)
+				or not index and type(obj.name)
 
 			-- custom name from user (probably)
 			if name_type == "string" and obj.name ~= "" then
@@ -491,22 +494,18 @@ do -- RetName
 				name = Translate(obj.name)
 
 			-- display
---~ 			elseif rawget(obj, "display_name") and obj.display_name ~= "" then
-			elseif obj.display_name and obj.display_name ~= "" then
+			elseif index and rawget(obj, "display_name") and obj.display_name ~= ""
+				or not index and obj.display_name and obj.display_name ~= ""
+			then
 				if TGetID(obj.display_name) == 9 --[[Anomaly]] then
 					name = obj.class
 				else
 					name = Translate(obj.display_name)
 				end
 			else
-				-- we need to use rawget to check (seems more consistent then rawget), as some stuff like mod.env uses the metatable from _G.__index and causes sm to log an error msg
-				local index = getmetatable(obj)
-				index = index and index.__index
-
 				for i = 1, #values_lookup do
 					local value_name = values_lookup[i]
---~ 					if index and rawget(obj, value_name) or not index and obj[value_name] then
-					if index and obj[value_name] or not index and obj[value_name] then
+					if index and rawget(obj, value_name) or not index and obj[value_name] then
 						local value = obj[value_name]
 						if value ~= "" then
 							name = value
@@ -520,8 +519,9 @@ do -- RetName
 				if meta == TMeta or meta == TConcatMeta or type(name) == "userdata" then
 					name = Translate(name)
 				end
---~ 				if not name and rawget(obj, "GetDisplayName") then
-				if not name and obj.GetDisplayName then
+				if not name and index and rawget(obj, "GetDisplayName")
+					or not name and not index and obj.GetDisplayName
+				then
 					name = Translate(obj:GetDisplayName())
 				end
 
@@ -654,7 +654,7 @@ do -- MsgPopup
 
 	function ChoGGi_Funcs.Common.MsgPopup(text, title, params)
 		-- notifications only show up in-game (UI stuff is missing)
-		if not UIColony then
+		if not GameMaps then
 			return
 		end
 
@@ -786,7 +786,8 @@ do -- ShowObj
 	end
 
 	function ChoGGi_Funcs.Common.ClearShowObj(obj_or_bool)
-		SuspendPassEdits("ChoGGi_Funcs.Common.ClearShowObj")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ClearShowObj")
 
 		-- any markers in the list
 		if obj_or_bool == true then
@@ -822,7 +823,7 @@ do -- ShowObj
 --~ 		printC("overkill")
 --~ 		-- overkill: could be from a saved game so remove any objects on the map (they shouldn't be left in a normal game)
 --~ 		MapDelete(true, {"ChoGGi_OVector", "ChoGGi_OSphere"})
-		ResumePassEdits("ChoGGi_Funcs.Common.ClearShowObj")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.ClearShowObj")
 	end
 
 	function ChoGGi_Funcs.Common.ColourObj(obj, colour)
@@ -2001,7 +2002,7 @@ end
 -- returns whatever is selected > moused over > nearest object to cursor
 -- single selection
 function ChoGGi_Funcs.Common.SelObject(radius, pt)
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 	-- single selection
@@ -2023,7 +2024,7 @@ end
 
 -- returns an indexed table of objects, add a radius to get objs close to cursor
 function ChoGGi_Funcs.Common.SelObjects(radius, pt)
-	if not UIColony then
+	if not GameMaps then
 		return empty_table
 	end
 	local objs = SelectedObj or GetCursorOrGamePadSelectObj()
@@ -3173,7 +3174,9 @@ do -- DeleteObject
 	local DeleteObject
 
 	local function DeleteLabelObjs(obj, label)
-		SuspendPassEdits("ChoGGi_Funcs.Common.DeleteLabelObjs")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteLabelObjs")
+
 		local objs = obj.labels[label] or ""
 		for i = #objs, 1, -1 do
 			local obj = objs[i]
@@ -3181,7 +3184,7 @@ do -- DeleteObject
 				DeleteObject(obj, true)
 			end
 		end
-		ResumePassEdits("ChoGGi_Funcs.Common.DeleteLabelObjs")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.DeleteLabelObjs")
 	end
 
 	local function ExecFunc(obj, funcname, ...)
@@ -3331,11 +3334,12 @@ do -- DeleteObject
 				end
 				-- Clear tables
 				if type(objs) == "table" then
-					SuspendPassEdits("ChoGGi_Funcs.Common.DeleteObject")
+					local realm = GetActiveRealm()
+					realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteObject")
 					for i = #objs, 1, -1 do
 						DeleteFunc(objs[i], skip_demo)
 					end
-					ResumePassEdits("ChoGGi_Funcs.Common.DeleteObject")
+					realm:ResumePassEdits("ChoGGi_Funcs.Common.DeleteObject")
 				end
 			end)
 		end
@@ -3668,7 +3672,8 @@ function ChoGGi_Funcs.Common.CollisionsObject_Toggle(obj, skip_msg)
 
 	local which
 	-- hopefully give it a bit more speed
-	SuspendPassEdits("ChoGGi_Funcs.Common.CollisionsObject_Toggle")
+	local realm = obj:GetRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Common.CollisionsObject_Toggle")
 	-- re-enable col on obj and any attaches
 	if obj.ChoGGi_CollisionsDisabled then
 		-- collision on object
@@ -3691,7 +3696,7 @@ function ChoGGi_Funcs.Common.CollisionsObject_Toggle(obj, skip_msg)
 		obj.ChoGGi_CollisionsDisabled = true
 		which = Translate(847439380056--[[Disabled]])
 	end
-	ResumePassEdits("ChoGGi_Funcs.Common.CollisionsObject_Toggle")
+	realm:ResumePassEdits("ChoGGi_Funcs.Common.CollisionsObject_Toggle")
 
 	if not skip_msg then
 		MsgPopup(
@@ -3709,11 +3714,12 @@ function ChoGGi_Funcs.Common.ToggleCollisions(cls)
 	end
 	local CollisionsObject_Toggle = ChoGGi_Funcs.Common.CollisionsObject_Toggle
 	-- hopefully give it a bit more speed
-	SuspendPassEdits("ChoGGi_Funcs.Common.ToggleCollisions")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Common.ToggleCollisions")
 	MapForEach("map", cls, function(o)
 		CollisionsObject_Toggle(o, true)
 	end)
-	ResumePassEdits("ChoGGi_Funcs.Common.ToggleCollisions")
+	realm:ResumePassEdits("ChoGGi_Funcs.Common.ToggleCollisions")
 end
 
 do -- AddXTemplate/RemoveXTemplateSections
@@ -4187,9 +4193,10 @@ end
 function ChoGGi_Funcs.Common.DeleteLargeRocks()
 	local function CallBackFunc(answer)
 		if answer then
-			SuspendPassEdits("ChoGGi_Funcs.Common.DeleteLargeRocks")
-			MapDelete("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor"})
-			ResumePassEdits("ChoGGi_Funcs.Common.DeleteLargeRocks")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteLargeRocks")
+			realm:MapDelete("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor"})
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.DeleteLargeRocks")
 		end
 	end
 	ChoGGi_Funcs.Common.QuestionBox(
@@ -4202,9 +4209,10 @@ end
 function ChoGGi_Funcs.Common.DeleteSmallRocks()
 	local function CallBackFunc(answer)
 		if answer then
-			SuspendPassEdits("ChoGGi_Funcs.Common.DeleteSmallRocks")
-			MapDelete("map", "StoneSmall")
-			ResumePassEdits("ChoGGi_Funcs.Common.DeleteSmallRocks")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteSmallRocks")
+			realm:MapDelete("map", "StoneSmall")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.DeleteSmallRocks")
 		end
 	end
 	ChoGGi_Funcs.Common.QuestionBox(
@@ -4408,9 +4416,11 @@ end
 
 -- ChoGGi_Funcs.Common.RemoveObjs("VegetationAnimator")
 function ChoGGi_Funcs.Common.RemoveObjs(class, skip_suspend, skip_all_maps)
-	if not skip_suspend then
+	local realm = not skip_suspend and GetActiveRealm()
+
+	if realm then
 		-- suspending pass edits makes deleting much faster
-		SuspendPassEdits("ChoGGi_Funcs.Common.RemoveObjs")
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.RemoveObjs")
 	end
 
 	local RemoveObjsAllMaps = ChoGGi_Funcs.Common.RemoveObjsAllMaps
@@ -4438,8 +4448,8 @@ function ChoGGi_Funcs.Common.RemoveObjs(class, skip_suspend, skip_all_maps)
 		end
 	end
 
-	if not skip_suspend then
-		ResumePassEdits("ChoGGi_Funcs.Common.RemoveObjs")
+	if realm then
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.RemoveObjs")
 	end
 end
 ChoGGi_Funcs.Common.MapDelete = ChoGGi_Funcs.Common.RemoveObjs
@@ -4770,7 +4780,7 @@ function ChoGGi_Funcs.Common.DeleteObjectQuestion(obj)
 end
 
 function ChoGGi_Funcs.Common.DeleteAllObjectQuestion(obj)
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 
@@ -4805,13 +4815,13 @@ function ChoGGi_Funcs.Common.DeleteAllObjectQuestion(obj)
 				end
 			-- whatever
 			else
-				SuspendPassEdits("ChoGGi_Funcs.Common.DeleteAllObjectQuestion")
+				local realm = objs[1]:GetRealm()
+				realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteAllObjectQuestion")
 				for i = 1, #objs do
 					objs[i]:delete()
 				end
-				ResumePassEdits("ChoGGi_Funcs.Common.DeleteAllObjectQuestion")
+				realm:ResumePassEdits("ChoGGi_Funcs.Common.DeleteAllObjectQuestion")
 			end
-
 		end
 	end
 
@@ -5174,14 +5184,15 @@ if what_game == "Mars" then
 
 		-- SuspendPassEdits errors out if there's no map
 		if UICity then
-			SuspendPassEdits("ChoGGi_Funcs.Common.BuildableHexGrid_CleanUp")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.BuildableHexGrid_CleanUp")
 			for i = 1, grid_objs_c do
 				local o = grid_objs[i]
 				if IsValid(o) then
 					o:delete()
 				end
 			end
-			ResumePassEdits("ChoGGi_Funcs.Common.BuildableHexGrid_CleanUp")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.BuildableHexGrid_CleanUp")
 			-- clear out xwin text
 			local parent = terminal.desktop.ChoGGi_BuildableHexGrid
 			if IsValidXWin(parent) then
@@ -5252,7 +5263,8 @@ if what_game == "Mars" then
 
 			local q, r = 1, 1
 			local z = -q - r
-			SuspendPassEdits("ChoGGi_Funcs.Common.BuildHexGrid")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.BuildHexGrid")
 			local colour = RandomColourLimited()
 			-- margins don't work great with the grids (or at least the ones I used)
 			for q_i = q - grid_size, q + grid_size do
@@ -5276,7 +5288,7 @@ if what_game == "Mars" then
 					end
 				end
 			end
-			ResumePassEdits("ChoGGi_Funcs.Common.BuildHexGrid")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.BuildHexGrid")
 
 			if testing then
 				print("BuildHexGrid count", grid_objs_c)
@@ -5290,12 +5302,13 @@ if what_game == "Mars" then
 
 -- maybe add it back?
 --~ 	-- Speed up
---~ 	SuspendPassEdits("ChoGGi_FixBBBugs_UnevenTerrain")
+--~ 		local realm = GetActiveRealm()
+--~ 	realm:SuspendPassEdits("ChoGGi_FixBBBugs_UnevenTerrain")
 --~ 	SuspendTerrainInvalidations("ChoGGi_FixBBBugs_UnevenTerrain")
 
 --~ 	game_map:RefreshBuildableGrid()
 
---~ 	ResumePassEdits("ChoGGi_FixBBBugs_UnevenTerrain")
+--~ 	realm:ResumePassEdits("ChoGGi_FixBBBugs_UnevenTerrain")
 --~ 	ResumeTerrainInvalidations("ChoGGi_FixBBBugs_UnevenTerrain")
 
 				-- local all the globals we use more than once for some speed
@@ -5432,7 +5445,8 @@ end
 
 -- dbg_PlantRandomVegetation(choice.value) copy pasta
 function ChoGGi_Funcs.Common.PlantRandomVegetation(amount)
-	SuspendPassEdits("ChoGGi_Funcs.Common.PlantRandomVegetation")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Common.PlantRandomVegetation")
 	-- might help speed it up?
 	SuspendTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
 
@@ -5492,7 +5506,7 @@ function ChoGGi_Funcs.Common.PlantRandomVegetation(amount)
 		end
   end
 
-	ResumePassEdits("ChoGGi_Funcs.Common.PlantRandomVegetation")
+	realm:ResumePassEdits("ChoGGi_Funcs.Common.PlantRandomVegetation")
 	ResumeTerrainInvalidations("ChoGGi_Funcs.Common.PlantRandomVegetation")
 end
 
@@ -5630,7 +5644,8 @@ do -- CleanInfoAttachDupes
 
 	function ChoGGi_Funcs.Common.CleanInfoAttachDupes(list, cls)
 		table.clear(dupe_list)
-		SuspendPassEdits("ChoGGi_Funcs.Common.CleanInfoAttachDupes")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.CleanInfoAttachDupes")
 
 		-- clean up dupes in order of older
 		for i = 1, #list do
@@ -5650,7 +5665,7 @@ do -- CleanInfoAttachDupes
 
 		-- remove removed items
 		ChoGGi_Funcs.Common.objlist_Validate(list)
-		ResumePassEdits("ChoGGi_Funcs.Common.CleanInfoAttachDupes")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.CleanInfoAttachDupes")
 	end
 	function ChoGGi_Funcs.Common.CleanInfoXwinDupes(list, cls)
 		table.clear(dupe_list)
@@ -5731,7 +5746,8 @@ if what_game == "Mars" then
 		if type(obj) ~= "table" then
 			return
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Clear")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Clear")
 		if obj.ChoGGi_shape_obj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_shape_obj)
 			obj.ChoGGi_shape_obj = nil
@@ -5741,7 +5757,7 @@ if what_game == "Mars" then
 			end
 			return true
 		end
-		ResumePassEdits("ChoGGi_Funcs.Common.ObjHexShape_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.ObjHexShape_Clear")
 	end
 	ChoGGi_Funcs.Common.ObjHexShape_Clear = ObjHexShape_Clear
 
@@ -5776,7 +5792,8 @@ if what_game == "Mars" then
 		end
 		parent = obj.ChoGGi_shape_obj_xwin
 
-		SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Toggle")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Toggle")
 		BuildShape(
 			obj,
 			params.shape,
@@ -5786,7 +5803,7 @@ if what_game == "Mars" then
 			params.colour2,
 			params.offset
 		)
-		ResumePassEdits("ChoGGi_Funcs.Common.ObjHexShape_Toggle")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.ObjHexShape_Toggle")
 		if not params.skip_clear then
 			ChoGGi_Funcs.Common.CleanInfoXwinDupes(obj.ChoGGi_shape_obj_xwin)
 			ChoGGi_Funcs.Common.CleanInfoAttachDupes(obj.ChoGGi_shape_obj, "ChoGGi_OHexSpot")
@@ -6051,10 +6068,12 @@ do -- path markers
 			obj.ChoGGi_Stored_Waypoints = {}
 		end
 
+		local realm = obj:GetRealm()
+
 		while handles[obj.handle] do
-			SuspendPassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
 			SetWaypoint(obj, colour, true)
-			ResumePassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
 			if delay == 0 or delay == -1 then
 				-- If we only do one then it'll be invis unless paused
 				-- 2+ is too much ficker
@@ -6066,12 +6085,12 @@ do -- path markers
 			end
 
 			if obj.ChoGGi_Stored_Waypoints then
-				SuspendPassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
+				realm:SuspendPassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
 				-- deletes all wp objs
 				ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_Stored_Waypoints)
 				-- clears table list
 				table.iclear(obj.ChoGGi_Stored_Waypoints)
-				ResumePassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
+				realm:ResumePassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
 			end
 
 			-- break thread when obj isn't valid
@@ -6211,11 +6230,12 @@ do -- path markers
 		end
 	end
 	local function CleanDupes()
-		SuspendPassEdits("ChoGGi_Funcs.Common.Pathing_CleanDupes")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.Pathing_CleanDupes")
 		ClearAllDupeWP("CargoShuttle")
 		ClearAllDupeWP("Unit")
 		ClearAllDupeWP("Colonist")
-		ResumePassEdits("ChoGGi_Funcs.Common.Pathing_CleanDupes")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.Pathing_CleanDupes")
 	end
 	ChoGGi_Funcs.Common.Pathing_CleanDupes = CleanDupes
 
@@ -6223,7 +6243,8 @@ do -- path markers
 		if not skip then
 			ChoGGi.Temp.PathMarkers_new_objs_loop = false
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Common.Pathing_StopAndRemoveAll")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.Pathing_StopAndRemoveAll")
 
 		-- reset all the base colours/waypoints
 		ClearColourAndWP("CargoShuttle", skip)
@@ -6238,7 +6259,7 @@ do -- path markers
 		-- remove any extra lines
 		ChoGGi_Funcs.Common.RemoveObjs("ChoGGi_OPolyline", true)
 
-		ResumePassEdits("ChoGGi_Funcs.Common.Pathing_StopAndRemoveAll")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.Pathing_StopAndRemoveAll")
 
 		-- reset stuff
 		line_height = 50
@@ -7297,7 +7318,7 @@ do -- GetMaterialProperties
 	ChoGGi_Funcs.Common.RetEntityMats = RetEntityMats
 
 	function ChoGGi_Funcs.Common.GetMaterialProperties(obj, parent_or_ret)
-		if not UIColony then
+		if not GameMaps then
 			return
 		end
 
@@ -7418,13 +7439,14 @@ do -- BBoxLines_Toggle
 		return bbox_lines
 	end
 	local function BBoxLines_Clear(obj, is_box)
-		SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
 		if not is_box and obj.ChoGGi_bboxobj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_bboxobj)
 			obj.ChoGGi_bboxobj = nil
 			return true
 		end
-		ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
 	end
 	ChoGGi_Funcs.Common.BBoxLines_Clear = BBoxLines_Clear
 
@@ -7445,14 +7467,15 @@ do -- BBoxLines_Toggle
 		end
 
 		if IsBox(bbox) then
-			SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Toggle")
+			local realm = obj and obj.GetRealm and obj:GetRealm() or GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Toggle")
 			local box = PlaceTerrainBox(
 				bbox,
 				bbox:Center():SetTerrainZ(),
 				params.depth_test,
 				params.colour or RandomColourLimited()
 			)
-			ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Toggle")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Toggle")
 			if not is_box then
 				obj.ChoGGi_bboxobj = box
 			end
@@ -7490,13 +7513,14 @@ if what_game == "Mars" then
 		if type(obj) ~= "table" then
 			return
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Clear")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Clear")
 		if obj.ChoGGi_surfacelinesobj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_surfacelinesobj)
 			obj.ChoGGi_surfacelinesobj = nil
 			return true
 		end
-		ResumePassEdits("ChoGGi_Funcs.Common.SurfaceLines_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.SurfaceLines_Clear")
 	end
 	ChoGGi_Funcs.Common.SurfaceLines_Clear = SurfaceLines_Clear
 
@@ -7518,9 +7542,10 @@ if what_game == "Mars" then
 		params.colour = params.colour or RandomColourLimited()
 		params.offset = params.offset or 1
 
-		SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
 		BuildLines(obj, params)
-		ResumePassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
 
 		if not params.skip_clear then
 			ChoGGi_Funcs.Common.CleanInfoAttachDupes(obj.ChoGGi_surfacelinesobj)
@@ -7584,7 +7609,8 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 		if type(obj) ~= "table" then
 			return
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
 		-- just in case (old way of doing it)
 		if obj.ChoGGi_ShowAttachSpots == true then
 			obj:DestroyAttaches(old_remove_table, function(a)
@@ -7593,16 +7619,16 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 				end
 			end)
 			obj.ChoGGi_ShowAttachSpots = nil
-		ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
 			return true
 		elseif obj.ChoGGi_ShowAttachSpots then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_ShowAttachSpots)
 			obj.ChoGGi_ShowAttachSpots = nil
-		ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
 			return true
 		end
 
-		ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
 
 	end
 	ChoGGi_Funcs.Common.EntitySpots_Clear = EntitySpots_Clear
@@ -7758,7 +7784,10 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 		if not OText then
 			OText = ChoGGi_OText
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Add")
+
+		local realm = obj:GetRealm()
+
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Add")
 		EntitySpots_Add(obj,
 			params.spot_type,
 			params.annotation,
@@ -7786,7 +7815,7 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 		c = c + 1
 		obj.ChoGGi_ShowAttachSpots[c] = text_obj
 
-		ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Add")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Add")
 
 		if not params.skip_clear then
 			ChoGGi_Funcs.Common.CleanInfoAttachDupes(obj.ChoGGi_ShowAttachSpots, "ChoGGi_OText")
@@ -7794,9 +7823,9 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 
 		-- play connect the dots if there's chains
 		if obj.ChoGGi_ShowAttachSpots[2] and params.annotation and params.annotation:find("chain") then
-			SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Add_Annot")
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Add_Annot")
 			EntitySpots_Add_Annot(obj, params.depth_test, RandomColourLimited())
-			ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Add_Annot")
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.EntitySpots_Add_Annot")
 		end
 
 		if not params.skip_clear then
@@ -8076,7 +8105,7 @@ do -- ValueToStr
 end -- do
 
 function ChoGGi_Funcs.Common.UsedTerrainTextures(ret)
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 
@@ -8122,7 +8151,7 @@ ChoGGi_Funcs.Common.RetObjMapId = RetObjMapId
 
 --~ ChoGGi_Funcs.Common.RetMapType(nil, ActiveMapID)
 function ChoGGi_Funcs.Common.RetMapType(obj, map_id, city)
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 
@@ -8734,12 +8763,13 @@ do -- ToggleObjLines
 			return
 		end
 
-		SuspendPassEdits("ChoGGi_Funcs.Common.ObjListLines_Toggle")
+		local realm = objs_list[1]:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjListLines_Toggle")
 		ObjListLines_Add(objs_list,
 			params.obj,
 			params.colour or RandomColourLimited()
 		)
-		ResumePassEdits("ChoGGi_Funcs.Common.ObjListLines_Toggle")
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.ObjListLines_Toggle")
 	end
 end
 
@@ -8827,7 +8857,9 @@ do -- ShowAnimDebug_Toggle
 		params = params or {}
 		params.colour = params.colour or RandomColourLimited()
 
-		SuspendPassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
+		--
 		if IsValid(obj) then
 			if not obj:GetAnimDebug() then
 				return
@@ -8852,7 +8884,8 @@ do -- ShowAnimDebug_Toggle
 				AnimDebug_HideAll("CargoShuttle")
 			end
 		end
-		ResumePassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
+		--
+		realm:ResumePassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
 	end
 end -- do
 

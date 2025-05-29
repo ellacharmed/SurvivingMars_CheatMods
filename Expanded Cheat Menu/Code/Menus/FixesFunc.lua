@@ -256,8 +256,9 @@ function ChoGGi_Funcs.Menus.ColonistsStuckOutsideRocket()
 end
 
 function ChoGGi_Funcs.Menus.ParticlesWithNullPolylines()
-	SuspendPassEdits("ChoGGi_Funcs.Menus.ParticlesWithNullPolylines")
-	local objs = MapGet(true, "ParSystem", function(o)
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.ParticlesWithNullPolylines")
+	local objs = realm:MapGet(true, "ParSystem", function(o)
 		if type(o.polyline) == "string" and o.polyline:find("\0") then
 			return true
 		end
@@ -265,7 +266,7 @@ function ChoGGi_Funcs.Menus.ParticlesWithNullPolylines()
 	for i = #objs, 1, -1 do
 		objs[i]:delete()
 	end
-	ResumePassEdits("ChoGGi_Funcs.Menus.ParticlesWithNullPolylines")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.ParticlesWithNullPolylines")
 
 	MsgPopup(
 		T(302535920001691--[[All]]),
@@ -276,9 +277,10 @@ end
 function ChoGGi_Funcs.Menus.RemoveMissingClassObjects()
 	local function CallBackFunc(answer)
 		if answer then
-			SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveMissingClassObjects")
-			MapDelete(true, "UnpersistedMissingClass")
-			ResumePassEdits("ChoGGi_Funcs.Menus.RemoveMissingClassObjects")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveMissingClassObjects")
+			realm:MapDelete(true, "UnpersistedMissingClass")
+			realm:ResumePassEdits("ChoGGi_Funcs.Menus.RemoveMissingClassObjects")
 			MsgPopup(
 				T(302535920001691--[[All]]),
 				T(302535920000587--[[Remove Missing Class Objects]])
@@ -303,8 +305,9 @@ function ChoGGi_Funcs.Menus.MirrorSphereStuck()
 		end
 	end
 
-	SuspendPassEdits("ChoGGi_Funcs.Menus.MirrorSphereStuck")
-	objs = GetRealmByID(MainMapID):MapGet(true, "ParSystem", function(o)
+	local realm = GetRealmByID(MainMapID)
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.MirrorSphereStuck")
+	objs = realm:MapGet(true, "ParSystem", function(o)
 		if o:GetParticlesName() == "PowerDecoy_Captured" and
 				type(o.polyline) == "string" and o.polyline:find("\0") then
 			return true
@@ -314,7 +317,7 @@ function ChoGGi_Funcs.Menus.MirrorSphereStuck()
 		objs[i]:delete()
 	end
 
-	ResumePassEdits("ChoGGi_Funcs.Menus.MirrorSphereStuck")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.MirrorSphereStuck")
 
 	MsgPopup(
 		T(302535920001691--[[All]]),
@@ -408,10 +411,11 @@ do -- RemoveUnreachableConstructionSites
 end -- do
 
 function ChoGGi_Funcs.Menus.RemoveYellowGridMarks()
-	SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveYellowGridMarks")
-	MapDelete(true, "GridTile")
-	MapDelete(true, "GridTileWater")
-	ResumePassEdits("ChoGGi_Funcs.Menus.RemoveYellowGridMarks")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveYellowGridMarks")
+	realm:MapDelete(true, "GridTile")
+	realm:MapDelete(true, "GridTileWater")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.RemoveYellowGridMarks")
 	MsgPopup(
 		T(302535920001691--[[All]]),
 		T(302535920000603--[[Remove Yellow Grid Marks]])
@@ -419,8 +423,9 @@ function ChoGGi_Funcs.Menus.RemoveYellowGridMarks()
 end
 
 function ChoGGi_Funcs.Menus.RemoveBlueGridMarks()
-	SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveBlueGridMarks")
-	local objs = MapGet(true, "RangeHexRadius", function(o)
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.RemoveBlueGridMarks")
+	local objs = realm:MapGet(true, "RangeHexRadius", function(o)
 		if not o.ToggleWorkZone then
 			return true
 		end
@@ -429,7 +434,7 @@ function ChoGGi_Funcs.Menus.RemoveBlueGridMarks()
 		objs[i]:delete()
 	end
 	-- remove the rover outlines added from https://forum.paradoxplaza.com/forum/index.php?threads/surviving-mars-persistent-transport-route-blueprint-on-map.1121333/
-	objs = MapGet(true, "WireFramedPrettification", function(o)
+	objs = realm:MapGet(true, "WireFramedPrettification", function(o)
 		if o:GetEntity() == "RoverTransport" then
 			return true
 		end
@@ -438,7 +443,7 @@ function ChoGGi_Funcs.Menus.RemoveBlueGridMarks()
 		objs[i]:delete()
 	end
 
-	ResumePassEdits("ChoGGi_Funcs.Menus.RemoveBlueGridMarks")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.RemoveBlueGridMarks")
 
 	MsgPopup(
 		T(302535920001691--[[All]]),

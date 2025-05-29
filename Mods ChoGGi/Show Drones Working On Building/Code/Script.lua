@@ -76,14 +76,17 @@ function OnMsg.SelectionAdded(obj)
 		return
 	end
 
-	SuspendPassEdits("ChoGGi.ShowDronesConstructionSite.OnSelected")
+	local realm = obj:GetRealm()
+	realm:SuspendPassEdits("ChoGGi.ShowDronesConstructionSite.OnSelected")
+	--
 	local drones, count = GetDrones(obj)
 	-- If no drones then skip this to not hide colonist arrows, if drones then probably not going to be any colonists...
 	if count > 0 then
 		SelectionArrowClearAll()
 	end
 	SelectionArrowAdd(drones)
-	ResumePassEdits("ChoGGi.ShowDronesConstructionSite.OnSelected")
+	--
+	realm:ResumePassEdits("ChoGGi.ShowDronesConstructionSite.OnSelected")
 end
 
 function OnMsg.ClassesPostprocess()

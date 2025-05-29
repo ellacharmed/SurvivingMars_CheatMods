@@ -78,11 +78,13 @@ function OnMsg.CityStart()
 	CreateRealTimeThread(function()
 		WaitMsg("DepositsSpawned")
 
-		UICity.ChristmasMars = true
+		MainCity.ChristmasMars = true
 
 		-- less brown rocks
-		SuspendPassEdits("ChoGGi.ChristmasMars.CityStart")
-		MapForEach("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor", "StoneSmall"}, function(o)
+		local gamemap = ActiveGameMap
+
+		gamemap.realm:SuspendPassEdits("ChoGGi.ChristmasMars.CityStart")
+		gamemap.realm:MapForEach("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor", "StoneSmall"}, function(o)
 			if o.class:find("Dark") then
 				o:SetColorModifier(white)
 			else
@@ -92,7 +94,7 @@ function OnMsg.CityStart()
 		end)
 
 		-- starter rockets spawn with new map
-		local rockets = UICity.labels.SupplyRocket or ""
+		local rockets = MainCity.labels.SupplyRocket or ""
 		for i = 1, #rockets do
 			local s = rockets[i]
 			s:SetColor1(green)
@@ -108,10 +110,10 @@ function OnMsg.CityStart()
 
 		-- polar map texture
 		local polar_idx = GetTerrainTextureIndex("Polar_01")
-		ActiveGameMap.terrain:SetTerrainType{type = polar_idx}
+		gamemap.terrain:SetTerrainType{type = polar_idx}
 
 		-- add back dome grass
-		local domes = UICity.labels.Dome or ""
+		local domes = MainCity.labels.Dome or ""
 		for i = 1, #domes do
 			domes[i]:ChangeSkin(domes[i]:GetCurrentSkin())
 		end
@@ -126,7 +128,7 @@ function OnMsg.CityStart()
 		-- re-build concrete textures (if any are visible)
 		local texture_idx1 = GetTerrainTextureIndex("Regolith") + 1
 		local texture_idx2 = GetTerrainTextureIndex("Regolith_02") + 1
-		local deposits = UICity.labels.TerrainDeposit or ""
+		local deposits = MainCity.labels.TerrainDeposit or ""
 		local NoisePreset = DataInstances.NoisePreset
 
 		for i = 1, #deposits do
@@ -152,7 +154,7 @@ function OnMsg.CityStart()
 				invalid_type = -1,
 			}
 		end
-		ResumePassEdits("ChoGGi.ChristmasMars.CityStart")
+		gamemap.realm:ResumePassEdits("ChoGGi.ChristmasMars.CityStart")
 
 	end)
 end -- OnMsg
@@ -174,7 +176,7 @@ local function AddMsgToFunc(cls_name, msg_name)
 		-- redefine it
 		_G[cls_name].GameInit = function(obj, ...)
 			-- only change colour if it's a game started in Dec
-			if UICity.ChristmasMars then
+			if MainCity.ChristmasMars then
 				DelayedCall(1, SendMsg, msg_name, obj, cls_name)
 			end
 			return Original[name](obj, ...)

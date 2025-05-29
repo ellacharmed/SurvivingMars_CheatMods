@@ -27,10 +27,11 @@ function OnMsg.LoadGame()
 	end
 
 	-- suspending speeds up deleting
-	SuspendPassEdits("ChoGGi.RemoveBlueYellowGridMarks.LoadGame")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.RemoveBlueYellowGridMarks.LoadGame")
 
 	-- blue/yellow markers
-	local objs = MapGet(true, "GridTile", "GridTileWater", "RangeHexRadius", function(o)
+	local objs = realm:MapGet(true, "GridTile", "GridTileWater", "RangeHexRadius", function(o)
 		-- SkiRich's Toggle Work Zone
 		if not o.ToggleWorkZone then
 			return true
@@ -42,12 +43,12 @@ function OnMsg.LoadGame()
 	end
 
 	-- remove the rover outlines added from https://forum.paradoxplaza.com/forum/index.php?threads/surviving-mars-persistent-transport-route-blueprint-on-map.1121333/
-	objs = MapGet(true, "WireFramedPrettification", function(rover)
+	objs = realm:MapGet(true, "WireFramedPrettification", function(rover)
 		return rover_ents[rover.entity or ""]
 	end)
 	for i = #objs, 1, -1 do
 		objs[i]:delete()
 	end
 
-	ResumePassEdits("ChoGGi.RemoveBlueYellowGridMarks.LoadGame")
+	realm:ResumePassEdits("ChoGGi.RemoveBlueYellowGridMarks.LoadGame")
 end

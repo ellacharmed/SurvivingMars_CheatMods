@@ -10,7 +10,8 @@ DefineClass.ChoGGi_OutsideResidence = {
 
 function ChoGGi_OutsideResidence:GameInit()
 	-- speed up adding/removing/scaling objs
-	SuspendPassEdits("ChoGGi.OutsideResidence.GameInit")
+	local realm = self:GetRealm()
+	realm:SuspendPassEdits("ChoGGi.OutsideResidence.GameInit")
 
 	-- -128 to 127
 	-- object, 1-4 , Color, Roughness, Metallic
@@ -48,10 +49,10 @@ function ChoGGi_OutsideResidence:GameInit()
 	bottom:SetAttachOffset(point(0, 0, -47))
 	bottom:SetColorizationMaterial(2, -8629977, 127, -128)
 
-	ResumePassEdits("ChoGGi.OutsideResidence.GameInit")
-
 	-- piggy back off nearest dome
 	AttachToNearestDome(self, "force")
+
+	realm:ResumePassEdits("ChoGGi.OutsideResidence.GameInit")
 end
 
 function ChoGGi_OutsideResidence:BuildingUpdate()

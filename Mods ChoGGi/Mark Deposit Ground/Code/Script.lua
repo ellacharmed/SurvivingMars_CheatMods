@@ -133,7 +133,8 @@ end
 
 -- startup
 local function HideSigns()
-	SuspendPassEdits("ChoGGi.MarkDepositGround.HideSigns")
+	local realm = GetRealmByID(MainMapID)
+	realm:SuspendPassEdits("ChoGGi.MarkDepositGround.HideSigns")
 
 	if mod_HideSigns then
 		-- gotta use SetOpacity as SetVisible is changed (signs/arrows) when you zoom out
@@ -164,7 +165,7 @@ local function HideSigns()
 	-- added 1.2
 	UpdateOptions()
 
-	ResumePassEdits("ChoGGi.MarkDepositGround.HideSigns")
+	realm:ResumePassEdits("ChoGGi.MarkDepositGround.HideSigns")
 end
 
 OnMsg.CityStart = HideSigns

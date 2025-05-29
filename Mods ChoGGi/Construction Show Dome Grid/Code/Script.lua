@@ -1,12 +1,11 @@
 -- See LICENSE for terms
 
 -- local whatever globals we call
+local pairs = pairs
 local ShowHexRanges = ShowHexRanges
 local HideHexRanges = HideHexRanges
 local IsKindOf = IsKindOf
-local pairs = pairs
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local RGBtoColour = ChoGGi_Funcs.Common.RGBtoColour
 
 local mod_EnableGrid
@@ -41,7 +40,9 @@ OnMsg.ApplyModOptions = ModOptions
 local grids_visible
 
 local function ShowGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dome Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dome Grid")
+
 	ShowHexRanges(UICity, "Dome")
 
 	-- edit grids
@@ -62,13 +63,14 @@ local function ShowGrids()
 		end
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dome Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dome Grid")
 	grids_visible = true
 end
 local function HideGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dome Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dome Grid")
 	HideHexRanges(UICity, "Dome")
-	ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dome Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dome Grid")
 	grids_visible = false
 end
 
@@ -89,7 +91,8 @@ function CursorBuilding:UpdateShapeHexes(...)
 	local range_limit = mod_DistFromCursor > 0 and mod_DistFromCursor
 	local cursor_pos = self:GetPos()
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dome Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dome Grid")
 	local g_HexRanges = g_HexRanges
 	for range, obj in pairs(g_HexRanges) do
 		if range.SetVisible and IsKindOf(obj, "Dome") then
@@ -107,7 +110,7 @@ function CursorBuilding:UpdateShapeHexes(...)
 			end
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dome Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dome Grid")
 
 	return ChoOrig_CursorBuilding_UpdateShapeHexes(self, ...)
 end
@@ -119,9 +122,10 @@ function CursorBuilding.Done(...)
 end
 
 local function AddRanges()
-	SuspendPassEdits("ChoGGi.SelectionAdded.Construction Show Dome Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.SelectionAdded.Construction Show Dome Grid")
 	ShowHexRanges(UICity, "Dome")
-	ResumePassEdits("ChoGGi.SelectionAdded.Construction Show Dome Grid")
+	realm:ResumePassEdits("ChoGGi.SelectionAdded.Construction Show Dome Grid")
 end
 
 function OnMsg.SelectionAdded(obj)
@@ -138,9 +142,10 @@ function OnMsg.SelectionAdded(obj)
 end
 
 function OnMsg.SelectionRemoved()
-	SuspendPassEdits("ChoGGi.SelectionRemoved.Construction Show Dome Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.Construction Show Dome Grid")
 	HideHexRanges(UICity, "Dome")
-	ResumePassEdits("ChoGGi.SelectionRemoved.Construction Show Dome Grid")
+	realm:ResumePassEdits("ChoGGi.SelectionRemoved.Construction Show Dome Grid")
 end
 
 -- add keybind for toggle

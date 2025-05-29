@@ -63,7 +63,7 @@ local function StartupCode()
 		return
 	end
 
-	local realm = GameMaps[MainMapID].realm
+	local realm = GetRealmByID(MainMapID)
 
 	local positions = {}
 	while true do
@@ -80,7 +80,7 @@ local function StartupCode()
 	local axis_z = axis_z
 	local WasteRockObstructor = WasteRockObstructor
 	CreateRealTimeThread(function()
-		SuspendPassEdits("ChoGGi.RockySurface.spawnrocks")
+		realm:SuspendPassEdits("ChoGGi.RockySurface.spawnrocks")
 
 		for _, pos in pairs(positions) do
 			local rock_obj = WasteRockObstructor:new()
@@ -91,7 +91,7 @@ local function StartupCode()
 		end
 		g_ChoGGi_RockySurface_spawnrocks = true
 
-		ResumePassEdits("ChoGGi.RockySurface.spawnrocks")
+		realm:ResumePassEdits("ChoGGi.RockySurface.spawnrocks")
 	end)
 end
 

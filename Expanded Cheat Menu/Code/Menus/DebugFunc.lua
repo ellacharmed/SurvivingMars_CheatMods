@@ -662,9 +662,10 @@ function ChoGGi_Funcs.Menus.ViewAllEntities()
 			width = width / 1000
 			height = height / 1000
 
-			SuspendPassEdits("ChoGGi_Funcs.Menus.ViewAllEntities")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Menus.ViewAllEntities")
 
-			MapDelete(true, "UndergroundPassage")
+			realm:MapDelete(true, "UndergroundPassage")
 			-- reset for a new count
 			c = 0
 			for x = 100, width do
@@ -729,7 +730,7 @@ function ChoGGi_Funcs.Menus.ViewAllEntities()
 				end -- for
 			end -- for
 			CheatMapExplore("deep scanned")
-			ResumePassEdits("ChoGGi_Funcs.Menus.ViewAllEntities")
+			realm:ResumePassEdits("ChoGGi_Funcs.Menus.ViewAllEntities")
 
 			if ChoGGi.testing then
 				WaitMsg("OnRender")
@@ -1022,9 +1023,10 @@ function ChoGGi_Funcs.Menus.DeleteAllSelectedObjects()
 		if not answer then
 			return
 		end
-		SuspendPassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")
-		MapDelete(true, obj.class)
-		ResumePassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")
+		local realm = obj:GetRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")
+		realm:MapDelete(true, obj.class)
+		realm:ResumePassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")
 	end
 
 	ChoGGi_Funcs.Common.QuestionBox(
@@ -1344,8 +1346,9 @@ do -- FlightGrid_Toggle
 	end
 
 	local function DeleteLines()
-		SuspendPassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.DeleteLines")
-		for i = 0, #flight_lines+1 do
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.DeleteLines")
+		for i = 0, #flight_lines + 1 do
 			local o = flight_lines[i]
 			if IsValid(o) then
 				o:delete()
@@ -1353,7 +1356,7 @@ do -- FlightGrid_Toggle
 		end
 		table.iclear(flight_lines)
 		flight_lines[0] = nil
-		ResumePassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.DeleteLines")
+		realm:ResumePassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.DeleteLines")
 	end
 	-- If grid is left on when map changes it gets real laggy
 	function OnMsg.ChangeMap()
@@ -1374,11 +1377,12 @@ do -- FlightGrid_Toggle
 		local size_pt = point(size, size) / 2
 
 		-- we spawn lines once then re-use them
-		SuspendPassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.GridFunc")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.GridFunc")
 		for i = 0, (steps + steps) do
 			flight_lines[i] = OPolyline:new()
 		end
-		ResumePassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.GridFunc")
+		realm:ResumePassEdits("ChoGGi_Funcs.Menus.FlightGrid_Toggle.GridFunc")
 
 		local plus1 = steps + 1
 		local pos_old, pos_new, pos

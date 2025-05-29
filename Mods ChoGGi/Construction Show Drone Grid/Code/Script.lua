@@ -8,8 +8,7 @@ local IsKindOf = IsKindOf
 local IsKindOfClasses = IsKindOfClasses
 local pairs = pairs
 local CleanupHexRanges = CleanupHexRanges
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local InvalidPos = InvalidPos()
 
 local RGBtoColour = ChoGGi_Funcs.Common.RGBtoColour
@@ -100,7 +99,8 @@ local function ShowGrids()
 		classes = classes_o
 	end
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Drone Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Drone Grid")
 
 	local UICity = UICity
 	ShowHexRanges(UICity, "SupplyRocket")
@@ -167,11 +167,12 @@ local function ShowGrids()
 		end
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Drone Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Drone Grid")
 	grids_visible = true
 end
 local function HideGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Drone Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Drone Grid")
 	local UICity = UICity
 	HideHexRanges(UICity, "SupplyRocket")
 	HideHexRanges(UICity, "DroneHub")
@@ -187,7 +188,7 @@ local function HideGrids()
 			HideHexRanges(UICity, name)
 		end)
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Drone Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Drone Grid")
 	grids_visible = false
 end
 
@@ -208,7 +209,8 @@ function CursorBuilding:UpdateShapeHexes(...)
 	local range_limit = mod_DistFromCursor > 0 and mod_DistFromCursor
 	local cursor_pos = self:GetPos()
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Drone Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Drone Grid")
 	local g_HexRanges = g_HexRanges
 	for range, obj in pairs(g_HexRanges) do
 		if range.SetVisible and IsValid(obj) and IsKindOfClasses(obj, classes) then
@@ -229,7 +231,7 @@ function CursorBuilding:UpdateShapeHexes(...)
 			end
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Drone Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Drone Grid")
 
 	return ChoOrig_CursorBuilding_UpdateShapeHexes(self, ...)
 end

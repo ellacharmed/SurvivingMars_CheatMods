@@ -33,7 +33,8 @@ local function UpdateStuff()
 	end
 
 	-- Speeds up entity related stuff
-	SuspendPassEdits("ChoGGi_GameRuleAmazonianMars.UpdateStuff")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_GameRuleAmazonianMars.UpdateStuff")
 
 	-- Update female model size
 	local objs = UIColony:GetCityLabels("ColonistFemale")
@@ -72,7 +73,7 @@ local function UpdateStuff()
 
 	-- "obj:CanChangeCommand()" is to check if they're alive)
 
-	ResumePassEdits("ChoGGi_GameRuleAmazonianMars.UpdateStuff")
+	realm:ResumePassEdits("ChoGGi_GameRuleAmazonianMars.UpdateStuff")
 end
 -- New games
 OnMsg.CityStart = UpdateStuff

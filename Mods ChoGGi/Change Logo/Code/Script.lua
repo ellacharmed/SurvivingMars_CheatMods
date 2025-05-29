@@ -31,14 +31,15 @@ local function ChangeLogo(logo_str)
 	g_CurrentMissionParams.idMissionLogo = logo_str
 
 	-- might help for large amounts of buildings
-	SuspendPassEdits("ChoGGi.ChangeLogo")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.ChangeLogo")
 
 	-- loop through rockets and change logo
 	ChangeAttachesLogo("SupplyRocket", entity_name)
 	-- same for any buildings that use the logo
 	ChangeAttachesLogo("Building", entity_name)
 
-	ResumePassEdits("ChoGGi.ChangeLogo")
+	realm:ResumePassEdits("ChoGGi.ChangeLogo")
 end
 
 local function ModOptions(id)

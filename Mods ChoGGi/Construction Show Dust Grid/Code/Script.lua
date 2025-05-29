@@ -9,8 +9,7 @@ local DoneObject = DoneObject
 local IsKindOfClasses = IsKindOfClasses
 local IsKindOf = IsKindOf
 local IsValid = IsValid
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local HexGridGetObjects = HexGridGetObjects
 local WorldToHex = WorldToHex
 local InvalidPos = InvalidPos()
@@ -125,7 +124,8 @@ end
 local grids_visible
 
 local function ShowGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dust Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dust Grid")
 
 	local ObjectGrid = ActiveGameMap.object_hex_grid.grid
 	local labels = UICity.labels
@@ -195,12 +195,13 @@ local function ShowGrids()
 		end
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dust Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.GameInit.Construction Show Dust Grid")
 	grids_visible = true
 end
 
 local function HideGrids()
-	SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dust Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dust Grid")
 
 	local UICity = UICity
 	for i = 1, classes_c do
@@ -219,7 +220,7 @@ local function HideGrids()
 		end
 	end
 
-	ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dust Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.Done.Construction Show Dust Grid")
 	grids_visible = false
 end
 
@@ -245,7 +246,8 @@ function CursorBuilding:UpdateShapeHexes(...)
 --~ ex(self)
 --~ ex(classes)
 
-	SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dust Grid")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dust Grid")
 	local g_HexRanges = g_HexRanges
 	for range, obj in pairs(g_HexRanges) do
 		if range.SetVisible and range.bind_to == "GetDustRadius"
@@ -269,7 +271,7 @@ function CursorBuilding:UpdateShapeHexes(...)
 
 		end
 	end
-	ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dust Grid")
+	realm:ResumePassEdits("ChoGGi.CursorBuilding.UpdateShapeHexes.Construction Show Dust Grid")
 
 	return orig_CursorBuilding_UpdateShapeHexes(self, ...)
 end

@@ -885,7 +885,8 @@ function ChoGGi_DlgExamine:idText_OnHyperLinkRollover(link)
 		elseif hovered_obj_type == "table" then
 
 			-- display any text in tooltip
-			if obj.text and obj.text ~= "" then
+			-- rawget == attempt to use undefined global
+			if rawget(obj, "text") and obj.text ~= "" then
 				c = c + 1
 				roll_text[c] = Translate(obj.text)
 				c = c + 1
@@ -1090,7 +1091,7 @@ function ChoGGi_DlgExamine:idExecCode_OnKbdKeyDown(vk, ...)
 				-- fire!
 				dlgConsole:Exec(text)
 				-- update examine
-				self:SetObj()
+				self:RefreshExamine(true)
 			end
 		end
 		return "break"
@@ -1154,15 +1155,23 @@ function ChoGGi_DlgExamine:idButCopyAllText_OnPress()
 	CopyToClipboard(text)
 end
 
-function ChoGGi_DlgExamine:idButRefresh_OnPress()
+function ChoGGi_DlgExamine:idButRefresh_OnPress(skip)
 	self = GetRootDialog(self)
 
 	self:SetObj()
-	-- This was being called when clicking on a func in an object, so added a type check for whatever happened?
-	if type(self.obj_ref) == "table" and self.obj_ref.class ~= "InGameInterface" then
-		self:FlashWindow()
+
+	if not skip then
+		-- This was being called when clicking on a func in an object, so added a type check for whatever happened?
+		if type(self.obj_ref) == "table" and self.obj_ref.class ~= "InGameInterface" then
+			self:FlashWindow()
+		end
 	end
 end
+-- stable name for external use
+function ChoGGi_DlgExamine:RefreshExamine(skip)
+	self:idButRefresh_OnPress(skip)
+end
+
 function ChoGGi_DlgExamine:idChildLock_OnChange(visible)
 	self = GetRootDialog(self)
 
@@ -1177,10 +1186,6 @@ function ChoGGi_DlgExamine:idChildLock_OnChange(visible)
 	self.idChildLock:SetRolloverText(T{302535920000920--[[Examining objs from this dlg will <color ChoGGi_red><var></color>examine them all in a single dlg.]],
 		var = visible,
 	})
-end
--- stable name for external use
-function ChoGGi_DlgExamine:RefreshExamine()
-	self:idButRefresh_OnPress()
 end
 
 function ChoGGi_DlgExamine:idButClear_OnPress()
@@ -1238,11 +1243,39 @@ end
 function ChoGGi_DlgExamine:idButDeleteAllObj_OnPress()
 	self = GetRootDialog(self)
 	ChoGGi_Funcs.Common.DeleteAllObjectQuestion(self.obj_ref.class)
+	-- Does it really need a refresh, and wouldn't it just be easier to redo that ^ func instead of this crap?
+--~ 	CreateRealTimeThread(function()
+--~ 		local ques_dlg
+--~ 		local desktop = terminal.desktop
+--~ 		for i = 1, #desktop do
+--~ 			local dlg = desktop[i]
+--~ 			if dlg.context and dlg.context.image and dlg.context.image:find("ChoGGi") then
+--~ 				ques_dlg = dlg
+--~ 			end
+--~ 		end
+--~ 		if not ques_dlg then
+--~ 			return
+--~ 		end
+
+--~ 		while ChoGGi_Funcs.Common.IsValidXWin(ques_dlg) do
+--~ 			Sleep(250)
+--~ 		end
+--~ 		self:RefreshExamine()
+--~ 	end)
 end
 
 function ChoGGi_DlgExamine:idButClearTable_OnPress()
 	self = GetRootDialog(self)
-	ChoGGi_Funcs.Common.DoSomethingQuestion(self.obj_ref, table.clear)
+	ChoGGi_Funcs.Common.QuestionBox(
+		T(302535920001742--[["Remove all entries from this table."]]),
+		function(answer)
+			if answer then
+				table.clear(self.obj_ref)
+				self:RefreshExamine(true)
+			end
+		end,
+		T(302535920001741--[[Clear Table]])
+	)
 end
 function ChoGGi_DlgExamine:idButDeleteObj_OnPress()
 	self = GetRootDialog(self)
@@ -1255,7 +1288,8 @@ function ChoGGi_DlgExamine:idButDeleteAll_OnPress()
 		T(302535920000059--[[Destroy all objects in objlist!]]),
 		function(answer)
 			if answer then
-				SuspendPassEdits("ChoGGi_DlgExamine:idButDeleteAll_OnPress")
+				local realm = self.obj_ref:GetRealm()
+				realm:SuspendPassEdits("ChoGGi_DlgExamine:idButDeleteAll_OnPress")
 				for _, obj in pairs(self.obj_ref) do
 					if IsValid(obj) then
 						-- true skips dust plume
@@ -1264,9 +1298,9 @@ function ChoGGi_DlgExamine:idButDeleteAll_OnPress()
 						obj:delete()
 					end
 				end
-				ResumePassEdits("ChoGGi_DlgExamine:idButDeleteAll_OnPress")
+				realm:ResumePassEdits("ChoGGi_DlgExamine:idButDeleteAll_OnPress")
 				-- force a refresh on the list, so people can see something as well
-				self:SetObj()
+				self:RefreshExamine(true)
 			end
 		end,
 		T(302535920001702--[[Destroy]])
@@ -1275,7 +1309,7 @@ end
 function ChoGGi_DlgExamine:idViewEnum_OnChange()
 	self = GetRootDialog(self)
 	self.show_enum_values = not self.show_enum_values
-	self:SetObj()
+	self:RefreshExamine(true)
 end
 
 function ChoGGi_DlgExamine:idButMarkAllLine_OnPress()
@@ -1287,14 +1321,15 @@ function ChoGGi_DlgExamine:idButMarkAll_OnPress()
 	self = GetRootDialog(self)
 	local c = #self.marked_objects
 	-- suspending makes it faster to add objects
-	SuspendPassEdits("ChoGGi_DlgExamine:idButMarkAll_OnPress")
+	local realm = self.obj_ref:GetRealm()
+	realm:SuspendPassEdits("ChoGGi_DlgExamine:idButMarkAll_OnPress")
 	for _, v in pairs(self.obj_ref) do
 		if IsValid(v) or IsPoint(v) then
 			c = self:AddSphere(v, c, nil, true, true)
 		end
 	end
-	ResumePassEdits("ChoGGi_DlgExamine:idButMarkAll_OnPress")
 	ChoGGi_Funcs.Common.TableCleanDupes(self.marked_objects)
+	realm:ResumePassEdits("ChoGGi_DlgExamine:idButMarkAll_OnPress")
 end
 
 function ChoGGi_DlgExamine:idButToggleObjlist_OnPress()
@@ -1307,7 +1342,7 @@ function ChoGGi_DlgExamine:idButToggleObjlist_OnPress()
 		setmetatable(self.obj_ref, objlist)
 	end
 	-- update view
-	self:SetObj()
+	self:RefreshExamine(true)
 end
 
 function ChoGGi_DlgExamine:AddSphere(obj, c, colour, skip_view, skip_colour)
@@ -1392,13 +1427,13 @@ end
 function ChoGGi_DlgExamine:idSortDir_OnChange()
 	self = GetRootDialog(self)
 	self.sort_dir = not self.sort_dir
-	self:SetObj()
+	self:RefreshExamine(true)
 end
 
 function ChoGGi_DlgExamine:idShowAllValues_OnChange()
 	self = GetRootDialog(self)
 	self.show_all_values = not self.show_all_values
-	self:SetObj()
+	self:RefreshExamine(true)
 end
 
 function ChoGGi_DlgExamine:DumpExamineText(text, name, ext, overwrite)
@@ -2049,8 +2084,9 @@ end
 
 function ChoGGi_DlgExamine:FlashWindow()
 	if not self.ChoGGi.UserSettings.FlashExamineObject
+		-- rawget == attempt to use undefined global
 		-- doesn't lead to good stuff
-		or not self.obj_ref.desktop
+		or not rawget(self.obj_ref, "desktop")
 		-- skip any not XWindows
 		or not IsKindOf(self.obj_ref, "XWindow")
 	then
@@ -3881,8 +3917,9 @@ function ChoGGi_DlgExamine:SetToolbarVis(obj, obj_metatable)
 
 			self.is_valid_obj = IsValid(obj)
 
-			-- can't mark if it isn't an object, and no sense in marking something off the map
-			if obj ~= _G and obj.GetPos then
+			-- rawget for _G and other log spam tables (attempt to use undefined global)
+			if rawget(obj, "GetPos") then
+				-- can't mark if it isn't an object, and no sense in marking something off the map
 				SetWinObjectVis(self.idButMarkObject, self.is_valid_obj and obj:GetPos() ~= InvalidPos)
 			end
 
@@ -4034,7 +4071,8 @@ function ChoGGi_DlgExamine:SetObj(startup)
 		obj_class = g_Classes[obj.class]
 
 		-- add table length to title
-		if obj ~= _G and obj[1] then
+		-- rawget == attempt to use undefined global
+		if rawget(obj, 1) then
 			name = name .. " (" .. #obj .. ")"
 		end
 

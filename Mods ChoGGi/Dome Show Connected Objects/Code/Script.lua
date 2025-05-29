@@ -1,9 +1,9 @@
 -- See LICENSE for terms
 
 local table = table
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local IsValid = IsValid
+
 local InvalidPos = ChoGGi.Consts.InvalidPos
 local RetName = ChoGGi_Funcs.Common.RetName
 
@@ -31,16 +31,17 @@ local lines_c = 0
 
 -- remove existing lines
 local function CleanUp()
-	SuspendPassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.CleanUp")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.CleanUp")
 	for i = 1, lines_c do
 		local line = lines[i]
 		if IsValid(line) then
 			line:delete()
 		end
 	end
+	realm:ResumePassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.CleanUp")
 --~ 	table.iclear(lines)
 	lines_c = 0
-	ResumePassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.CleanUp")
 end
 
 local bad_objs = {}
@@ -67,7 +68,8 @@ local function ToggleLines(dome)
 		return
 	end
 
-	SuspendPassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.ToggleLines")
+	local realm = dome:GetRealm()
+	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.ToggleLines")
 
 	table.clear(bad_objs)
 	bad_objs_c = 0
@@ -120,7 +122,7 @@ local function ToggleLines(dome)
 --~ 		lines[lines_c] = line
 --~ 	end
 
-	ResumePassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.ToggleLines")
+	realm:ResumePassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.ToggleLines")
 end
 
 -- clear lines when changing selection

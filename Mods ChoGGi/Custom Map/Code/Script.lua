@@ -95,9 +95,10 @@ end
 --~ 	local mapped_textures = {
 --~ 		[GetTerrainTextureIndex("Prefab_Red")] = GetTerrainTextureIndex("SandRed_1")
 --~ 	}
---~ 	SuspendPassEdits("ChoGGi_FixMirrorGraphics")
+--~ 	local realm = GetActiveRealm()
+--~ 	realm:SuspendPassEdits("ChoGGi_FixMirrorGraphics")
 --~ 	GetActiveTerrain():RemapType(mapped_textures)
---~ 	ResumePassEdits("ChoGGi_FixMirrorGraphics")
+--~ 	realm:ResumePassEdits("ChoGGi_FixMirrorGraphics")
 --~ end
 
 --~ -- New games

@@ -3,8 +3,7 @@
 local table = table
 local IsValid = IsValid
 local DoneObject = DoneObject
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
+local GetActiveRealm = GetActiveRealm
 local CreateRealTimeThread = CreateRealTimeThread
 local WaitMsg = WaitMsg
 
@@ -45,7 +44,8 @@ function OverviewModeDialog:ScaleSmallObjects(time, direction, ...)
 
 	local c = #beams
 	if c > 0 then
-		SuspendPassEdits("ChoGGi.MarkSelectedBuildingType.ScaleSmallObjects")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi.MarkSelectedBuildingType.ScaleSmallObjects")
 		local scale = direction == "up" and 250 or 50
 		for i = c, 1, -1 do
 			local beam = beams[i]
@@ -55,7 +55,7 @@ function OverviewModeDialog:ScaleSmallObjects(time, direction, ...)
 				table.remove(beams, i)
 			end
 		end
-		ResumePassEdits("ChoGGi.MarkSelectedBuildingType.ScaleSmallObjects")
+		realm:ResumePassEdits("ChoGGi.MarkSelectedBuildingType.ScaleSmallObjects")
 	end
 
 end
@@ -101,7 +101,8 @@ local function MarkObjects(obj)
 	end
 
 	-- speed up obj creation/deletion
-	SuspendPassEdits("ChoGGi.MarkSelectedBuildingType.MarkObjects")
+	local realm = obj:GetRealm()
+	realm:SuspendPassEdits("ChoGGi.MarkSelectedBuildingType.MarkObjects")
 
 	local obj_cls = DefenceLaserBeam
 	local c = 0
@@ -135,7 +136,7 @@ local function MarkObjects(obj)
 		end
 	end)
 
-	ResumePassEdits("ChoGGi.MarkSelectedBuildingType.MarkObjects")
+	realm:ResumePassEdits("ChoGGi.MarkSelectedBuildingType.MarkObjects")
 end
 
 -- add beams (also fires when changing selection)

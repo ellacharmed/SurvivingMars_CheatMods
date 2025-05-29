@@ -7,10 +7,9 @@ end
 local ChoGGi_Funcs = ChoGGi_Funcs
 local next, type, tostring, table = next, type, tostring, table
 local GetCursorWorldPos = GetCursorWorldPos
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
 local T = T
 local Translate = ChoGGi_Funcs.Common.Translate
+local GetActiveRealm = GetActiveRealm
 
 local MsgPopup = ChoGGi_Funcs.Common.MsgPopup
 local RetName = ChoGGi_Funcs.Common.RetName
@@ -46,10 +45,11 @@ end
 function ChoGGi_Funcs.Menus.DeleteBushesTrees()
 	local function CallBackFunc(answer)
 		if answer then
-			SuspendPassEdits("ChoGGi_Funcs.Menus.DeleteBushesTrees")
-			MapDelete("map", "VegetationBillboardObject")
+			local realm = GetActiveRealm()
+			realm:SuspendPassEdits("ChoGGi_Funcs.Menus.DeleteBushesTrees")
+			realm:MapDelete("map", "VegetationBillboardObject")
 			ChoGGi_Funcs.Common.UpdateGrowthThreads()
-			ResumePassEdits("ChoGGi_Funcs.Menus.DeleteBushesTrees")
+			realm:ResumePassEdits("ChoGGi_Funcs.Menus.DeleteBushesTrees")
 		end
 	end
 	ChoGGi_Funcs.Common.QuestionBox(
@@ -550,17 +550,15 @@ end
 
 function ChoGGi_Funcs.Menus.WhiterRocks()
 	-- less brown rocks
-	SuspendPassEdits("ChoGGi_Funcs.Menus.WhiterRocks")
+	local realm = GetActiveRealm()
+	realm:SuspendPassEdits("ChoGGi_Funcs.Menus.WhiterRocks")
 	local white = white
-	MapForEach("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor", "StoneSmall"}, function(o)
+	realm:MapForEach("map", {"Deposition", "WasteRockObstructorSmall", "WasteRockObstructor", "StoneSmall"}, function(o)
 		if o.class:find("Dark") then
 			o:SetColorModifier(white)
---~ 			else
---~ 				-- these ones don't look good like this so buhbye
---~ 				o:delete()
 		end
 	end)
-	ResumePassEdits("ChoGGi_Funcs.Menus.WhiterRocks")
+	realm:ResumePassEdits("ChoGGi_Funcs.Menus.WhiterRocks")
 end
 
 function ChoGGi_Funcs.Menus.SetObjectOpacity()
@@ -1183,9 +1181,10 @@ Open <color ChoGGi_green><str></color> to see all the textures, the tooltips sho
 			end
 		end
 --~ 		ex(map)
-		SuspendPassEdits("ChoGGi_Funcs.Menus.TerrainTextureRemap")
+		local realm = GetActiveRealm()
+		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.TerrainTextureRemap")
 		ActiveGameMap.terrain:RemapType(map)
-		ResumePassEdits("ChoGGi_Funcs.Menus.TerrainTextureRemap")
+		realm:ResumePassEdits("ChoGGi_Funcs.Menus.TerrainTextureRemap")
 	end
 
 	ChoGGi_Funcs.Common.OpenInListChoice{
@@ -1199,9 +1198,6 @@ Open <color ChoGGi_green><str></color> to see all the textures, the tooltips sho
 --~ 			custom_type = 9,
 		custom_type = 4,
 	}
-
---~ 		SuspendPassEdits("ChoGGi_Funcs.Menus.ChangeTerrainType")
-
 end
 
 function ChoGGi_Funcs.Menus.TerrainTextureChange()
@@ -1250,8 +1246,10 @@ function ChoGGi_Funcs.Menus.TerrainTextureChange()
 		choice = choice[1]
 
 		if TerrainTextures[choice.value] then
-			SuspendPassEdits("ChoGGi_Funcs.Menus.TerrainTextureChange")
-			local terrain = GameMaps[MainMapID].terrain
+			local gamemap = GameMaps[MainMapID]
+			local terrain = gamemap.terrain
+
+			gamemap.realm:SuspendPassEdits("ChoGGi_Funcs.Menus.TerrainTextureChange")
 			terrain:SetTerrainType{type = choice.value}
 
 			-- add back dome grass
@@ -1291,7 +1289,7 @@ function ChoGGi_Funcs.Menus.TerrainTextureChange()
 				end
 			end -- for
 
-			ResumePassEdits("ChoGGi_Funcs.Menus.TerrainTextureChange")
+			gamemap.realm:ResumePassEdits("ChoGGi_Funcs.Menus.TerrainTextureChange")
 		end -- If TerrainTextures
 
 	end -- CallBackFunc
