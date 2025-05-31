@@ -478,13 +478,11 @@ do -- RetName
 				return Translate(302535920001700--[[Map]]) .. ": " .. obj.map_id
 			end
 
-			-- we need to use rawget to check, as some stuff like mod.env uses the metatable from _G.__index and causes sm to log an error msg (attempt to use undefined global)
-			local index = getmetatable(obj)
-			index = index and index.__index
+			-- rawget doesn't work for some of these for certain objs, so log spam it is on some _ENVs
+			-- I blame the devs for adding the log spam for fake errors
 
 			-- we check in order of less generic "names"
-			local name_type = index and rawget(obj, "name") and type(obj.name)
-				or not index and type(obj.name)
+			local name_type = obj.name and type(obj.name)
 
 			-- custom name from user (probably)
 			if name_type == "string" and obj.name ~= "" then
@@ -494,9 +492,7 @@ do -- RetName
 				name = Translate(obj.name)
 
 			-- display
-			elseif index and rawget(obj, "display_name") and obj.display_name ~= ""
-				or not index and obj.display_name and obj.display_name ~= ""
-			then
+			elseif obj.display_name and obj.display_name ~= "" then
 				if TGetID(obj.display_name) == 9 --[[Anomaly]] then
 					name = obj.class
 				else
@@ -505,7 +501,7 @@ do -- RetName
 			else
 				for i = 1, #values_lookup do
 					local value_name = values_lookup[i]
-					if index and rawget(obj, value_name) or not index and obj[value_name] then
+					if obj[value_name] then
 						local value = obj[value_name]
 						if value ~= "" then
 							name = value
@@ -519,10 +515,10 @@ do -- RetName
 				if meta == TMeta or meta == TConcatMeta or type(name) == "userdata" then
 					name = Translate(name)
 				end
-				if not name and index and rawget(obj, "GetDisplayName")
-					or not name and not index and obj.GetDisplayName
-				then
+				if not name and obj.GetDisplayName then
 					name = Translate(obj:GetDisplayName())
+				elseif not name and obj.GetTitle then
+					name = Translate(obj:GetTitle())
 				end
 
 			end -- If
