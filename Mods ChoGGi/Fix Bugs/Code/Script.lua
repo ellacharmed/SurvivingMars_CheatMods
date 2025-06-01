@@ -2,7 +2,7 @@
 
 -- Yeah, I probably don't need to local them all, but 'tain't gonna hurt nothing.
 local table, type, pairs, tostring, next = table, type, pairs, tostring, next
-local pcall = pcall
+local pcall, setmetatable = pcall, setmetatable
 local _InternalTranslate = _InternalTranslate
 local AsyncRand = AsyncRand
 local GetBuildingTechsStatus = GetBuildingTechsStatus
@@ -784,6 +784,14 @@ do -- CityStart/LoadGame
 		--
 		--
 		--
+
+		--
+		-- Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc
+		-- Replace the __index of each label_modifiers to check the UIColony one instead of doing some copy pasta on GetModifierObject()
+		local meta = {__index = UIColony.city_labels.label_modifiers}
+		for i = 1, #Cities do
+			setmetatable(Cities[i].label_modifiers, meta)
+		end
 
 		--
 		-- Rare Anomaly Analyzed: Fossils choices list always shows Global Support even if you don't have Space Race

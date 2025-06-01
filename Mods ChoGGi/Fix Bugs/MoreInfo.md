@@ -9,6 +9,7 @@ See mod options to toggle certain fixes.
 ### General bugs:
 ```
 Uneven terrain from Flatten tool (mod option to disable).
+Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc.
 If you install Space Race DLC then Shuttle Hubs will disappear from build menu in existing saves.
 Key binding certain buildings won't work when pressing the key (Power Switch/Pipe Valve).
 Add rocket sound effects to SupplyPods (mod option to disable).

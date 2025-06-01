@@ -101,7 +101,7 @@ local function MarkObjects(obj)
 	end
 
 	-- speed up obj creation/deletion
-	local realm = obj:GetRealm()
+	local realm = obj:GetRealm() or GetActiveRealm()
 	realm:SuspendPassEdits("ChoGGi.MarkSelectedBuildingType.MarkObjects")
 
 	local obj_cls = DefenceLaserBeam

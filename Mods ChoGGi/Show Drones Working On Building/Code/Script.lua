@@ -76,7 +76,7 @@ function OnMsg.SelectionAdded(obj)
 		return
 	end
 
-	local realm = obj:GetRealm()
+	local realm = obj:GetRealm() or GetActiveRealm()
 	realm:SuspendPassEdits("ChoGGi.ShowDronesConstructionSite.OnSelected")
 	--
 	local drones, count = GetDrones(obj)

@@ -265,12 +265,13 @@ local state_table = {
 local items = {}
 local c = 0
 local function OnPress(pins_obj, button_func, button_obj, gamepad, ...)
-	local varargs = {...}
-
-	local objs
 	local obj = button_obj.context
 	local realm = GetRealm(obj)
 
+	realm:SuspendPassEdits("ChoGGi.PinExpander.OnPress")
+
+	local varargs = {...}
+	local objs
 	local meta = getmetatable(obj)
 	local build_category = meta.build_category
 
@@ -468,6 +469,8 @@ local function OnPress(pins_obj, button_func, button_obj, gamepad, ...)
 --~ 	ex(items)
 --~ 	ex(objs)
 	PopupToggle(button_obj.idCondition, "idPinPopup", items, "top", true)
+
+	realm:ResumePassEdits("ChoGGi.PinExpander.OnPress")
 end
 
 local skip_menu_classes = {

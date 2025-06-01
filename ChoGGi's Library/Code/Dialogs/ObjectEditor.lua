@@ -135,7 +135,7 @@ end
 function ChoGGi_DlgObjectEditor:idApplyAll_OnPress()
 	self = GetRootDialog(self)
 	if self.sel and self.sel.value then
-		GetRealm(self):MapForEach(true, self.obj.class, function(o)
+		ChoGGi_Funcs.Common.GetRealm(self):MapForEach(true, self.obj.class, function(o)
 			o[self.sel.text] = RetProperType(self.sel.value)
 		end)
 	end

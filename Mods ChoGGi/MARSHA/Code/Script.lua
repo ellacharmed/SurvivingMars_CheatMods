@@ -10,7 +10,7 @@ DefineClass.ChoGGi_OutsideResidence = {
 
 function ChoGGi_OutsideResidence:GameInit()
 	-- speed up adding/removing/scaling objs
-	local realm = self:GetRealm()
+	local realm = self:GetRealm() or GetActiveRealm()
 	realm:SuspendPassEdits("ChoGGi.OutsideResidence.GameInit")
 
 	-- -128 to 127

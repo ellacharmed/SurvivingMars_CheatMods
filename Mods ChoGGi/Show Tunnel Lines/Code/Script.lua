@@ -64,7 +64,7 @@ function OnMsg.SelectionAdded(obj)
 	CreateRealTimeThread(function()
 		WaitMsg("OnRender")
 
-		local realm = obj:GetRealm()
+		local realm = obj:GetRealm() or GetActiveRealm()
 		realm:SuspendPassEdits("ChoGGi.ShowTunnelLines.SpawnTunnels")
 		CleanUp(true, realm)
 

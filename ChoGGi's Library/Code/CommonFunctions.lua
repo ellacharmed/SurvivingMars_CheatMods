@@ -555,6 +555,12 @@ local function IsValidXWin(win)
 end
 ChoGGi_Funcs.Common.IsValidXWin = IsValidXWin
 
+function ChoGGi_Funcs.Common.GetRealm(obj)
+	return obj and obj.GetRealm and obj:GetRealm(obj) or GetActiveRealm()
+--~ 	local realm = GetRealmByID(MainMapID)
+end
+local GetRealm = ChoGGi_Funcs.Common.GetRealm
+
 -- Copied in Fix Bugs
 function ChoGGi_Funcs.Common.GetCityLabels(label)
 	local UIColony = UIColony
@@ -3170,7 +3176,7 @@ do -- DeleteObject
 	local DeleteObject
 
 	local function DeleteLabelObjs(obj, label)
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteLabelObjs")
 
 		local objs = obj.labels[label] or ""
@@ -3668,7 +3674,7 @@ function ChoGGi_Funcs.Common.CollisionsObject_Toggle(obj, skip_msg)
 
 	local which
 	-- hopefully give it a bit more speed
-	local realm = obj:GetRealm()
+	local realm = GetRealm(obj)
 	realm:SuspendPassEdits("ChoGGi_Funcs.Common.CollisionsObject_Toggle")
 	-- re-enable col on obj and any attaches
 	if obj.ChoGGi_CollisionsDisabled then
@@ -4811,7 +4817,7 @@ function ChoGGi_Funcs.Common.DeleteAllObjectQuestion(obj)
 				end
 			-- whatever
 			else
-				local realm = objs[1]:GetRealm()
+				local realm = GetRealm(objs[1])
 				realm:SuspendPassEdits("ChoGGi_Funcs.Common.DeleteAllObjectQuestion")
 				for i = 1, #objs do
 					objs[i]:delete()
@@ -5742,7 +5748,7 @@ if what_game == "Mars" then
 		if type(obj) ~= "table" then
 			return
 		end
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Clear")
 		if obj.ChoGGi_shape_obj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_shape_obj)
@@ -5788,7 +5794,7 @@ if what_game == "Mars" then
 		end
 		parent = obj.ChoGGi_shape_obj_xwin
 
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjHexShape_Toggle")
 		BuildShape(
 			obj,
@@ -6064,7 +6070,7 @@ do -- path markers
 			obj.ChoGGi_Stored_Waypoints = {}
 		end
 
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 
 		while handles[obj.handle] do
 			realm:SuspendPassEdits("ChoGGi_Funcs.Common.SetPathMarkersGameTime_Thread")
@@ -7435,7 +7441,7 @@ do -- BBoxLines_Toggle
 		return bbox_lines
 	end
 	local function BBoxLines_Clear(obj, is_box)
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
 		if not is_box and obj.ChoGGi_bboxobj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_bboxobj)
@@ -7463,7 +7469,7 @@ do -- BBoxLines_Toggle
 		end
 
 		if IsBox(bbox) then
-			local realm = obj and obj.GetRealm and obj:GetRealm() or GetActiveRealm()
+			local realm = GetRealm(obj)
 			realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Toggle")
 			local box = PlaceTerrainBox(
 				bbox,
@@ -7509,7 +7515,7 @@ if what_game == "Mars" then
 		if type(obj) ~= "table" then
 			return
 		end
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Clear")
 		if obj.ChoGGi_surfacelinesobj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_surfacelinesobj)
@@ -7538,7 +7544,7 @@ if what_game == "Mars" then
 		params.colour = params.colour or RandomColourLimited()
 		params.offset = params.offset or 1
 
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
 		BuildLines(obj, params)
 		realm:ResumePassEdits("ChoGGi_Funcs.Common.SurfaceLines_Toggle")
@@ -7605,7 +7611,7 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 		if type(obj) ~= "table" then
 			return
 		end
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Clear")
 		-- just in case (old way of doing it)
 		if obj.ChoGGi_ShowAttachSpots == true then
@@ -7781,7 +7787,7 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 			OText = ChoGGi_OText
 		end
 
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.EntitySpots_Add")
 		EntitySpots_Add(obj,
@@ -8759,7 +8765,7 @@ do -- ToggleObjLines
 			return
 		end
 
-		local realm = objs_list[1]:GetRealm()
+		local realm = GetRealm(objs_list[1])
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ObjListLines_Toggle")
 		ObjListLines_Add(objs_list,
 			params.obj,
@@ -8853,7 +8859,7 @@ do -- ShowAnimDebug_Toggle
 		params = params or {}
 		params.colour = params.colour or RandomColourLimited()
 
-		local realm = obj:GetRealm()
+		local realm = GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Common.ShowAnimDebug_Toggle")
 		--
 		if IsValid(obj) then

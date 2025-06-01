@@ -766,7 +766,7 @@ function InfobarObj:ChoGGi_GetBrokenDrones()
 	table.iclear(borked_drones_list)
 	local c = 0
 	-- gotta use mapget instead of labels since dead drones aren't included
-	local objs = GetRealm(UICity):MapGet("map", "Drone")
+	local objs = GetActiveRealm():MapGet("map", "Drone")
 	for i = 1, #objs do
 		local obj = objs[i]
 		if obj:IsDisabled() then

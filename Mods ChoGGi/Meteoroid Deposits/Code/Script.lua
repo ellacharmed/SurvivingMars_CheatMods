@@ -167,7 +167,7 @@ function OnMsg.NewHour()
 
 	local buildable_grid = GetBuildableGrid(city)
 	local object_hex_grid = GetObjectHexGrid(city)
-	local realm = GetRealm(city)
+	local realm = GetRealm(city) or GetActiveRealm()
 	local pfClass = 0
 
 	local deposits = {

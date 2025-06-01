@@ -2,6 +2,7 @@
 
 local GetAllAttaches = ChoGGi_Funcs.Common.GetAllAttaches
 local GetCityLabels = ChoGGi_Funcs.Common.GetCityLabels
+local GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 local mod_EnableMod
 
@@ -251,11 +252,13 @@ function AddLogo(obj)
 		return
 	end
 
+	local realm = GetRealm(obj)
+	realm:SuspendPassEdits("ChoGGi.MoreBuildingLogos")
+
 	-- Rovers
 	if obj.rover_class then
 		-- Need to get pos/realm before building obj is removed
 		local pos = obj:GetSpotLoc(obj:GetSpotBeginIndex("Rover"))
-		local realm = GetRealm(obj)
 		-- Slight delay till rover is created
 		CreateRealTimeThread(function()
 			local rover = realm:MapGet(pos, 0, "BaseRover")
@@ -281,6 +284,7 @@ function AddLogo(obj)
 		AddLogoEntity(obj, temp_settings)
 	end
 
+	realm:ResumePassEdits("ChoGGi.MoreBuildingLogos")
 end
 
 -- On load / mod options changed

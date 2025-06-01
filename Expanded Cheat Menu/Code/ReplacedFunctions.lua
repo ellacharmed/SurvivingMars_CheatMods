@@ -604,7 +604,7 @@ if what_game == "Mars" then
 
 	do -- CheatFill (speedup large cheat fills)
 		local function SuspendAndFire(func, self, ...)
-			local realm = self:GetRealm()
+			local realm = ChoGGi_Funcs.Common.GetRealm(self)
 			realm:SuspendPassEdits("ChoGGi_SuspendAndFire_CheatFill")
 			local ret = func(self, ...)
 			realm:ResumePassEdits("ChoGGi_SuspendAndFire_CheatFill")

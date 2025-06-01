@@ -1023,7 +1023,7 @@ function ChoGGi_Funcs.Menus.DeleteAllSelectedObjects()
 		if not answer then
 			return
 		end
-		local realm = obj:GetRealm()
+		local realm = ChoGGi_Funcs.Common.GetRealm(obj)
 		realm:SuspendPassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")
 		realm:MapDelete(true, obj.class)
 		realm:ResumePassEdits("ChoGGi_Funcs.Menus.DeleteAllSelectedObjects")

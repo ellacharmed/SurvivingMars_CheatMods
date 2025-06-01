@@ -77,6 +77,7 @@ local RetMapType = ChoGGi_Funcs.Common.RetMapType
 local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 local RetParamsParents = ChoGGi_Funcs.Common.RetParamsParents
 local RetObjMapId = ChoGGi_Funcs.Common.RetObjMapId
+local GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 local InvalidPos = ChoGGi.Consts.InvalidPos
 local missing_text = ChoGGi.Temp.missing_text
@@ -1288,7 +1289,7 @@ function ChoGGi_DlgExamine:idButDeleteAll_OnPress()
 		T(302535920000059--[[Destroy all objects in objlist!]]),
 		function(answer)
 			if answer then
-				local realm = self.obj_ref:GetRealm()
+				local realm = GetRealm(self.obj_ref)
 				realm:SuspendPassEdits("ChoGGi_DlgExamine:idButDeleteAll_OnPress")
 				for _, obj in pairs(self.obj_ref) do
 					if IsValid(obj) then
@@ -1321,7 +1322,7 @@ function ChoGGi_DlgExamine:idButMarkAll_OnPress()
 	self = GetRootDialog(self)
 	local c = #self.marked_objects
 	-- suspending makes it faster to add objects
-	local realm = self.obj_ref:GetRealm()
+	local realm = GetRealm(self.obj_ref)
 	realm:SuspendPassEdits("ChoGGi_DlgExamine:idButMarkAll_OnPress")
 	for _, v in pairs(self.obj_ref) do
 		if IsValid(v) or IsPoint(v) then

@@ -68,7 +68,7 @@ local function ToggleLines(dome)
 		return
 	end
 
-	local realm = dome:GetRealm()
+	local realm = ChoGGi_Funcs.Common.GetRealm(dome)
 	realm:SuspendPassEdits("ChoGGi.SelectionRemoved.Show Dome Connected Objects.ToggleLines")
 
 	table.clear(bad_objs)

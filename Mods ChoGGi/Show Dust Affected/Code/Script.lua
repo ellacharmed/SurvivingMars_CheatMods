@@ -51,7 +51,7 @@ end
 local skips = {"ElectricityGridElement", "LifeSupportGridElement"}
 
 local function ToggleLines(obj, tribby)
-	local realm = obj:GetRealm()
+	local realm = obj:GetRealm() or GetActiveRealm()
 
 	-- It's a toggle so
 	if lines_c > 0 then

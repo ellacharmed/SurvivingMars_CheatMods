@@ -16,7 +16,7 @@ local ChoOrig_Passage_ChangeSkin = Passage.ChangeSkin
 function Passage:ChangeSkin(skin, ...)
 	self.skin_id = skin
 	if skin == "ChoGGi_MinimalPassageSkin" then
-		local realm = self:GetRealm()
+		local realm = self:GetRealm() or GetActiveRealm()
 		realm:SuspendPassEdits("ChoGGi.MinimalPassageSkin.ChangeSkin")
 		for i = 1, #self.elements do
 			local element = self.elements[i]

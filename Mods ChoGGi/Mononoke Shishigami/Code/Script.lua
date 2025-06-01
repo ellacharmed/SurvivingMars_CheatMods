@@ -111,7 +111,7 @@ DefineClass.ChoGGi_TransitoryEntity = {
 function ChoGGi_TransitoryEntity:GameInit()
 	self.shrub_thread = CreateGameTimeThread(function()
 		-- Stop dome lag
-		local realm = self:GetRealm()
+		local realm = self:GetRealm() or GetActiveRealm()
 		realm:SuspendPassEdits("ChoGGi.MononokeShishiGami.shrubthread")
 
 		-- scale/steps to loop

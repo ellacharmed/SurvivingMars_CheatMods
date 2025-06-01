@@ -137,7 +137,7 @@ local function ResetRover(rc)
 	local pos = rc:GetVisualPos()
 	local new = rc:Clone()
 	rc:delete()
-	new:SetPos(GetRealm(new):GetPassablePointNearby(pos))
+	new:SetPos(ChoGGi_Funcs.Common.GetRealm(new):GetPassablePointNearby(pos))
 	-- add any missing drones
 	if drones > #new.attached_drones then
 		repeat
@@ -245,7 +245,7 @@ function ChoGGi_Funcs.Menus.ColonistsStuckOutsideRocket()
 		-- SupplyRocket also returns rockets in space
 		if rocket:GetPos() ~= InvalidPos then
 			local city = Cities[ChoGGi_Funcs.Common.RetObjMapId(rocket)]
-			local pos = GetRealm(rocket):GetPassablePointNearby(rocket:GetPos())
+			local pos = ChoGGi_Funcs.Common.GetRealm(rocket):GetPassablePointNearby(rocket:GetPos())
 			rocket:ForEachAttach("Colonist", AttachedColonist, pos, rocket, city)
 		end
 	end

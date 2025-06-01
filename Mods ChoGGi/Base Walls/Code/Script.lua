@@ -26,6 +26,7 @@ local point = point
 local IsValidEntity = IsValidEntity
 local GetConstructionController = GetConstructionController
 local Translate = ChoGGi_Funcs.Common.Translate
+local GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 local icon_path = CurrentModPath .. "UI/"
 local description = T(302535920011004, "It's a wall (use button to rotate after placing).") .. "\n\n"
@@ -310,7 +311,7 @@ function ChoGGi_BaseWalls:SpawnWallAttaches(cursor_obj, count)
 	self.entity = self.entity ~= "InvisibleObject" and self.entity or "Passage"
 
 	-- speeds up adding/removing/etc with objects
-	local realm = self:GetRealm()
+	local realm = GetRealm(self)
 	realm:SuspendPassEdits("ChoGGi.BaseWalls.SpawnAttaches")
 
 	if id == "ChoGGi_BaseWall" then
@@ -427,7 +428,7 @@ function ChoGGi_BaseWalls:SpawnCornerAttaches(cursor_obj)
 	self.item_type = "corner"
 
 	-- speeds up adding/removing/etc with objects
-	local realm = self:GetRealm()
+	local realm = GetRealm(self)
 	realm:SuspendPassEdits("ChoGGi.BaseWalls.SpawnCornerAttaches")
 
 	-- always spawn something
@@ -592,7 +593,7 @@ GlobalVar("g_ChoGGi_BaseWalls_savedskin", "Passage")
 
 function ChoGGi_BaseWalls:ChangeSkin(skin)
 	local lookup = lookup_skins[skin]
-	local realm = self:GetRealm()
+	local realm = GetRealm(self)
 	realm:SuspendPassEdits("ChoGGi.BaseWalls.ChangeSkin")
 	-- we need to change each spawned entity
 	for i = 1, #self.attached_objs do
@@ -642,7 +643,7 @@ function ChoGGi_BaseWalls:AdjustLength(size, current_size)
 	-- no need to change if it's the same
 	if self.previous_count ~= spawn_wall_count then
 		-- speeds up adding/removing/etc with objects
-		local realm = self:GetRealm()
+		local realm = GetRealm(self)
 		realm:SuspendPassEdits("ChoGGi.BaseWalls.AdjustLength")
 		-- get skin to reset new wall to
 		local entity = self.entity or "Passage"
