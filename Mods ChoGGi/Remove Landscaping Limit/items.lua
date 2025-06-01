@@ -24,7 +24,18 @@ return {
 	PlaceObj("ModItemOptionToggle", {
 		"name", "AllowOutOfBounds",
 		"DisplayName", T(302535920011855, "Allow Out Of Bounds"),
-		"Help", T(302535920011856, "Turn on to landscape out of bounds (warning can crash when used near the edge of map, save first)."),
+		"Help", T(302535920011856, [[<color ChoGGi_red>WARNING</color>: Can crash when used near the edge of map, save first!
+
+Turn on to landscape out of bounds.]]),
+		"DefaultValue", false,
+	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "AllowAllEnvironments",
+		"DisplayName", T(0000, "Allow All Environments"),
+		"Help", T(0000, [[<color ChoGGi_red>WARNING</color>: Building on asteroids can crash the game, save first!
+
+Allows you to build underground and on asteroids.
+]]),
 		"DefaultValue", false,
 	}),
 }

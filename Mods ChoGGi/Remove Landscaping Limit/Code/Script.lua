@@ -1,11 +1,13 @@
 -- See LICENSE for terms
 
 local SetLandScapingLimits = ChoGGi_Funcs.Common.SetLandScapingLimits
+local SetBuildingTemplates = ChoGGi_Funcs.Common.SetBuildingTemplates
 
 local mod_EnableMod
 local mod_StepSize
 local mod_BlockObjects
 local mod_AllowOutOfBounds
+local mod_AllowAllEnvironments
 
 local function ModOptions(id)
 	-- id is from ApplyModOptions
@@ -17,6 +19,7 @@ local function ModOptions(id)
 	mod_StepSize = CurrentModOptions:GetProperty("StepSize") * guim
 	mod_BlockObjects = CurrentModOptions:GetProperty("BlockObjects")
 	mod_AllowOutOfBounds = CurrentModOptions:GetProperty("AllowOutOfBounds")
+	mod_AllowAllEnvironments = CurrentModOptions:GetProperty("AllowAllEnvironments")
 
 	SetLandScapingLimits(mod_EnableMod, mod_BlockObjects, mod_AllowOutOfBounds)
 end
@@ -24,6 +27,27 @@ end
 OnMsg.ModsReloaded = ModOptions
 -- fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
+
+local function StartupCode()
+	if not mod_EnableMod or not mod_AllowAllEnvironments then
+		return
+	end
+
+	SetBuildingTemplates("LandscapeRamp", "disabled_in_environment1", "")
+	SetBuildingTemplates("LandscapeTerrace", "disabled_in_environment1", "")
+	SetBuildingTemplates("LandscapeTerrace", "disabled_in_environment2", "")
+
+	local die = DisabledInEnvironment
+	local blank_die = {"","","",""}
+
+	die.LandscapeRamp = blank_die
+	die.LandscapeTerrace = blank_die
+end
+
+-- New games
+OnMsg.CityStart = StartupCode
+-- Saved ones
+OnMsg.LoadGame = StartupCode
 
 -- no more limit to R+T keys (enlarge/shrink)
 local ChoOrig_Activate = LandscapeConstructionController.Activate

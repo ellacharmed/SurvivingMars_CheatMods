@@ -1,3 +1,11 @@
+v0.4
+More Logos:
+FusionReactor
+SmartApartmentsCCP1
+ShopsFood
+Fixed:
+CasinoComplex:Casino
+
 v0.3
 More logos:
 Diner:Restaurant

@@ -94,7 +94,7 @@ local logo_buildings = {
 		offset = point(0, 0, 100),
 		angle = 5400,
 	},
-	FarmHydroponic = {
+	HydroponicFarm = {
 		offset = point(0, 360, 1750),
 		angle = 5400,
 		scale = 125,
@@ -153,10 +153,17 @@ local logo_buildings = {
 	},
 	CasinoComplex = {
 		entity = "Casino",
-		scale = 175,
-		angle = 16200,
-		offset = point(-10, 685, 800),
+		scale = 150,
+		angle = 5400,
+		offset = point(-15, 690, 0),
+		multi = {
+			offset = point(-15, -1170, 0),
+			scale = 150,
+			angle = 5400,
+		},
+
 	},
+
 	SecurityPostCCP1 = {
 		scale = 190,
 		offset = point(0, 0, 1100),
@@ -175,6 +182,23 @@ local logo_buildings = {
 		scale = 50,
 		offset = point(240, 330, 1000),
 		angle = 5400,
+	},
+	FusionReactor = {
+		offset = point(1150, 000, 1400),
+	},
+	SmartApartmentsCCP1 = {
+		offset = point(0, 350, 700),
+		angle = 4.5*60*60,
+	},
+	ShopsFood = {
+		offset = point(425, 574, 0),
+		scale = 75,
+		angle = 3*60*60,
+		multi = {
+		offset = point(-420, 574, 0),
+			scale = 75,
+			angle = 6*60*60,
+		},
 	},
 }
 --[[
@@ -236,7 +260,7 @@ local temp_settings = {}
 --
 function AddLogo(obj)
 	local settings = logo_buildings[obj.template_name]
-	if not settings then
+	if not settings and obj.template_name then
 		printC("settings AddLogo", obj.template_name)
 		return
 	end
