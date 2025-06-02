@@ -10,6 +10,7 @@
 ApplyModOptions(CurrentModId)``
 
 ### Examine:
+- Edit Flags will apply to attaches as well as base object.
 - Toolbar>Clear Table question is clearer.
 - Hints for Parents>menuitems weren't showing up (thanks Tremualin).
 

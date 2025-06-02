@@ -23,13 +23,13 @@ CObject.CheatExamine = OpenExamineReturn
 CObject.CheatToggleCollision = Common.CollisionsObject_Toggle
 CObject.CheatDeleteObject = Common.DeleteObjectQuestion
 CObject.CheatViewConstruct = Common.ToggleConstructEntityView
+CObject.CheatViewEditor = Common.ToggleEditorEntityView
 ColorizableObject.CheatColourRandom = Common.ObjectColourRandom
 ColorizableObject.CheatColourDefault = Common.ObjectColourDefault
 Drone.CheatFindResource = Common.FindNearestResource
 Drone.CheatDestroy = Common.RuinObjectQuestion
 RCTransport.CheatFindResource = Common.FindNearestResource
 
-BaseBuilding.CheatViewEditor = Common.ToggleEditorEntityView
 MechanizedDepot.CheatEmptyDepot = Common.EmptyMechDepot
 BaseRover.CheatDestroy = Common.RuinObjectQuestion
 local Building = Building

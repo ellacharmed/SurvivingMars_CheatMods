@@ -20,8 +20,10 @@ local AveragePoint2D = AveragePoint2D
 local box = box
 local ClassDescendantsList = ClassDescendantsList
 local FindNearestObject = FindNearestObject -- (list,obj) or (list,pos,filterfunc)
+local format_value = format_value
 local GameTime = GameTime
 local GetActiveRealm = GetActiveRealm
+local GetRealm = GetRealm
 local guic = guic
 local IsBox = IsBox
 local IsKindOf = IsKindOf
@@ -85,7 +87,7 @@ end
 DotPathToObject("terminal.desktop")
 DotPathToObject("SnapToTarget", TunnelConstructionController)
 ]]
-local function DotPathToObject(dot_path, root, create)
+function ChoGGi_Funcs.Common.DotPathToObject(dot_path, root, create)
 
 	-- parent always starts out as "root"
 	local parent = root or g_env
@@ -121,27 +123,23 @@ local function DotPathToObject(dot_path, root, create)
 
 	end
 end
-ChoGGi_Funcs.Common.DotPathToObject = DotPathToObject
+local DotPathToObject = ChoGGi_Funcs.Common.DotPathToObject
 
-do -- DebugGetInfo
-	local format_value = format_value
-
-	-- this replaces the func added in my library mod (which is just a straight format_value)
-	function ChoGGi_Funcs.Common.DebugGetInfo(obj)
-		if not obj then
-			return
-		end
-		if blacklist then
-			return format_value(obj)
-		else
-			local info = g_env.debug.getinfo(obj)
-			-- sub(2): removes @, Mars is ingame files, mods is mods...
-			local src = info.source ~= "" and info.source or info.short_src
-			return src:sub(2):gsub("Mars/", ""):gsub("AppData/Mods/", "")
-				.. "(" .. info.linedefined .. ")"
-		end
+-- this replaces the func added in my library mod (which is just a straight format_value)
+function ChoGGi_Funcs.Common.DebugGetInfo(obj)
+	if not obj then
+		return
 	end
-end -- do
+	if blacklist then
+		return format_value(obj)
+	else
+		local info = g_env.debug.getinfo(obj)
+		-- sub(2): removes @, Mars is ingame files, mods is mods...
+		local src = info.source ~= "" and info.source or info.short_src
+		return src:sub(2):gsub("Mars/", ""):gsub("AppData/Mods/", "")
+			.. "(" .. info.linedefined .. ")"
+	end
+end
 local DebugGetInfo = ChoGGi_Funcs.Common.DebugGetInfo
 
 -- ChoGGi_Funcs.Common.RetName_lookup_table()
@@ -546,18 +544,18 @@ do -- RetName
 end -- do
 local RetName = ChoGGi_Funcs.Common.RetName
 
-local function IsValidXWin(win)
+function ChoGGi_Funcs.Common.IsValidXWin(win)
 	-- function XFlashWindow()
 	-- last checked 1011030
 	if win and (win.window_state ~= "destroying" and (win.interaction_box or win.box)) then
 		return true
 	end
 end
-ChoGGi_Funcs.Common.IsValidXWin = IsValidXWin
+local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 
+--~ local realm = GetRealmByID(MainMapID)
 function ChoGGi_Funcs.Common.GetRealm(obj)
-	return obj and obj.GetRealm and obj:GetRealm(obj) or GetActiveRealm()
---~ 	local realm = GetRealmByID(MainMapID)
+	return obj and GetRealm(obj) or GetActiveRealm()
 end
 local GetRealm = ChoGGi_Funcs.Common.GetRealm
 
@@ -597,13 +595,13 @@ function ChoGGi_Funcs.Common.RetHint(obj)
 	end
 end
 
-local function GetParentOfKind(win, cls)
+function ChoGGi_Funcs.Common.GetParentOfKind(win, cls)
 	while win and not win:IsKindOf(cls) do
 		win = win.parent
 	end
 	return win
 end
-ChoGGi_Funcs.Common.GetParentOfKind = GetParentOfKind
+local GetParentOfKind = ChoGGi_Funcs.Common.GetParentOfKind
 
 do -- ImageExts
 	-- easier to keep them in one place
@@ -1419,7 +1417,7 @@ function ChoGGi_Funcs.Common.RemoveFromLabel(label, obj)
 end
 
 -- tries to convert "65" to 65, "boolean" to boolean, "nil" to nil, or just returns "str" as "str"
-local function RetProperType(value)
+function ChoGGi_Funcs.Common.RetProperType(value)
 	-- boolean
 	if value == "true" or value == true then
 		return true, "boolean"
@@ -1438,7 +1436,7 @@ local function RetProperType(value)
 	-- then it's a string (probably)
 	return value, "string"
 end
-ChoGGi_Funcs.Common.RetProperType = RetProperType
+local RetProperType = ChoGGi_Funcs.Common.RetProperType
 
 do -- RetType
 	-- used to check for some SM objects (Points/Boxes)
@@ -1961,7 +1959,7 @@ do -- UpdateDataTables
 	end
 end -- do
 
-local function Random(m, n)
+function ChoGGi_Funcs.Common.Random(m, n)
 	-- Hopefully it fixes whatever this is from :(
 	--[[
 [LUA ERROR] PackedMods/ChoGGi'sLibrary/Code/CommonFunctions.lua:1828: attempt to perform arithmetic on a nil value
@@ -1982,66 +1980,67 @@ C:\Program Files (x86)\Steam\steamapps\common\Surviving Mars\CommonLua\Classes\C
 		-- OR number between 0 and max_int
 		or AsyncRand()
 end
-ChoGGi_Funcs.Common.Random = Random
+local Random =ChoGGi_Funcs.Common.Random
 
 --~ function ChoGGi_Funcs.Common.OpenKeyPresserDlg()
 --~ 	ChoGGi_KeyPresserDlg:new({}, terminal.desktop, {})
 --~ end
 
-function ChoGGi_Funcs.Common.CreateSetting(str, setting_type)
-	local setting = DotPathToObject(str, nil, true)
-	if type(setting) == setting_type then
-		return true
-	end
-end
+--~ function ChoGGi_Funcs.Common.CreateSetting(str, setting_type)
+--~ 	local setting = DotPathToObject(str, nil, true)
+--~ 	if type(setting) == setting_type then
+--~ 		return true
+--~ 	end
+--~ end
 
--- SelObject/SelObjects
-local radius4h = 250
-if what_game == "Mars" then
-	radius4h = const.HexSize / 4
-end
-
--- returns whatever is selected > moused over > nearest object to cursor
--- single selection
-function ChoGGi_Funcs.Common.SelObject(radius, pt)
-	if not GameMaps then
-		return
+do -- SelObject/SelObjects
+	local radius4h = 250
+	if what_game == "Mars" then
+		radius4h = const.HexSize / 4
 	end
+
+	-- returns whatever is selected > moused over > nearest object to cursor
 	-- single selection
-	local obj = SelectedObj or GetCursorOrGamePadSelectObj()
-
-	if obj then
-		-- If it's multi then return the first one
-		if obj:IsKindOf("MultiSelectionWrapper") then
-			return obj.objects[1]
+	function ChoGGi_Funcs.Common.SelObject(radius, pt)
+		if not GameMaps then
+			return
 		end
-	else
-		-- radius selection
-		pt = pt or GetCursorWorldPos()
-		obj = MapFindNearest(pt, pt, radius or radius4h)
-	end
+		-- single selection
+		local obj = SelectedObj or GetCursorOrGamePadSelectObj()
 
-	return obj
-end
-
--- returns an indexed table of objects, add a radius to get objs close to cursor
-function ChoGGi_Funcs.Common.SelObjects(radius, pt)
-	if not GameMaps then
-		return empty_table
-	end
-	local objs = SelectedObj or GetCursorOrGamePadSelectObj()
-
-	if not radius and objs then
-		if objs:IsKindOf("MultiSelectionWrapper") then
-			return objs.objects
+		if obj then
+			-- If it's multi then return the first one
+			if obj:IsKindOf("MultiSelectionWrapper") then
+				return obj.objects[1]
+			end
 		else
-			return {objs}
+			-- radius selection
+			pt = pt or GetCursorWorldPos()
+			obj = MapFindNearest(pt, pt, radius or radius4h)
 		end
+
+		return obj
 	end
 
-	pt = pt or GetCursorWorldPos()
-	return MapGet(pt, radius or radius4h, "attached", false)
-end
+	-- returns an indexed table of objects, add a radius to get objs close to cursor
+	function ChoGGi_Funcs.Common.SelObjects(radius, pt)
+		if not GameMaps then
+			return empty_table
+		end
+		local objs = SelectedObj or GetCursorOrGamePadSelectObj()
+
+		if not radius and objs then
+			if objs:IsKindOf("MultiSelectionWrapper") then
+				return objs.objects
+			else
+				return {objs}
+			end
+		end
+
+		pt = pt or GetCursorWorldPos()
+		return MapGet(pt, radius or radius4h, "attached", false)
+	end
+end -- do
 local SelObject = ChoGGi_Funcs.Common.SelObject or empty_func
 local SelObjects = ChoGGi_Funcs.Common.SelObjects or empty_func
 
@@ -2778,7 +2777,7 @@ end -- do
 local GetAllAttaches = ChoGGi_Funcs.Common.GetAllAttaches
 
 -- I've seen better func names
-local function MapGet_ChoGGi(label, area, city, ...)
+function ChoGGi_Funcs.Common.MapGet(label, area, city, ...)
 	local objs = (city or UICity).labels[label] or {}
 --~ 	local objs = GetCityLabels(label)
 	if #objs == 0 then
@@ -2793,7 +2792,8 @@ local function MapGet_ChoGGi(label, area, city, ...)
 	end
 	return objs
 end
-ChoGGi_Funcs.Common.MapGet = MapGet_ChoGGi
+local MapGet_ChoGGi = ChoGGi_Funcs.Common.MapGet
+
 -- just the "fix" no labels
 function ChoGGi_Funcs.Common.MapGet_fixed(area, class, city, ...)
 	local g_cls = g_Classes[class]
@@ -3802,7 +3802,7 @@ do -- AddXTemplate/RemoveXTemplateSections
 	end
 end -- do
 
-local function CheatsMenu_Toggle()
+function ChoGGi_Funcs.Common.CheatsMenu_Toggle()
 	local menu = XShortcutsTarget
 	if ChoGGi.UserSettings.KeepCheatsMenuPosition then
 		ChoGGi.UserSettings.KeepCheatsMenuPosition = menu:GetPos()
@@ -3814,7 +3814,7 @@ local function CheatsMenu_Toggle()
 	end
 	ChoGGi_Funcs.Common.SetCheatsMenuPos()
 end
-ChoGGi_Funcs.Common.CheatsMenu_Toggle = CheatsMenu_Toggle
+local CheatsMenu_Toggle = ChoGGi_Funcs.Common.CheatsMenu_Toggle
 
 do -- UpdateConsoleMargins
 	local IsEditorActive = IsEditorActive
@@ -4687,34 +4687,6 @@ function ChoGGi_Funcs.Common.RetTemplateOrClass(obj)
 	end
 	return ""
 end
-
-do -- ToggleBldFlags
-	local function ToggleBldFlags(obj, flag)
-		local func
-		if obj:GetGameFlags(flag) == flag then
-			func = "ClearGameFlags"
-		else
-			func = "SetGameFlags"
-		end
-
-		obj[func](obj, flag)
-		local attaches = GetAllAttaches(obj)
-		for i = 1, #attaches do
-			local a = attaches[i]
-			if not (a:IsKindOf("BuildingSign") or a:IsKindOf("GridTile") or a:IsKindOf("GridTileWater")) then
-				a[func](a, flag)
-			end
-		end
-	end
-	ChoGGi_Funcs.Common.ToggleBldFlags = ToggleBldFlags
-
-	function ChoGGi_Funcs.Common.ToggleConstructEntityView(obj)
-		ToggleBldFlags(obj, 65536)
-	end
-	function ChoGGi_Funcs.Common.ToggleEditorEntityView(obj)
-		ToggleBldFlags(obj, 2)
-	end
-end -- do
 
 function ChoGGi_Funcs.Common.DoSomethingQuestion(obj, func, vars, warning)
 	if not obj or not func then
@@ -6614,7 +6586,7 @@ function ChoGGi_Funcs.Common.IsArray(list)
 	return true
 end
 
-local function RetParamsParents(parent, params, ...)
+function ChoGGi_Funcs.Common.RetParamsParents(parent, params, ...)
 	local parent_type
 	if parent then
 		parent_type = type(parent)
@@ -6640,7 +6612,7 @@ local function RetParamsParents(parent, params, ...)
 
 	return params, parent, parent_type
 end
-ChoGGi_Funcs.Common.RetParamsParents = RetParamsParents
+local RetParamsParents = ChoGGi_Funcs.Common.RetParamsParents
 
 do -- RetThreadInfo/FindThreadFunc
 	local GedInspectorFormatObject = GedInspectorFormatObject
@@ -7839,7 +7811,49 @@ do -- EntitySpots_Toggle Entity Spots Toggle
 	end
 end -- do
 
+do -- ToggleBldFlags
+	-- func_name can be EnumFlags or GameFlags (default)
+	function ChoGGi_Funcs.Common.ToggleBldFlags(obj, flag, func_name)
+		if not obj or not flag then
+			return
+		end
 
+		local flag_func
+		-- return what happens for examine edit flag
+		local set_or_clear = false
+		-- Enum or Game (?)
+		local get_func = func_name and "Get" .. func_name or "GetGameFlags"
+		if obj[get_func](obj, flag) == flag then
+			flag_func = func_name and "ClearHierarchy" .. func_name or "ClearHierarchyGameFlags"
+		else
+			set_or_clear = true
+			flag_func = func_name and "SetHierarchy" .. func_name or "SetHierarchyGameFlags"
+		end
+
+		obj[flag_func](obj, flag)
+--~ 		local attaches = GetAllAttaches(obj)
+--~ 		for i = 1, #attaches do
+--~ 			local a = attaches[i]
+--~ 			if not (a:IsKindOf("BuildingSign") or a:IsKindOf("GridTile") or a:IsKindOf("GridTileWater")) then
+--~ 				a[flag_func](a, flag)
+--~ 			end
+--~ 		end
+
+		return set_or_clear
+	end
+	local ToggleBldFlags = ChoGGi_Funcs.Common.ToggleBldFlags
+
+	function ChoGGi_Funcs.Common.ToggleConstructEntityView(obj)
+		ToggleBldFlags(obj, 65536)
+	end
+	function ChoGGi_Funcs.Common.ToggleEditorEntityView(obj)
+		ToggleBldFlags(obj, 2)
+	end
+	function ChoGGi_Funcs.Common.ToggleDepositionView(obj)
+		ToggleBldFlags(obj, 16777216)
+	end
+end -- do
+local ToggleBldFlags = ChoGGi_Funcs.Common.ToggleBldFlags
 
 do -- ObjFlagsList
 --~ 		local IsFlagSet = IsFlagSet
@@ -7877,15 +7891,12 @@ do -- ObjFlagsList
 						name = tostring(flagged),
 						colour = flagged and us.ExamineColourBool or us.ExamineColourBoolFalse,
 						func = function(ex_dlg, _, list_obj)
-							-- If flag is true
-							if obj[get](obj, mask) == mask then
-								obj[clear](obj, mask)
-								list_obj.name = "false"
-								list_obj.colour = us.ExamineColourBoolFalse
-							else
-								obj[set](obj, mask)
+							if ToggleBldFlags(obj, mask, func_name) then
 								list_obj.name = "true"
 								list_obj.colour = us.ExamineColourBool
+							else
+								list_obj.name = "false"
+								list_obj.colour = us.ExamineColourBoolFalse
 							end
 							ex_dlg:RefreshExamine()
 						end,
@@ -8139,7 +8150,7 @@ function ChoGGi_Funcs.Common.UsedTerrainTextures(ret)
 	OpenExamine(textures, nil, T(302535920001181--[[Used Terrain Textures]]))
 end
 
-local function RetObjMapId(obj, text, fallback)
+function ChoGGi_Funcs.Common.RetObjMapId(obj, text, fallback)
 	if obj then
 		return obj.city and obj.city.map_id
 			or obj.GetMapID and obj:GetMapID()
@@ -8149,7 +8160,7 @@ local function RetObjMapId(obj, text, fallback)
 	end
 	return fallback and ActiveMapID or text and "unknown" or ""
 end
-ChoGGi_Funcs.Common.RetObjMapId = RetObjMapId
+local RetObjMapId = ChoGGi_Funcs.Common.RetObjMapId
 
 --~ ChoGGi_Funcs.Common.RetMapType(nil, ActiveMapID)
 function ChoGGi_Funcs.Common.RetMapType(obj, map_id, city)
@@ -8963,7 +8974,7 @@ do -- AddToOriginal
 end -- do
 -- remove after next mass mod upload
 -- backup orginal function for later use (checks if we already have a backup, or else inf problems)
-local function SaveOrigFunc(class_or_func, func_name)
+function ChoGGi_Funcs.Common.SaveOrigFunc(class_or_func, func_name)
 	local Original = ChoGGi_Funcs.Original
 	-- If it's a class func
 	if func_name then
@@ -8981,7 +8992,7 @@ local function SaveOrigFunc(class_or_func, func_name)
 		end
 	end
 end
-ChoGGi_Funcs.Common.SaveOrigFunc = SaveOrigFunc
+local SaveOrigFunc = ChoGGi_Funcs.Common.SaveOrigFunc
 
 do -- AddMsgToFunc
 	local Msg = Msg

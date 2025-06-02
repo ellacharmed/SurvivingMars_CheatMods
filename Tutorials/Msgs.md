@@ -45,6 +45,33 @@ CreateRealTimeThread(function()
 end)
 ```
 
+##### Values passed with the Msg() can be edited along the way of each OnMsg
+###### In-game example
+```
+function ConstructionCost:GetConstructionCost(building, resource, modifier_obj)
+	-- snipped
+
+	local mod = {
+		percent = percent_modifier,
+		amount = amount_modifier,
+	}
+	Msg("ModifyConstructionCost", building_name, resource, mod)
+
+	return MulDivRound(value, mod.percent, 100) + mod.amount
+end
+
+
+function OnMsg.ModifyConstructionCost(building_name, resource, mod)
+	if OpenAirBuildings then
+		local class_name = (BuildingTemplates[building_name] or empty_table).template_class or building_name
+		if IsKindOf(g_Classes[class_name], "OpenAirBuilding") then
+			mod.percent = mod.percent - const.Terraforming.OpenDome_CostReduction
+		end
+	end
+end
+```
+
+
 ##### Show a list of OnMsgs/WaitMsgs that are waiting for Msgs.
 ###### You need ECM for OpenExamine.
 ```lua
