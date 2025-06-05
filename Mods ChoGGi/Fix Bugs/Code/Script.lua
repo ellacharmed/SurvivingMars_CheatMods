@@ -97,7 +97,7 @@ end
 
 local function FixDepositsWrongMap_UpdateMaps()
 	-- Scan all maps, since there can be main map concrete on asteroids
-	for map_id, map in pairs(GameMaps) do
+	for _, map in pairs(GameMaps) do
 		local objs = map.realm:MapGet(true, "TerrainDeposit")
 		for i = #objs, 1, -1 do
 			-- TerrainDeposit should only spawn on
@@ -404,7 +404,7 @@ do -- CityStart/LoadGame
 		local Cities = Cities
 
 		local surface_map = GameMaps[main_city.map_id]
-		local surface_city = Cities[main_city.map_id]
+--~		local surface_city = Cities[main_city.map_id]
 		local underground_map = GameMaps[UIColony.underground_map_id]
 		local underground_city = Cities[colony.underground_map_id]
 

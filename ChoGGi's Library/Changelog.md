@@ -6,8 +6,10 @@
 - Converted any SuspendPassEdits to use explictly defined realms instead of active.
 - Added Pepperfish Profiler, use StartProfiling() / StopProfiling()
 - Added a way for modders to apply mod options from lua code:
-``CurrentModOptions:SetProperty("ExampleModOption", true)
-ApplyModOptions(CurrentModId)``
+``
+CurrentModOptions:SetProperty("ExampleModOption", true)
+ApplyModOptions(CurrentModId)
+``
 
 ### Examine:
 - Edit Flags will apply to attaches as well as base object.

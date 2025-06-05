@@ -1,3 +1,6 @@
+v1.2
+Added support for Rare Metals / Exotic Minerals.
+
 v1.1
 Setting InfoBox Delay to 0 didn't actually disable it.
 

@@ -80,7 +80,9 @@ if ChoGGi.what_game == "Mars" then
 
 
 	-- Log spam from trains dlc
-	TrainsLogging.error = empty_func
+	if g_AvailableDlc.prunariu then
+		TrainsLogging.error = empty_func
+	end
 end
 
 local table = table

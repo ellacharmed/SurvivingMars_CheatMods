@@ -557,7 +557,7 @@ local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 function ChoGGi_Funcs.Common.GetRealm(obj)
 	return obj and GetRealm(obj) or GetActiveRealm()
 end
-local GetRealm = ChoGGi_Funcs.Common.GetRealm
+GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 -- Copied in Fix Bugs
 function ChoGGi_Funcs.Common.GetCityLabels(label)
@@ -3814,7 +3814,6 @@ function ChoGGi_Funcs.Common.CheatsMenu_Toggle()
 	end
 	ChoGGi_Funcs.Common.SetCheatsMenuPos()
 end
-local CheatsMenu_Toggle = ChoGGi_Funcs.Common.CheatsMenu_Toggle
 
 do -- UpdateConsoleMargins
 	local IsEditorActive = IsEditorActive
@@ -6612,7 +6611,6 @@ function ChoGGi_Funcs.Common.RetParamsParents(parent, params, ...)
 
 	return params, parent, parent_type
 end
-local RetParamsParents = ChoGGi_Funcs.Common.RetParamsParents
 
 do -- RetThreadInfo/FindThreadFunc
 	local GedInspectorFormatObject = GedInspectorFormatObject
@@ -7873,8 +7871,8 @@ do -- ObjFlagsList
 	local flags_table
 	local function CheckFlags(flags, obj, func_name)
 		local get = "Get" .. func_name
-		local set = "Set" .. func_name
-		local clear = "Clear" .. func_name
+--~ 		local set = "Set" .. func_name
+--~ 		local clear = "Clear" .. func_name
 		local us = ChoGGi.UserSettings
 
 		for _, f in pairs(flags) do

@@ -1,8 +1,6 @@
 -- See LICENSE for terms
 
 local IsValid = IsValid
-local SuspendPassEdits = SuspendPassEdits
-local ResumePassEdits = ResumePassEdits
 local RandomColourLimited = ChoGGi_Funcs.Common.RandomColourLimited
 
 local mod_RemoveOnSelect

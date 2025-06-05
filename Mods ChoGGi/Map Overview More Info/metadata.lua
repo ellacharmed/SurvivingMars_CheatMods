@@ -4,9 +4,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "1768449416",
 	"pops_any_uuid", "77783c38-6f89-4371-9628-a6fdb2fec8bb",
 	"lua_revision", 1007000, -- Picard
-	"version", 11,
+	"version", 12,
 	"version_major", 1,
-	"version_minor", 1,
+	"version_minor", 2,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -19,7 +19,7 @@ Count of surface resources (metal/polymer) added to each sector in the map overv
 Scan progress as overlay text to map sectors.
 
 Mod Options:
-Show Metals/Show Polymers/Show Scan Progress: What you'd expect.
+Show Metals, Polymers, Rare Metals, Exotic Minerals / Show Scan Progress: What you'd expect.
 Show Dropped Resources: Show indicator for any dropped resource piles (this will ignore any within range of a drone controller).
 Text Opacity: 0-255 (0 == completely visible).
 Text Background: Add black background around info.

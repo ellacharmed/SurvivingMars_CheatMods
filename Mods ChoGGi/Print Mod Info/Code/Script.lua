@@ -1,7 +1,6 @@
 -- See LICENSE for terms
 
 --~ local mod_EnableMod
-local _InternalTranslate = _InternalTranslate
 local tostring = tostring
 
 -- Update mod options

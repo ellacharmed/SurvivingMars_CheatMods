@@ -14,7 +14,6 @@ local T = T
 
 local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 local MsgPopup = ChoGGi_Funcs.Common.MsgPopup
-local RandomColourLimited = ChoGGi_Funcs.Common.RandomColourLimited
 local RetName = ChoGGi_Funcs.Common.RetName
 local Translate = ChoGGi_Funcs.Common.Translate
 local GetCityLabels = ChoGGi_Funcs.Common.GetCityLabels

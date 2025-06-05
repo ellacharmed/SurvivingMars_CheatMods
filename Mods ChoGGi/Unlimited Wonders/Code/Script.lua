@@ -126,7 +126,7 @@ function OnMsg.ClassesPostprocess()
 	-- [1], [3]Id = "idContent", [4]XTemplateWindow, [2]Id = "idList", [3]Id = "idElevator"
 	local template = XTemplates.ResupplyCategories[1][3][4][2][3]
 
-	template.__condition = function(parent, context)
+	template.__condition = function()
 		-- I assume this is an in-game check
 		if not MainCity then
 			return

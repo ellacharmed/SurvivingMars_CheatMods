@@ -7,7 +7,6 @@ local IsValidThread = IsValidThread
 local CreateGameTimeThread = CreateGameTimeThread
 local GetTimeFactor = GetTimeFactor
 local GetCursorWorldPos = GetCursorWorldPos
-local GetDomeAtHex = GetDomeAtHex
 local AsyncRand = AsyncRand
 
 local function Random(m, n)
@@ -192,7 +191,6 @@ OnMsg.ChangeMapDone = CleanUp
 function OnMsg.InGameInterfaceCreated(igi)
 	CleanUp()
 
-	local object_hex_grid = GameMaps[ActiveMapID].object_hex_grid
 	local Dialogs = Dialogs
 
 	local function OnMousePos()

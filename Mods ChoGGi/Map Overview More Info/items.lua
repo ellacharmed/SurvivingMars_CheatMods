@@ -1,5 +1,9 @@
 -- See LICENSE for terms
 
+local minerals_str = g_AvailableDlc.picard
+	and "Show Exotic Minerals <icon_PreciousMinerals>"
+	or "Show Exotic Minerals"
+
 return {
 	PlaceObj("ModItemOptionToggle", {
 		"name", "ShowDropped",
@@ -8,13 +12,23 @@ return {
 		"DefaultValue", true,
 	}),
 	PlaceObj("ModItemOptionToggle", {
-		"name", "ShowMetals",
-		"DisplayName", T(302535920011374, "Show Metals"),
+		"name", "ShowPolymers",
+		"DisplayName", T(302535920011375, "Show Polymers <icon_Polymers>"),
 		"DefaultValue", true,
 	}),
 	PlaceObj("ModItemOptionToggle", {
-		"name", "ShowPolymers",
-		"DisplayName", T(302535920011375, "Show Polymers"),
+		"name", "ShowMetals",
+		"DisplayName", T(302535920011374, "Show Metals <icon_Metals>"),
+		"DefaultValue", true,
+	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "ShowRareMetals",
+		"DisplayName", T(0000, "Show Rare Metals <icon_PreciousMetals>"),
+		"DefaultValue", true,
+	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "ShowExoticMinerals",
+		"DisplayName", T(0000, minerals_str),
 		"DefaultValue", true,
 	}),
 	PlaceObj("ModItemOptionToggle", {
