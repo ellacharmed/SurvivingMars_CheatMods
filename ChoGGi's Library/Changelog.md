@@ -1,6 +1,8 @@
 ## Library Changelog
 
-## v12.7 (Unreleased)
+## v12.8 (Unreleased)
+
+## v12.7 (5 June 2025)
 - Added Modifiable:RemoveModifier(id, prop): The game doesn't provide a func that allows you to easily remove a modifier.
 - Cleaned up some "Attempt to use an undefined global" log spam.
 - Converted any SuspendPassEdits to use explictly defined realms instead of active.
