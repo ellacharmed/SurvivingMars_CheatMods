@@ -786,14 +786,6 @@ do -- CityStart/LoadGame
 		--
 
 		--
-		-- Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc
-		-- Replace the __index of each label_modifiers to check the UIColony one instead of doing some copy pasta on GetModifierObject()
-		local meta = {__index = UIColony.city_labels.label_modifiers}
-		for i = 1, #Cities do
-			setmetatable(Cities[i].label_modifiers, meta)
-		end
-
-		--
 		-- Rare Anomaly Analyzed: Fossils choices list always shows Global Support even if you don't have Space Race
 		-- Update before underground is unlocked so user doesn't get the wrong dialog
 		-- I would put this in ClassesPostprocess, but no mod options
@@ -2091,6 +2083,67 @@ function GenerateApplicant(time, ...)
 	end
 
 	return ChoOrig_GenerateApplicant(time, ...)
+end
+
+--
+-- Water Conservation System doesn't show updated consumption in build menu.
+local ChoOrig_GetCityLabelsForClassAndTemplate = GetCityLabelsForClassAndTemplate
+function GetCityLabelsForClassAndTemplate(...)
+	if not mod_EnableMod then
+		return ChoOrig_GetCityLabelsForClassAndTemplate(...)
+	end
+
+	local tbl = ChoOrig_GetCityLabelsForClassAndTemplate(...)
+
+	if tbl.Domes then
+		-- Water Conservation System is stored in label_modifiers.Dome and that isn't added with GetCityLabelsForClassAndTemplate
+		tbl.Dome = true
+	end
+
+	return tbl
+end
+
+--
+-- Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc
+-- Replace the __index of each label_modifiers to check the UIColony one instead of doing some copy pasta on GetModifierObject()
+-- 		local meta = {__index = UIColony.city_labels.label_modifiers}
+-- 		for i = 1, #Cities do
+-- 			setmetatable(Cities[i].label_modifiers, meta)
+-- 		end
+-- Can't do it the above way since Water Conservation System will get applied twice... :(
+-- Copy pasta below it is.
+local ChoOrig_GetModifierObject = GetModifierObject
+function GetModifierObject(template, ...)
+	if not mod_EnableMod then
+		return ChoOrig_GetModifierObject(template, ...)
+	end
+
+	--returns a fake modifier object that holds all modifiers of the template's potential labels
+	--and can be used to modify costs appropriately
+	--note, this gets all potential labels, hence it will get both construction site labels and bld labels, which means that any duplicate mods in those groups will get doubled.
+	if type(template) == "string" then template = BuildingTemplates[template] end
+	if not template then return end --some buildings don't have templates - such as cables and pipes
+	local predicted_labels = GetCityLabelsForClassAndTemplate(template)
+	local modifications = {}
+	for lbl, _ in pairs(predicted_labels) do
+--~ 		local modifiers = UICity.label_modifiers[lbl]
+		local modifiers = UIColony.city_labels.label_modifiers[lbl]
+		if modifiers then
+			for id, mod in pairs(modifiers) do
+				--gather all modifiers that would potentially affect this building
+				local prop = mod.prop
+				local modification = modifications[prop]
+				if not modification then
+					modification = { amount = 0, percent = 100 }
+					modifications[prop] = modification
+				end
+				modification.amount = (modification.amount or 0) + mod.amount
+				modification.percent = (modification.percent or 100) + mod.percent
+			end
+		end
+	end
+
+	return Modifiable:new{modifications = modifications} --use this to modify cost values
 end
 
 --

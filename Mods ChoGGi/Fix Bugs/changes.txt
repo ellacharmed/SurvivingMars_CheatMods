@@ -1,3 +1,6 @@
+v10.2
+Water Conservation System doesn't show updated consumption in build menu.
+
 v10.1
 Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc
 
