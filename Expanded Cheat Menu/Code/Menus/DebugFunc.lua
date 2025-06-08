@@ -783,7 +783,10 @@ end
 
 function ChoGGi_Funcs.Menus.TestStoryBits()
 --~ ~g_StoryBitStates
---~ that'll show all the active story state thingss
+-- that'll show all the active story state thingss
+
+--~ ~g_StoryBitsLog
+-- with ChoGGi.UserSettings.StoryBitLogPrints enabled shows more info
 
 	local StoryBits = StoryBits
 
@@ -802,11 +805,22 @@ function ChoGGi_Funcs.Menus.TestStoryBits()
 
 		local title = story_def.Title and Translate(story_def.Title) or id
 		if not (title:find(": ") or title:find(" - ", 1, true)) then
-			title = story_def.group .. ": " .. title
+			title = title .. ": "
+				.. (story_def.Category ~= "" and story_def.Category
+				or story_def.group ~= "" and story_def.group)
 		end
+
+		-- Add unique id to title if id wasn't used
+		if title ~= id then
+			local idx = id:find("%d")
+			if idx then
+				title = title .. id:sub(idx)
+			end
+		end
+
 		local voiced
 		if story_def.VoicedText then
-			voiced = "<yellow>" .. Translate(6855--[[Voiced Text]]) .. "</yellow>: " .. Translate(story_def.VoicedText)
+			voiced = Translate("<color ChoGGi_yellow>" .. T(6855--[[Voiced Text]]) .. "</color>: " .. T(story_def.VoicedText))
 		end
 
 		-- Default storybit image
@@ -821,14 +835,12 @@ function ChoGGi_Funcs.Menus.TestStoryBits()
 			value = id,
 			hint = T(302535920001358--[[Group]]) .. ": "
 				.. story_def.group .. "\n\n"
-				.. (story_def.Text and Translate(T{story_def.Text, temp_table}) or "")
+				.. (story_def.Text and Translate(T{story_def.Text, temp_table}) or Translate(story_def.NotificationText))
 				.. (voiced and "\n\n" .. voiced or "")
 				.. image
---~ 				.. (story_def.Image ~= "" and "\n\n<image " .. story_def.Image .. ">" or "")
 		}
 	end
 
-	local title = Translate(186760604064--[[Test]]) .. " " .. Translate(948928900281--[[Story Bits]])
 	local function CallBackFunc(choice)
 		if choice.nothing_selected then
 			return
@@ -856,7 +868,7 @@ function ChoGGi_Funcs.Menus.TestStoryBits()
 	ChoGGi_Funcs.Common.OpenInListChoice{
 		callback = CallBackFunc,
 		items = item_list,
-		title = title,
+		title = T(186760604064--[[Test]]) .. " " .. T(948928900281--[[Story Bits]]),
 		hint = T(302535920001359--[[Activate a story bit.]]),
 		checkboxes = {
 			{

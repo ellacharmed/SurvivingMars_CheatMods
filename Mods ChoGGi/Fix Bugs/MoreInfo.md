@@ -31,6 +31,7 @@ Toggling power to domes with passages in certain instances.
 
 ### Storybits:
 ```
+Twin Peeks: spawning, but not showing Beauty/Research effect deposits.
 The Man From Mars: Outcome 3: Let him be, whoever he is: None of the options reward anything.
 Morale is added based on CustomOutcomeText and Morale stats from Outcome 2.
 The Extract: Selecting Shuttle Hub and having Paradox as sponsor doesn't add a Jumper Hub.

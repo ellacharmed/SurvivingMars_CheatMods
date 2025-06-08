@@ -1,3 +1,6 @@
+v10.3
+Twin Peeks: spawning, but not showing Beauty/Research effect deposits (Thanks Dark Master).
+
 v10.2
 Water Conservation System doesn't show updated consumption in build menu.
 

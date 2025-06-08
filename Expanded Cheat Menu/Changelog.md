@@ -1,6 +1,8 @@
 ## ECM Changelog
 
 ## v19.8 (Unreleased)
+### Changed:
+- Fuzted around how Start Storybits displays names.
 
 ## v19.7 (5 June 2025)
 ### Added:

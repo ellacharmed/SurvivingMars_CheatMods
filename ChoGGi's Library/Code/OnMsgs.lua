@@ -19,6 +19,8 @@ function OnMsg.ChoGGi_UpdateBlacklistFuncs(env)
 		return ChoOrig_ReloadLua(...)
 	end
 
+	-- onmsg happens to fire early enough
+	SetVarTableLock(hr, false)
 end
 	-- think they fixed this, test it
 --~ local RemoveAttachAboveHeightLimit = ChoGGi_Funcs.Common.RemoveAttachAboveHeightLimit

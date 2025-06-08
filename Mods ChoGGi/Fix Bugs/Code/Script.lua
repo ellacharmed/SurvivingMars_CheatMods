@@ -2019,13 +2019,13 @@ do -- Dome:PropagateSetSupplyToPassages(...)
 	end
 
 	local ChoOrig_Dome_PropagateSetSupplyToPassages = Dome.PropagateSetSupplyToPassages
-	function Dome:PropagateSetSupplyToPassages(...)
+	function Dome.PropagateSetSupplyToPassages(...)
 		if not mod_EnableMod then
-			return ChoOrig_Dome_PropagateSetSupplyToPassages(self, ...)
+			return ChoOrig_Dome_PropagateSetSupplyToPassages(...)
 		end
 
 		HexGetPassageGridElement = ChoFake_HexGetPassageGridElement
-		pcall(ChoOrig_Dome_PropagateSetSupplyToPassages, self, ...)
+		pcall(ChoOrig_Dome_PropagateSetSupplyToPassages, ...)
 		HexGetPassageGridElement = ChoOrig_HexGetPassageGridElement
 
 		-- func has no return value
@@ -2145,6 +2145,35 @@ function GetModifierObject(template, ...)
 
 	return Modifiable:new{modifications = modifications} --use this to modify cost values
 end
+
+--
+-- Twin Peeks: spawning, but not showing Beauty/Research effect deposits.
+-- and anything else using SpawnEffectDeposit:Execute() will never have the effect show up
+-- The devs used obj.revealed = true, instead of obj:SetRevealed(true)
+do -- SpawnEffectDeposit:Execute(...)
+	local ChoOrig_PlaceObjectIn = PlaceObjectIn
+	local ChoFake_PlaceObjectIn = function(...)
+		local marker = ChoOrig_PlaceObjectIn(...)
+		-- slight delay so the SpawnEffectDeposit can do it's thing
+		CreateRealTimeThread(function()
+			marker.placed_obj:SetRevealed(true)
+		end)
+		return marker
+	end
+
+	local ChoOrig_SpawnEffectDeposit_Execute = SpawnEffectDeposit.Execute
+	function SpawnEffectDeposit.Execute(...)
+		if not mod_EnableMod then
+			return ChoOrig_SpawnEffectDeposit_Execute(...)
+		end
+
+		PlaceObjectIn = ChoFake_PlaceObjectIn
+		pcall(ChoOrig_SpawnEffectDeposit_Execute, ...)
+		PlaceObjectIn = ChoOrig_PlaceObjectIn
+
+		-- func has no return value
+	end
+end -- do
 
 --
 --

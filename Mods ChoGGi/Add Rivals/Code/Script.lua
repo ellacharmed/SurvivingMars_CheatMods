@@ -30,11 +30,12 @@ for i = 1, #rivals do
 	end
 end
 
-ChoGGi_AddRivals_FixedThreads = false
-
 local function AddRivals()
 	-- Fix haywire threads
-	if not ChoGGi_AddRivals_FixedThreads then
+	if not UIColony.ChoGGi then
+		UIColony.ChoGGi = {}
+	end
+	if not UIColony.ChoGGi.AddRivals_FixedThreads then
 		print("Add Rivals: Starting thread cleanup")
 		local DeleteThread = DeleteThread
 		local GetThreadStatus = GetThreadStatus
@@ -48,7 +49,7 @@ local function AddRivals()
 				end
 			end
 		end
-		ChoGGi_AddRivals_FixedThreads = true
+		UIColony.ChoGGi.AddRivals_FixedThreads = true
 		print("Add Rivals: Finished thread cleanup")
 	end
 
@@ -64,11 +65,15 @@ local function AddRivals()
 	-- The devs added a check for non-existant keys in the hr table (and _G, but that's another story)
 	-- using rawset bypasses the check and prevents log spam (Trying to create new value hr.PlanetColony5Longitude)
 	local hr = hr
-	if not rawget(hr, "PlanetColony5Longitude") then
-		local rawset = rawset
+	SetVarTableLock(hr, false)
+--~ 	if not rawget(hr, "PlanetColony5Longitude") then
+	if not hr.PlanetColony5Longitude then
+--~ 		local rawset = rawset
 		for i = 5, 20 do
-			rawset(hr, "PlanetColony" .. i .. "Longitude", 0)
-			rawset(hr, "PlanetColony" .. i .. "Latitude", 0)
+			hr["PlanetColony" .. i .. "Longitude"] = 0
+			hr["PlanetColony" .. i .. "Latitude"] = 0
+--~ 			rawset(hr, "PlanetColony" .. i .. "Longitude", 0)
+--~ 			rawset(hr, "PlanetColony" .. i .. "Latitude", 0)
 		end
 	end
 

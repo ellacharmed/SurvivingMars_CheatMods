@@ -38,13 +38,18 @@ local function StartupCode()
 	-- The devs added a check for non-existant keys in the hr table (and _G, but that's another story)
 	-- using rawset bypasses the check and prevents log spam (Trying to create new value hr.PlanetColony5Longitude)
 	local hr = hr
-	if not rawget(hr, "PlanetColony5Longitude") then
-		local rawset = rawset
+	SetVarTableLock(hr, false)
+--~ 	if not rawget(hr, "PlanetColony5Longitude") then
+	if not hr.PlanetColony5Longitude then
+--~ 		local rawset = rawset
 		for i = 5, 20 do
-			rawset(hr, "PlanetColony" .. i .. "Longitude", 0)
-			rawset(hr, "PlanetColony" .. i .. "Latitude", 0)
+			hr["PlanetColony" .. i .. "Longitude"] = 0
+			hr["PlanetColony" .. i .. "Latitude"] = 0
+--~ 			rawset(hr, "PlanetColony" .. i .. "Longitude", 0)
+--~ 			rawset(hr, "PlanetColony" .. i .. "Latitude", 0)
 		end
 	end
+
 
 	-- Spawn all the rest
 	local SpawnRivalAI = SpawnRivalAI

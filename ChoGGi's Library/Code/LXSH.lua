@@ -97,7 +97,6 @@ function ChoGGi_Funcs.Common.StripComments(s)
 	for i = 1, #tokens do
 		local v = tokens[i]
 		if v[1] == "comment" then
---~ 			if v[2]:match("\n") then
 			if v[2]:match("[\r\n]") then
 				c = c + 1
 				-- Okay it's ugly, but good enough for now (and pasted in code isn't that large...)
