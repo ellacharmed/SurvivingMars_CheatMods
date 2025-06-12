@@ -56,6 +56,7 @@ The Philosopher's Stone doesn't update sector scanned count when paused.
 
 ### B&B:
 ```
+Cargo Shuttle flying underground with a colonist being transported to a surface dome (Thanks DamnedLife).
 Rare Anomaly Analyzed: Fossils: Global Support didn't check for Space Race DLC (it now gives random breakthrough).
 Colonists underground crash (mod option enabled by default, more info below).
 Unlock Artificial Sun for refabbing.

@@ -1055,17 +1055,16 @@ function ChoGGi_DlgExamine:HyperLink(obj, func, name)
 end
 
 function ChoGGi_DlgExamine:BatchExecCode(text)
-	-- proper table?
-	if self.obj_type ~= "table"
-			or self.obj_type == "table" and not next(self.obj_ref)
-	then
+	if self.obj_type ~= "table" then
 		return
 	end
+
 	local dlgConsole = dlgConsole
 
 	local count = #self.obj_ref
 	if count > 0 then
-		for i = 1, count do
+		-- go backwards for deleting stuff from .labels
+		for i = count, 1, -1 do
 			o = self.obj_ref[i]
 			dlgConsole:Exec(text)
 		end

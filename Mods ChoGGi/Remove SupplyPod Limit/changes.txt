@@ -1,3 +1,6 @@
+v0.8
+Added mod option to disable.
+
 v0.7
 Added rockets as well.
 

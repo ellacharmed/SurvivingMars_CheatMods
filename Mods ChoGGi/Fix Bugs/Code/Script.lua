@@ -1155,7 +1155,7 @@ do -- CityStart/LoadGame
 		if colony and colony.underground_map_unlocked then
 
 			--
-			-- Two different fixes for colonists on the wrong map and crashing the game
+			-- 3 different fixes for colonists on the wrong map and crashing the game
 			-- https://www.reddit.com/r/SurvivingMars/comments/1k70uxf/game_crashing_on_the_same_sol_every_time/
 			if mod_ColonistsWrongRealmPath then
 				objs = underground_city.labels.Colonist or ""
@@ -1198,8 +1198,43 @@ do -- CityStart/LoadGame
 				end
 				--
 
+				-- Check for cargo shuttles flying underground with a colonist being transported to a surface dome
+				objs = underground_city.labels.CargoShuttle or ""
+				for i = 1, #objs do
+					local obj = objs[i]
+					if obj.carried_resource_type ~= "Colonist" then
+						goto continue
+					end
 
-			end
+					local task = obj.transport_task
+					-- Shuttles can't fly through the map (or maybe they can AG devs?)
+					local dest = task.dest_dome:GetMapID()
+					if dest == task.source_dome:GetMapID() then
+						goto continue
+					end
+
+					-- Place colonist where shuttle would've dropped them off
+					-- Sans suit, but they'll go inside soon enough
+					local c = task.colonist
+					c:Detach()
+					c:TransferToMap(dest)
+					c:SetPos(
+						task.dest_pos:SetZ(
+							GameMaps[dest].terrain:GetHeight(task.dest_pos)
+						)
+					)
+					c:SetEnumFlags(const.efVisible)
+					-- Make them go inside dome right away instead of waiting for idle "shift"
+					c:SetCommand("Idle")
+					-- and reset the shuttle as well
+					obj:SetCommand("GoHome")
+
+				--
+				::continue::
+				end
+				--
+
+			end -- for loop
 
 			--
 			-- Colonists showing up on wrong map in infobar.

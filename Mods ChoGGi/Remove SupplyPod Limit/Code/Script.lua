@@ -1,25 +1,35 @@
 -- See LICENSE for terms
 
+local mod_EnableMod
+
+-- Update mod options
+local function ModOptions(id)
+	-- id is from ApplyModOptions
+	if id and id ~= CurrentModId then
+		return
+	end
+
+	mod_EnableMod = CurrentModOptions:GetProperty("EnableMod")
+end
+-- Load default/saved settings
+OnMsg.ModsReloaded = ModOptions
+-- Fired when Mod Options>Apply button is clicked
+OnMsg.ApplyModOptions = ModOptions
+
 local CreateGameTimeThread = CreateGameTimeThread
 local PlaceObjectIn = PlaceObjectIn
 local GetRandomPassableAround = GetRandomPassableAround
 
-LaunchModeCargoExceeded = empty_func
-
-local rovers = {
-	RCRover = true,
-	RCSensor = true,
-	RCSolar = true,
-	ExplorerRover = true,
-	RCTransport = true,
-	RCConstructor = true,
-	RCHarvester = true,
-	RCSafari = true,
-	RCDriller = true,
-	RCTerraformer = true,
-}
+local rovers = {}
+ClassDescendantsList("BaseRover", function(id)
+	rovers[id] = true
+end)
 
 local function OverrideUnload(func, self, ...)
+	if not mod_EnableMod then
+		return func(self, ...)
+	end
+
   local map_id = self:GetMapID() or ActiveMapID
 
 	-- get drone cargo item
@@ -28,8 +38,9 @@ local function OverrideUnload(func, self, ...)
 	if cargo and cargo.amount > 10 then
 		local first, last = self:GetSpotRange("Drone")
 		local city = self.city
+
 		for _ = 1, cargo.amount do
-			local pos, angle = self:GetSpotLoc(city.Random(city, first, last))
+			local pos, angle = self:GetSpotLoc(city:Random(first, last))
 			local obj = PlaceObjectIn(cargo.class, map_id, {
 				city = city,
 				is_orphan = true
@@ -48,7 +59,7 @@ local function OverrideUnload(func, self, ...)
 		if cargo and rovers[cargo.class] then
 			local amt = cargo.amount
 			if amt > 1 then
-				for _ = 1, amt-1 do
+				for _ = 1, amt - 1 do
 					local pos, angle = self:GetSpotLoc(self:GetSpotBeginIndex("Rover"))
 					local obj = PlaceObjectIn(cargo.class, map_id, {
 						city = self.city
@@ -67,6 +78,14 @@ local function OverrideUnload(func, self, ...)
 	return func(self, ...)
 end
 
+local ChoOrig_LaunchModeCargoExceeded = LaunchModeCargoExceeded
+function LaunchModeCargoExceeded(...)
+	if mod_EnableMod then
+		return
+	end
+
+	return ChoOrig_LaunchModeCargoExceeded(...)
+end
 
 -- override the drone spawning part of the func
 local ChoOrig_SupplyPod_Unload = SupplyPod.Unload
@@ -79,6 +98,10 @@ function RocketBase:Unload(...)
 end
 
 local function StartupCode()
+	if not mod_EnableMod then
+		return
+	end
+
 	local max_int = max_int
 	local defs = ResupplyItemDefinitions
 	for i = 1, #defs do

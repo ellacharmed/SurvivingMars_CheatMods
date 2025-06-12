@@ -1,6 +1,8 @@
 ## Library Changelog
 
 ## v12.8 (Unreleased)
+### Examine:
+- Batch code exec now goes backwards through indexed tables (for .label tables).
 
 ## v12.7 (5 June 2025)
 - Added Modifiable:RemoveModifier(id, prop): The game doesn't provide a func that allows you to easily remove a modifier.

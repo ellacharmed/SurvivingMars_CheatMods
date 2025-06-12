@@ -1,3 +1,6 @@
+v10.4
+Cargo Shuttle flying underground with a colonist being transported to a surface dome (Thanks DamnedLife).
+
 v10.3
 Twin Peeks: spawning, but not showing Beauty/Research effect deposits (Thanks Dark Master).
 

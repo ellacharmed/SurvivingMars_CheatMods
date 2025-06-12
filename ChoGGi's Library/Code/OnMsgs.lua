@@ -19,7 +19,7 @@ function OnMsg.ChoGGi_UpdateBlacklistFuncs(env)
 		return ChoOrig_ReloadLua(...)
 	end
 
-	-- onmsg happens to fire early enough
+	-- This OnMsg happens to fire early enough (used to remove the logging msg from adding new keys to hr)
 	SetVarTableLock(hr, false)
 end
 	-- think they fixed this, test it
