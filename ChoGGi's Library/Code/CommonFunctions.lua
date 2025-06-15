@@ -31,6 +31,7 @@ local IsPoint = IsPoint
 local IsValid = IsValid
 local MapGet = MapGet
 local Max = Max
+local Msg = Msg
 local OpenDialog = OpenDialog
 local point = point
 local point20 = point20
@@ -4457,7 +4458,6 @@ ChoGGi_Funcs.Common.MapDelete = ChoGGi_Funcs.Common.RemoveObjs
 
 -- SpawnColonist
 if what_game == "Mars" then
-	local Msg = Msg
 	local GenerateColonistData = GenerateColonistData
 
 	function ChoGGi_Funcs.Common.SpawnColonist(old_c, building, pos, city)
@@ -4486,7 +4486,7 @@ if what_game == "Mars" then
 			colonist = GenerateColonistData(city)
 		end
 
-		Colonist:new(colonist)
+		Colonist:new(colonist, city:GetMapID())
 		Msg("ColonistBorn", colonist)
 
 		-- can't fire till after :new()
@@ -8993,7 +8993,6 @@ end
 local SaveOrigFunc = ChoGGi_Funcs.Common.SaveOrigFunc
 
 do -- AddMsgToFunc
-	local Msg = Msg
 	-- changes a function to also post a Msg for use with OnMsg
 	function ChoGGi_Funcs.Common.AddMsgToFunc(class_name, func_name, msg_str, thread, ...)
 		-- anything i want to pass onto the msg

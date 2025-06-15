@@ -12,7 +12,7 @@ local function ModOptions(id)
 	mod_ShowTribbyButton = CurrentModOptions:GetProperty("ShowTribbyButton")
 
 --~ 	-- Make sure we're in-game
---~ 	if not UIColony then
+--~ 	if not GameMaps then
 --~ 		return
 --~ 	end
 

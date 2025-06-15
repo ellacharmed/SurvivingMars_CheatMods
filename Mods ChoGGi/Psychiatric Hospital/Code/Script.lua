@@ -88,7 +88,7 @@ local function ModOptions(id)
 --~ 	ex(mod_options)
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

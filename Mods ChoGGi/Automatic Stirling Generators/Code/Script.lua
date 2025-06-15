@@ -51,7 +51,7 @@ local function ModOptions(id)
 	mod_Shift3 = options:GetProperty("Shift3")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

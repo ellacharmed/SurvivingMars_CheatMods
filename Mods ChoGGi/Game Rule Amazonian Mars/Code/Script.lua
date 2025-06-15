@@ -93,7 +93,7 @@ local function ModOptions(id)
 	mod_MaleSize = CurrentModOptions:GetProperty("MaleSize")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

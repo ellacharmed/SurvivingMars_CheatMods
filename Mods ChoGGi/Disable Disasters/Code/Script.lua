@@ -64,7 +64,7 @@ local function ModOptions(id, skip_disabled)
 	end
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

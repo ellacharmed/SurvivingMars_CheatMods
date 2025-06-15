@@ -818,6 +818,7 @@ do -- CityStart/LoadGame
 
 		--
 		-- tech_field log spam from a mod
+		-- [LUA ERROR] Mars/Lua/Research.lua:647: attempt to index a nil value (field '?')
 		local TechFields = TechFields
 		for _, item in pairs(TechFields) do
 			if not item.SortKey then
@@ -944,7 +945,21 @@ do -- CityStart/LoadGame
 
 		-- -------------------- -- GetCityLabels below -- -------------------- --
 
+		--
+		--
+		--
+		--
 
+		--
+		-- Some mod is adding OpenAirGyms to the Workplace label.
+		-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
+		objs = GetCityLabels("Workplace")
+		for i = #objs, 1, -1 do
+			local obj = objs[i]
+			if obj.class == "OpenAirGym" then
+				obj.city:RemoveFromLabel("Workplace", obj)
+			end
+		end
 
 		--
 		-- Force heat grid to update (if you paused game on new game load then cold areas don't update till you get a working Subsurface Heater).

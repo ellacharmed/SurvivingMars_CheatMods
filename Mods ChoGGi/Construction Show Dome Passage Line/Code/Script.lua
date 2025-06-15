@@ -61,7 +61,7 @@ local function ModOptions()
 	max_line_len = max_hex * 10 * guim
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

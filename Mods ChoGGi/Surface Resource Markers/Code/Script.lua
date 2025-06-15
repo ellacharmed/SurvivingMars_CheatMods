@@ -22,7 +22,9 @@ local res_table = {
 }
 
 local function AddMarker(obj, entity)
-	local marker = ChoGGi_OSurfaceMarker:new()
+	local marker = PlaceObjectIn("ChoGGi_OSurfaceMarker", obj:GetMapID(), {
+		city = obj.city
+	})
 	obj.ChoGGi_SurfaceMarker = marker
 
 	marker:ChangeEntity(entity)
@@ -50,7 +52,7 @@ local function UpdateIcons()
 		if mod_EnableMod then
 			local entity = res_table[obj.class]
 			if valid_marker then
-				marker:SetScale(mod_MarkerScale)
+				obj.ChoGGi_SurfaceMarker:SetScale(mod_MarkerScale)
 			end
 			if not valid_marker and entity then
 				AddMarker(obj, entity)
@@ -87,7 +89,7 @@ local function ModOptions(id)
 	mod_MarkerScale = CurrentModOptions:GetProperty("MarkerScale")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

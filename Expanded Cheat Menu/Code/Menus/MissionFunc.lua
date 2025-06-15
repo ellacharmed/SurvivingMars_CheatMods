@@ -319,25 +319,29 @@ function ChoGGi_Funcs.Menus.SetSponsor()
 	local objs = Presets.MissionSponsorPreset.Default or ""
 	for i = 1, #objs do
 		local spon = objs[i]
-		if spon.id ~= "random" and spon.id ~= "None" then
-			local descr = GetSponsorDescr(spon, false, "include rockets", true, true)
-			local stats
-			-- the one we want is near the end, but there's also a blank item below it
-			for j = 1, #descr do
-				local des = descr[j]
-				if type(des) == "table" then
-					stats = des
-				end
-			end
-
-			c = c + 1
-			item_list[c] = {
-				text = Translate(spon.display_name),
-				value = spon.id,
-				hint = Translate(T{spon.effect, stats[2]})
-					.. (spon.save_in ~= "" and "\n\nsave_in: " .. spon.save_in or ""),
-			}
+		if spon.id == "random" or spon.id == "None" then
+			goto continue
 		end
+
+		local descr = GetSponsorDescr(spon, false, "include rockets", true, true)
+		local stats
+		-- the one we want is near the end, but there's also a blank item below it
+		for j = 1, #descr do
+			local des = descr[j]
+			if type(des) == "table" then
+				stats = des
+			end
+		end
+
+		c = c + 1
+		item_list[c] = {
+			text = Translate(spon.display_name),
+			value = spon.id,
+			hint = Translate(T{spon.effect, stats[2]})
+				.. (spon.save_in ~= "" and "\n\nsave_in: " .. spon.save_in or ""),
+		}
+		--
+		::continue::
 	end
 
 	local function CallBackFunc(choice)

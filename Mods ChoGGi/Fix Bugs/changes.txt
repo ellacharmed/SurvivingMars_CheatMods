@@ -1,3 +1,7 @@
+v10.6
+Some mod is adding OpenAirGyms to the Workplace label,
+which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
+
 v10.5
 Added my School Skip Attained Perks mod:
 Schools won't pick a trait the colonist already has when training is complete.

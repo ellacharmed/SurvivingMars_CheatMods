@@ -85,7 +85,7 @@ local function ModOptions(id)
 	end
 
 	-- make sure we're in-game
-	if not MainCity then
+	if not GameMaps then
 		return
 	end
 

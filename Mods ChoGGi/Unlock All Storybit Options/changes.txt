@@ -1,2 +1,5 @@
+v0.3
+Added sponor locked options (Thanks SoftwareSimian).
+
 v0.2
 Fixed bug with early story bits (thanks PsiFive).

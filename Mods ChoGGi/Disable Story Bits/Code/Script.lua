@@ -43,7 +43,7 @@ local function ModOptions(id)
 	mod_RivalColoniesGrudge = CurrentModOptions:GetProperty("RivalColoniesGrudge")
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

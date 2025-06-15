@@ -1,29 +1,37 @@
 -- See LICENSE for terms
 
-if not g_AvailableDlc.picard then
-	print(CurrentModDef.title, ": Below & Beyond DLC not installed! Abort!")
-	return
-end
-
 local mod_EnableMod
+
+local scenarios = {
+	["Dust Devil"] = true,
+	["Crust Fault"] = true,
+}
+
+local function RemoveAnomalies(label)
+	for i = #label or "", 1, -1 do
+		local obj = label[i]
+		if scenarios[obj.sequence] then
+			obj:delete()
+		end
+	end
+end
 
 local function StartupCode()
 	if not mod_EnableMod then
 		return
 	end
 
-	local bt = BuildingTemplates.DroneHubExtender
-	if bt then
-		bt.construction_cost_PreciousMinerals = 0
-		bt.construction_cost_PreciousMetals = 6000
-		local ct = ClassTemplates.Building.DroneHubExtender
-		ct.construction_cost_PreciousMinerals = 0
-		ct.construction_cost_PreciousMetals = 6000
-	end
+	local labels = MainCity.labels
+	RemoveAnomalies(labels.Anomaly)
+	RemoveAnomalies(labels.SubsurfaceAnomalyMarker)
 end
+
+-- New games
 OnMsg.CityStart = StartupCode
+-- Saved ones
 OnMsg.LoadGame = StartupCode
 
+-- Update mod options
 local function ModOptions(id)
 	-- id is from ApplyModOptions
 	if id and id ~= CurrentModId then

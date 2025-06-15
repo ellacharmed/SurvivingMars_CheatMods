@@ -58,7 +58,7 @@ local function ModOptions(id)
 	mod_RefabEverything = CurrentModOptions:GetProperty("RefabEverything")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

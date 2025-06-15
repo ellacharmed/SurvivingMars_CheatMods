@@ -67,7 +67,7 @@ local function ModOptions(id)
 	mod_MaxDeposits = CurrentModOptions:GetProperty("MaxDeposits")
 
 	-- Make sure we're in-game UIColony
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

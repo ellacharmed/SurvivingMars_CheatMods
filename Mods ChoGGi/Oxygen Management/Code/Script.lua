@@ -55,7 +55,7 @@ local function ModOptions(id)
 	oxygen_mod_options.Senior = options:GetProperty("OxygenUseSenior")
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

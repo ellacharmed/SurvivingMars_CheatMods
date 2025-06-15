@@ -95,15 +95,13 @@ function LaunchCargoRocket(obj, func_on_launch, ...)
 	end
 end
 
--- lua rev 1011166
 local ChoOrig_TryCloseAfterPlace = TryCloseAfterPlace
-function TryCloseAfterPlace(self, ...)
+function TryCloseAfterPlace(...)
 	if not mod_EnableMod then
-		return ChoOrig_TryCloseAfterPlace(self, ...)
+		return ChoOrig_TryCloseAfterPlace(...)
 	end
 
---~ 	local is_wonder = self.template and ClassTemplates.Building[self.template].wonder
---~ 	if is_wonder or not IsPlacingMultipleConstructions() then
+	-- lua rev 1011166
 	if not IsPlacingMultipleConstructions() then
 		CloseModeDialog()
 	end
@@ -118,8 +116,6 @@ function ConstructionModeDialog.TryCloseAfterPlace(...)
 
 	return TryCloseAfterPlace(...)
 end
-
-
 
 -- Show elevator in resupply if first built one isn't working
 function OnMsg.ClassesPostprocess()

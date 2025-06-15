@@ -33,4 +33,9 @@ function OnMsg.ClassesPostprocess()
 	function IsCommander2.Evaluate(...)
 		return FakeEvaluate(ChoOrig_IsCommander2_Evaluate, ...)
 	end
+	--
+	local ChoOrig_IsSponsor_Evaluate = IsSponsor.Evaluate
+	function IsSponsor.Evaluate(...)
+		return FakeEvaluate(ChoOrig_IsSponsor_Evaluate, ...)
+	end
 end

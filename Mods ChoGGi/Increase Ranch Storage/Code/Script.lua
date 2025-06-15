@@ -44,7 +44,7 @@ local function ModOptions(id)
 	ChoGGi_Funcs.Common.SetBuildingTemplates("InsidePasture", "max_storage1", mod_StockMax)
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

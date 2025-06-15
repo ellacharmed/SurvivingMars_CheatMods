@@ -85,6 +85,7 @@ Additions are welcome in any language.
 
 ### Mod bug fixes:
 ```
+log spam from some mod: "attempt to call a nil value (method 'GetFreeWorkSlots')".
 Fix applicants with a func instead of a time.
 UCP: Never get funding/res points from Observatory.
 Log spam from borked colonist (possibly from a mod, could just be B&B again).

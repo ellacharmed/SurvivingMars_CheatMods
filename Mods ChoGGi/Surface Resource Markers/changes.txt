@@ -1,2 +1,5 @@
+v0.3
+Realm mismatch log spam, and it wasn't updating the scale on load.
+
 v0.2
 Added exotic minerals and rare metals.

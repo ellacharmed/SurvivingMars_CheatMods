@@ -9,61 +9,50 @@ local InvalidPos = InvalidPos()
 local mod_EnableMod
 
 -- Copied from my lib mod, so it isn't a req for this mod (I prefer not to have my lib as a req for any fix mods).
-local function SpawnColonist_CopiedFunc(old_c, building, pos, city)
-	if not city then
-		city = MainCity
-	end
-
-	local colonist
-	if old_c then
-		colonist = GenerateColonistData(city, old_c.age_trait, false, {
-			gender = old_c.gender, entity_gender = old_c.entity_gender,
-			no_traits = "no_traits", no_specialization = true,
-		})
-		-- we set all the set gen doesn't (it's more for random gen after all)
-		colonist.birthplace = old_c.birthplace
-		colonist.death_age = old_c.death_age
-		colonist.name = old_c.name
-		colonist.race = old_c.race
-		colonist.specialist = old_c.specialist
-		for trait_id, _ in pairs(old_c.traits) do
-			if trait_id and trait_id ~= "" then
-				colonist.traits[trait_id] = true
-			end
+local SpawnColonist = rawget(_G, "ChoGGi_Funcs") and ChoGGi_Funcs.Common.SpawnColonist
+	or function(old_c, building, pos, city)
+		if not city then
+			city = UICity
 		end
-	else
-		colonist = GenerateColonistData(city)
+
+		local colonist
+		if old_c then
+			colonist = GenerateColonistData(city, old_c.age_trait, false, {
+				gender = old_c.gender, entity_gender = old_c.entity_gender,
+				no_traits = "no_traits", no_specialization = true,
+			})
+			-- we set all the set gen doesn't (it's more for random gen after all)
+			colonist.birthplace = old_c.birthplace
+			colonist.death_age = old_c.death_age
+			colonist.name = old_c.name
+			colonist.race = old_c.race
+			colonist.specialist = old_c.specialist
+			for trait_id, _ in pairs(old_c.traits) do
+				if trait_id and trait_id ~= "" then
+					colonist.traits[trait_id] = true
+				end
+			end
+		else
+			colonist = GenerateColonistData(city)
+		end
+
+		Colonist:new(colonist, city:GetMapID())
+		Msg("ColonistBorn", colonist)
+
+		local realm = GetRealm(colonist)
+		colonist:SetPos(pos or building and realm:GetPassablePointNearby(building:GetPos())
+			or realm:GetRandomPassablePoint())
+
+		-- if spec is different then updates to new entity
+		colonist:ChooseEntity()
+		return colonist
+
 	end
-
-	Colonist:new(colonist)
-	Msg("ColonistBorn", colonist)
-
-	local realm = GetRealm(colonist)
-	colonist:SetPos(pos or building and realm:GetPassablePointNearby(building:GetPos())
-		or realm:GetRandomPassablePoint())
-
-	-- if spec is different then updates to new entity
-	colonist:ChooseEntity()
-	return colonist
-end
--- we need to wait till mods are loaded to check for my mod
-local SpawnColonist
 
 local function ModOptions(id)
 	-- id is from ApplyModOptions
 	if id and id ~= CurrentModId then
 		return
-	end
-
-	if not SpawnColonist then
-		-- If my lib mod is installed use func from it
-		if table.find(ModsLoaded, "id", "ChoGGi_Library") then
-			SpawnColonist = ChoGGi_Funcs.Common.SpawnColonist
-		end
-		-- No lib mod so use local copy
-		if not SpawnColonist then
-			SpawnColonist = SpawnColonist_CopiedFunc
-		end
 	end
 
 	mod_EnableMod = CurrentModOptions:GetProperty("EnableMod")

@@ -34,7 +34,7 @@ local function ModOptions(id)
 	mod_DeleteGeysers = CurrentModOptions:GetProperty("DeleteGeysers")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

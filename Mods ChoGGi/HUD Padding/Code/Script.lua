@@ -74,7 +74,7 @@ local function ModOptions(id)
 	mod_BottomBar = StrToBox(CurrentModOptions:GetProperty("BottomBar"))
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

@@ -1,3 +1,6 @@
+v2.6
+Tweaked how colonists are spawned (added mapid to :new() func).
+
 v2.5
 Trade rocket unloading resources.
 

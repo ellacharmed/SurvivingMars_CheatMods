@@ -80,7 +80,7 @@ local function ModOptions(id)
 	mod_IgnoreNoBuildings = options:GetProperty("IgnoreNoBuildings")
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

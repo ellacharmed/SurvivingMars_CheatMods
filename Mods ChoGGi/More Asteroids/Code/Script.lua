@@ -122,7 +122,7 @@ local function ModOptions(id)
 	MaxAsteroidsPlusTwo = mod_MaxAsteroids + 2
 
 	-- Make sure we're in-game UIColony
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

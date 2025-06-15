@@ -71,7 +71,7 @@ local function ModOptions(id)
 	mod_AutoPerformance = CurrentModOptions:GetProperty("AutoPerformance")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

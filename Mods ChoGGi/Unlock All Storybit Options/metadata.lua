@@ -4,9 +4,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "2946679087",
 	"pops_any_uuid", "cb1371bf-34d4-4ca6-b19d-41436e320b36",
 	"lua_revision", 1007000, -- Picard
-	"version", 2,
+	"version", 3,
 	"version_major", 0,
-	"version_minor", 2,
+	"version_minor", 3,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -15,7 +15,7 @@ return PlaceObj("ModDef", {
 	"has_options", true,
 	"TagInterface", true,
 	"description", [[
-You can pick all options in dialogs (no commander limit).
+You can pick all options in dialogs (no commander/sponsor limit).
 
 
 Requested by Fellownerd.

@@ -24,7 +24,7 @@ local function ModOptions(id)
 	mod_HelpVeganHit = CurrentModOptions:GetProperty("HelpVeganHit")
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

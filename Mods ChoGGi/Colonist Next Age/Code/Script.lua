@@ -68,7 +68,7 @@ local function ModOptions(id)
 	mod_MaxDeathAge = options:GetProperty("MaxDeathAge")
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

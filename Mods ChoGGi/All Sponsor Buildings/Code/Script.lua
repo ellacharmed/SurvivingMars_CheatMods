@@ -203,7 +203,7 @@ local function ModOptions(id)
 	end
 
 	-- Make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 

@@ -29,7 +29,7 @@ local function ModOptions(id)
 	mod_IgnoreMeteors = CurrentModOptions:GetProperty("IgnoreMeteors")
 
 	-- make sure we're in-game
-	if not UIColony then
+	if not GameMaps then
 		return
 	end
 
