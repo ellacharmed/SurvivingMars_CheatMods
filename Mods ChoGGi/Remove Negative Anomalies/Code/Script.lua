@@ -8,7 +8,7 @@ local scenarios = {
 }
 
 local function RemoveAnomalies(label)
-	for i = #label or "", 1, -1 do
+	for i = #(label or ""), 1, -1 do
 		local obj = label[i]
 		if scenarios[obj.sequence] then
 			obj:delete()
