@@ -555,7 +555,7 @@ local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 
 --~ local realm = GetRealmByID(MainMapID)
 function ChoGGi_Funcs.Common.GetRealm(obj)
-	return obj and GetRealm(obj) or GetActiveRealm()
+	return IsValid(obj) and GetRealm(obj) or GetActiveRealm()
 end
 local GetRealm = ChoGGi_Funcs.Common.GetRealm
 

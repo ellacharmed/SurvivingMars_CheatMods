@@ -1,6 +1,8 @@
 ## Library Changelog
 
 ## v12.8 (Unreleased)
+- Fixed some GetRealm log spam.
+
 ### Examine:
 - Batch code exec now goes backwards through indexed tables (for .label tables).
 

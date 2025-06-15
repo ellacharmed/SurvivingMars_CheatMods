@@ -1,3 +1,7 @@
+v10.5
+Added my School Skip Attained Perks mod:
+Schools won't pick a trait the colonist already has when training is complete.
+
 v10.4
 Cargo Shuttle flying underground with a colonist being transported to a surface dome (Thanks DamnedLife).
 

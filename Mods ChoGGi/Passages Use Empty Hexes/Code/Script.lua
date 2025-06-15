@@ -144,12 +144,23 @@ function OnMsg.ClassesPostprocess()
 
   xtemplate[#xtemplate+1] = PlaceObj("XTemplateTemplate", {
 		"__template", "InfopanelButton",
-		"RolloverTitle", T(302535920000581, "Toggle Object Collision"),
+		"RolloverTitle", T(0000, "Object Collision Enabled"),
 		"RolloverText", T(302535920000582, "Select an object and activate this to toggle collision (if you have a rover stuck in a dome)."),
 		"OnPress", function(self)
-			-- doesn't do anything, but I use it for notification
-			CollisionsObject_Toggle(self.context)
-			local objs = self.context.elements or ""
+			local context = self.context
+			-- Doesn't do anything, but I use it for notification
+			CollisionsObject_Toggle(context)
+
+			-- Update icon
+			if context.ChoGGi_CollisionsDisabled then
+				self:SetIcon("UI/Icons/IPButtons/confirm_route.tga")
+				self:SetRolloverTitle(T(0000, "Object Collision Disabled"))
+			else
+				self:SetIcon("UI/Icons/IPButtons/dome_buildings.tga")
+				self:SetRolloverTitle(T(0000, "Object Collision Enabled"))
+			end
+
+			local objs = context.elements or ""
 			for i = 1, #objs do
 				local obj = objs[i]
 				-- skip outside passage chunks
@@ -159,6 +170,17 @@ function OnMsg.ClassesPostprocess()
 			end
 		end,
 		"Icon", "UI/Icons/IPButtons/dome_buildings.tga",
+
+		-- Updates every sec (or so) when object selection panel is shown
+		"OnContextUpdate", function(self, context)
+			if context.ChoGGi_CollisionsDisabled then
+				self:SetIcon("UI/Icons/IPButtons/confirm_route.tga")
+				self:SetRolloverTitle(T(0000, "Object Collision Disabled"))
+			else
+				self:SetIcon("UI/Icons/IPButtons/dome_buildings.tga")
+				self:SetRolloverTitle(T(0000, "Object Collision Enabled"))
+			end
+		end,
 	})
 
 --~ 	xtemplate[#xtemplate+1] = section
@@ -273,3 +295,10 @@ Actions[#Actions+1] = {ActionName = T(302535920011567, "Passages Use Empty Hexes
 	replace_matching_id = true,
 	ActionBindable = true,
 }
+
+-- Remove GetEnumFlags log spam
+local ChoOrig_Passage_AddPFTunnel = Passage.AddPFTunnel
+function Passage:AddPFTunnel(...)
+	self.elements[1]:SetEnumFlags(const.efApplyToGrids)
+	return ChoOrig_Passage_AddPFTunnel(self, ...)
+end

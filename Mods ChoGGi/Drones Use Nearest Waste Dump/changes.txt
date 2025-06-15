@@ -1,3 +1,6 @@
+v0.8
+Added mod option to disable mod.
+
 v0.7
 Did some work on code, hopefully that fixes whatever issue it had before.
 

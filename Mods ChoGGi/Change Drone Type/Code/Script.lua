@@ -25,9 +25,10 @@ OnMsg.ApplyModOptions = ModOptions
 -- function called when a drone is created
 local ChoOrig_City_CreateDrone = City.CreateDrone
 function City:CreateDrone(...)
-	if mod_AlwaysWasp then
+	if mod_AlwaysWasp or self.drone_class == "FlyingDrone" then
 		return FlyingDrone:new{city = self}
 	end
+
 	return ChoOrig_City_CreateDrone(self, ...)
 --~ 	local classdef = g_Classes[self.drone_class] or Drone
 --~ 	return classdef:new{city = self}

@@ -1,3 +1,7 @@
+v1.2
+Remove GetEnumFlags log spam (thanks pluripotent).
+Updated toggle collusions button to be cleared about collusion state.
+
 v1.1
 Seems to just be log spam? but if the ui for a selected passage looked odd sometimes then this is a fix for it.
 

@@ -21,7 +21,7 @@ return {
 	PlaceObj("ModItemOptionNumber", {
 		"name", "MaxZoom",
 		"DisplayName", T(302535920011738, "Max Zoom"),
-		"Help", T(302535920011739, "How far you can zoom out."),
+		"Help", T(302535920011739, "How far you can zoom out (in thousands)."),
 		"DefaultValue", 24,
 		"MinValue", 8,
 		"MaxValue", 128,
@@ -46,7 +46,7 @@ return {
 	PlaceObj("ModItemOptionNumber", {
 		"name", "ScrollBorder",
 		"DisplayName", T(302535920011744, "Scroll Border"),
-		"Help", T(302535920011745, "Size of scroll border."),
+		"Help", T(302535920011745, "Size of camera scroll border (when mouse is near edge)."),
 		"DefaultValue", 5,
 		"MinValue", 0,
 		"MaxValue", 20,

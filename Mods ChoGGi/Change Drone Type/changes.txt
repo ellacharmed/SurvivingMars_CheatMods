@@ -1,3 +1,6 @@
+v1.0
+The Toggles! They do nothing!!! (Thanks jordy1261).
+
 v0.9
 Making it more compatible.
 

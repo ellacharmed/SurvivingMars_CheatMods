@@ -4,6 +4,7 @@ local TGetID = TGetID
 
 local mod_ElonMusk
 local mod_VladimirPutin
+local mod_RonaldReagan
 local mod_RemoveQuotes
 
 local quotes_list = {
@@ -18,6 +19,8 @@ local quotes_list = {
 	[11782] = [[Nwabudike]],
 	[10515] = [[<grey>"Today the dreams of the best sons of mankind have come true. The assault on space has begun."
 <right>Sergei Korolev</grey><left>]],
+	[6512] = [[<grey>"This is a present from a small, distant world, a token of our sounds, our science, our images, our music, our thoughts and our feelings. We are attempting to survive our time so we may live into yours."
+<right>Jimmy Carter</grey><left>]],
 }
 
 local function ReplaceQuote(tt, string_idx, replace_text, search_text)
@@ -62,6 +65,10 @@ local function ChangeStrings()
 		if mod_VladimirPutin then
 			ReplaceQuote(tt, 10515, quotes_list[10515])
 		end
+		if mod_RonaldReagan then
+			ReplaceQuote(tt, 6512, quotes_list[6512])
+			tt[1249] = quotes_list[1249]
+		end
 	end
 
 	-- Probably don't need this
@@ -87,6 +94,7 @@ local function ModOptions(id)
 	mod_RemoveQuotes = CurrentModOptions:GetProperty("RemoveQuotes")
 	mod_ElonMusk = CurrentModOptions:GetProperty("ElonMusk")
 	mod_VladimirPutin = CurrentModOptions:GetProperty("VladimirPutin")
+	mod_RonaldReagan = CurrentModOptions:GetProperty("RonaldReagan")
 
 	ChangeStrings()
 end

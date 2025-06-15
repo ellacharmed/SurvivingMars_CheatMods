@@ -2211,6 +2211,67 @@ do -- SpawnEffectDeposit:Execute(...)
 end -- do
 
 --
+-- School Skip Attained Perks
+-- Schools won't pick a trait the colonist already has when training is complete.
+-- Requested by https://www.reddit.com/r/SurvivingMars/comments/kgystg/im_playing_as_church_of_the_new_ark_so_everyone/
+-- This func is called by School:OnTrainingCompleted()
+do -- School:OnTrainingCompleted(...) / SchoolSpire:OnTrainingCompleted(...)
+
+	local student
+	local ChoOrig_FilterCompatibleTraitsWith = FilterCompatibleTraitsWith
+	local ChoFake_FilterCompatibleTraitsWith = function(traits, ...)
+		if not student then
+			return ChoOrig_FilterCompatibleTraitsWith(traits, ...)
+		end
+
+		local compatible = ChoOrig_FilterCompatibleTraitsWith(traits, ...)
+
+		-- Remove any perks already attained from compatible list
+		for i = #compatible, 1, -1 do
+			if student.traits[compatible[i]] then
+				table.remove(compatible, i)
+			end
+		end
+
+		return compatible
+	end
+
+	local function OnTrainingCompleted(func, self, unit, ...)
+		if not mod_EnableMod then
+			return func(self, unit, ...)
+		end
+
+		student = unit
+
+		FilterCompatibleTraitsWith = ChoFake_FilterCompatibleTraitsWith
+		pcall(func, self, unit, ...)
+		FilterCompatibleTraitsWith = ChoOrig_FilterCompatibleTraitsWith
+
+		student = nil
+	end
+
+
+	local ChoOrig_School_OnTrainingCompleted = School.OnTrainingCompleted
+	function School.OnTrainingCompleted(...)
+		return OnTrainingCompleted(ChoOrig_School_OnTrainingCompleted, ...)
+	end
+
+	local ChoOrig_SchoolSpire_OnTrainingCompleted = SchoolSpire.OnTrainingCompleted
+	function SchoolSpire.OnTrainingCompleted(...)
+		return OnTrainingCompleted(ChoOrig_SchoolSpire_OnTrainingCompleted, ...)
+	end
+
+end -- do
+
+--~ local ChoOrig_FilterCompatibleTraitsWith = FilterCompatibleTraitsWith
+--~ function FilterCompatibleTraitsWith(traits, compatible_with, ...)
+--~ 	if not mod_EnableMod then
+--~ 		return ChoOrig_FilterCompatibleTraitsWith(traits, compatible_with, ...)
+--~ 	end
+
+--~ end
+
+--
 --
 --
 --

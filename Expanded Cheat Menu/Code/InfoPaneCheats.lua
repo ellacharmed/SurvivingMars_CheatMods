@@ -11,35 +11,34 @@ local pairs, table = pairs, table
 local IsValid = IsValid
 local CreateRealTimeThread = CreateRealTimeThread
 
-local Common = ChoGGi_Funcs.Common
-local RetName = Common.RetName
-local Random = Common.Random
+local RetName = ChoGGi_Funcs.Common.RetName
+local Random = ChoGGi_Funcs.Common.Random
 local T = T
 local Translate = ChoGGi_Funcs.Common.Translate
 local ScaleStat = const.Scale.Stat
 
 local CObject = CObject
 CObject.CheatExamine = OpenExamineReturn
-CObject.CheatToggleCollision = Common.CollisionsObject_Toggle
-CObject.CheatDeleteObject = Common.DeleteObjectQuestion
-CObject.CheatViewConstruct = Common.ToggleConstructEntityView
-CObject.CheatViewEditor = Common.ToggleEditorEntityView
-ColorizableObject.CheatColourRandom = Common.ObjectColourRandom
-ColorizableObject.CheatColourDefault = Common.ObjectColourDefault
-Drone.CheatFindResource = Common.FindNearestResource
-Drone.CheatDestroy = Common.RuinObjectQuestion
-RCTransport.CheatFindResource = Common.FindNearestResource
+CObject.CheatToggleCollision = ChoGGi_Funcs.Common.CollisionsObject_Toggle
+CObject.CheatDeleteObject = ChoGGi_Funcs.Common.DeleteObjectQuestion
+CObject.CheatViewConstruct = ChoGGi_Funcs.Common.ToggleConstructEntityView
+CObject.CheatViewEditor = ChoGGi_Funcs.Common.ToggleEditorEntityView
+ColorizableObject.CheatColourRandom = ChoGGi_Funcs.Common.ObjectColourRandom
+ColorizableObject.CheatColourDefault = ChoGGi_Funcs.Common.ObjectColourDefault
+Drone.CheatFindResource = ChoGGi_Funcs.Common.FindNearestResource
+Drone.CheatDestroy = ChoGGi_Funcs.Common.RuinObjectQuestion
+RCTransport.CheatFindResource = ChoGGi_Funcs.Common.FindNearestResource
 
-MechanizedDepot.CheatEmptyDepot = Common.EmptyMechDepot
-BaseRover.CheatDestroy = Common.RuinObjectQuestion
+MechanizedDepot.CheatEmptyDepot = ChoGGi_Funcs.Common.EmptyMechDepot
+BaseRover.CheatDestroy = ChoGGi_Funcs.Common.RuinObjectQuestion
 local Building = Building
-Building.CheatDestroy = Common.RuinObjectQuestion
-Building.CheatPowerFree = Common.RemoveBuildingElecConsump
-Building.CheatPowerNeed = Common.AddBuildingElecConsump
-Building.CheatWaterFree = Common.RemoveBuildingWaterConsump
-Building.CheatWaterNeed = Common.AddBuildingWaterConsump
-Building.CheatOxygenFree = Common.RemoveBuildingAirConsump
-Building.CheatOxygenNeed = Common.AddBuildingAirConsump
+Building.CheatDestroy = ChoGGi_Funcs.Common.RuinObjectQuestion
+Building.CheatPowerFree = ChoGGi_Funcs.Common.RemoveBuildingElecConsump
+Building.CheatPowerNeed = ChoGGi_Funcs.Common.AddBuildingElecConsump
+Building.CheatWaterFree = ChoGGi_Funcs.Common.RemoveBuildingWaterConsump
+Building.CheatWaterNeed = ChoGGi_Funcs.Common.AddBuildingWaterConsump
+Building.CheatOxygenFree = ChoGGi_Funcs.Common.RemoveBuildingAirConsump
+Building.CheatOxygenNeed = ChoGGi_Funcs.Common.AddBuildingAirConsump
 
 function ChoGGi_Funcs.InfoPane.InfopanelCheatsCleanup()
 	if ActiveMapID and not ActiveMapID:find("Tutorial") then
@@ -631,7 +630,7 @@ function ChoGGi_Funcs.InfoPane.SetInfoPanelCheatHints(win)
 		-- cheats_lookup2 is a list of name = true
 		elseif cheats_lookup2[aid] then
 			if aid == "ToggleCollision" then
-				SetHint(action, Translate(302535920001543--[[Set collisions on %s. Collisions disabled: %s]]):format(name, Common.SettingState(obj.ChoGGi_CollisionsDisabled)))
+				SetHint(action, Translate(302535920001543--[[Set collisions on %s. Collisions disabled: %s]]):format(name, ChoGGi_Funcs.Common.SettingState(obj.ChoGGi_CollisionsDisabled)))
 				SetIcon(action, nil, "CommonAssets/UI/Menu/ToggleOcclusion.tga")
 
 			elseif aid == "CleanAndFix" then
@@ -773,18 +772,18 @@ function CObject:CheatToggleSigns()
 end
 
 function CObject:CheatDeleteAllObjects()
-	local id = Common.RetTemplateOrClass(self)
+	local id = ChoGGi_Funcs.Common.RetTemplateOrClass(self)
 
 	local function CallBackFunc(answer)
 		if answer then
-			local objs = Common.MapGet(id)
+			local objs = ChoGGi_Funcs.Common.MapGet(id)
 			for i = 1, #objs do
-				Common.DeleteObject(objs[i], true)
+				ChoGGi_Funcs.Common.DeleteObject(objs[i], true)
 			end
 		end
 	end
 
-	Common.QuestionBox(
+	ChoGGi_Funcs.Common.QuestionBox(
 		T(6779--[[Warning]]) .. "!\n" .. T(302535920001702--[[Destroy]]) .. " " .. T(302535920001691--[[All]]) .. ": " .. id,
 		CallBackFunc,
 		T(6779--[[Warning]]) .. ": " .. T(302535920001702--[[Destroy]]),
@@ -799,7 +798,7 @@ function CObject:CheatMoveRealm(map_id)
 	end
 
 	if map_id then
-		Common.MoveRealm(self, map_id)
+		ChoGGi_Funcs.Common.MoveRealm(self, map_id)
 		return
 	end
 
@@ -830,10 +829,10 @@ function CObject:CheatMoveRealm(map_id)
 			return
 		end
 
-		Common.MoveRealm(self, choice[1].map_id)
+		ChoGGi_Funcs.Common.MoveRealm(self, choice[1].map_id)
 	end
 
-	Common.OpenInListChoice{
+	ChoGGi_Funcs.Common.OpenInListChoice{
 		callback = CallBackFunc,
 		items = item_list,
 		title = T(302535920001262--[[Move To Realm]]),
@@ -903,13 +902,13 @@ function Colonist:CheatPrefDef()
 	self.performance = self:GetClassValue("performance")
 end
 function Colonist:CheatRandomGender()
-	Common.ColonistUpdateGender(self, ChoGGi.Tables.ColonistGenders[Random(1, #ChoGGi.Tables.ColonistGenders)])
+	ChoGGi_Funcs.Common.ColonistUpdateGender(self, ChoGGi.Tables.ColonistGenders[Random(1, #ChoGGi.Tables.ColonistGenders)])
 end
 function Colonist:CheatRandomAge()
-	Common.ColonistUpdateAge(self, ChoGGi.Tables.ColonistAges[Random(1, #ChoGGi.Tables.ColonistAges)])
+	ChoGGi_Funcs.Common.ColonistUpdateAge(self, ChoGGi.Tables.ColonistAges[Random(1, #ChoGGi.Tables.ColonistAges)])
 end
 function Colonist:CheatDie()
-	Common.QuestionBox(
+	ChoGGi_Funcs.Common.QuestionBox(
 		T(6779--[[Warning]]) .. "!\n" .. T(302535920001430--[[Kill colonist-]]) .. "?",
 		function(answer)
 			if answer then
@@ -921,17 +920,17 @@ function Colonist:CheatDie()
 end
 
 function Unit:CheatBreadcrumbs()
-	return Common.ToggleBreadcrumbs(self)
+	return ChoGGi_Funcs.Common.ToggleBreadcrumbs(self)
 end
 function Shuttle:CheatBreadcrumbs()
-	return Common.ToggleBreadcrumbs(self)
+	return ChoGGi_Funcs.Common.ToggleBreadcrumbs(self)
 end
 
 function Unit:CheatUnitPathing()
-	return Common.ToggleUnitPathing(self)
+	return ChoGGi_Funcs.Common.ToggleUnitPathing(self)
 end
 function Shuttle:CheatUnitPathing()
-	return Common.ToggleUnitPathing(self)
+	return ChoGGi_Funcs.Common.ToggleUnitPathing(self)
 end
 
 -- CheatAllShifts
@@ -969,13 +968,13 @@ function Workplace:CheatWorkAuto()
 	else
 		self.auto_performance = 100
 	end
-	Common.ToggleWorking(self)
+	ChoGGi_Funcs.Common.ToggleWorking(self)
 end
 function Workplace:CheatWorkManual()
 	self.max_workers = nil
 	self.automation = nil
 	self.auto_performance = nil
-	Common.ToggleWorking(self)
+	ChoGGi_Funcs.Common.ToggleWorking(self)
 end
 
 -- Deposits
@@ -1001,7 +1000,7 @@ local function CheatChangeGrade(self)
 		self.grade = choice[1].value
 	end
 
-	Common.OpenInListChoice{
+	ChoGGi_Funcs.Common.OpenInListChoice{
 		callback = CallBackFunc,
 		items = item_list,
 		title = T(302535920000977--[[Change grade of a deposit.]]),
@@ -1073,7 +1072,7 @@ local function CheatChargeDbl(obj)
 
 	grid.max_charge = c_new
 	grid.max_discharge = d_new
-	Common.ToggleWorking(obj)
+	ChoGGi_Funcs.Common.ToggleWorking(obj)
 end
 local function CheatCapDbl(obj)
 	local cap_key, grid = RetGridValues(obj)
@@ -1081,7 +1080,7 @@ local function CheatCapDbl(obj)
 	obj[cap_key] = new
 	grid.storage_capacity = new
 	grid.storage_mode = "charging"
-	Common.ToggleWorking(obj)
+	ChoGGi_Funcs.Common.ToggleWorking(obj)
 end
 local function CheatChargeDef(obj)
 	local c_key, d_key, grid = RetGridCharValues(obj)
@@ -1091,7 +1090,7 @@ local function CheatChargeDef(obj)
 	obj[d_key] = d_new
 	grid.max_charge = c_new
 	grid.max_discharge = d_new
-	Common.ToggleWorking(obj)
+	ChoGGi_Funcs.Common.ToggleWorking(obj)
 end
 local function CheatCapDef(obj)
 	local cap_key, grid = RetGridValues(obj)
@@ -1099,7 +1098,7 @@ local function CheatCapDef(obj)
 	obj[cap_key] = new
 	grid.storage_capacity = new
 	grid.storage_mode = "full"
-	Common.ToggleWorking(obj)
+	ChoGGi_Funcs.Common.ToggleWorking(obj)
 end
 ElectricityStorage.CheatCapDbl = CheatCapDbl
 ElectricityStorage.CheatCapDef = CheatCapDef
@@ -1153,7 +1152,7 @@ function Drone:CheatBattCapDbl()
 	self.battery_max = self.battery_max * 2
 end
 function Drone:CheatBattCapDef()
-	self.battery_max = Common.GetResearchedTechValue("DroneBatteryMax")
+	self.battery_max = ChoGGi_Funcs.Common.GetResearchedTechValue("DroneBatteryMax")
 end
 
 -- CheatMoveSpeedDbl
@@ -1380,10 +1379,10 @@ if rawget(_G, "RocketBase") then
 --~ 		end
 --~ 	end
 	function RocketBase:CheatCapDbl()
-		Common.SetTaskReqAmount(self, self.max_export_storage * 2, "export_requests", "max_export_storage")
+		ChoGGi_Funcs.Common.SetTaskReqAmount(self, self.max_export_storage * 2, "export_requests", "max_export_storage")
 	end
 	function RocketBase:CheatCapDef()
-		Common.SetTaskReqAmount(self, self:GetClassValue("max_export_storage"), "export_requests", "max_export_storage")
+		ChoGGi_Funcs.Common.SetTaskReqAmount(self, self:GetClassValue("max_export_storage"), "export_requests", "max_export_storage")
 	end
 
 	function RocketBase:CheatAddDust2()
@@ -1440,7 +1439,7 @@ function Dome:CheatCrimeEvent()
 		choice[1].value(self)
 	end
 
-	Common.OpenInListChoice{
+	ChoGGi_Funcs.Common.OpenInListChoice{
 		callback = CallBackFunc,
 		items = item_list,
 		title = T(302535920001541--[[Start a Crime Event]]),

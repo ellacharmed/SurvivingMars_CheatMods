@@ -134,6 +134,7 @@ Fix Transports Don't Move After Route Set
 Fix Unlock RC Safari Resupply
 Fix Unrepairable Attack Rovers
 Pins Missing Some Status Icons
+School Skip Attained Perks
 ```
 
 If you have B&B I'd recommend SkiRich's [Better Lander Rockets](https://steamcommunity.com/sharedfiles/filedetails/?id=2619013940)
@@ -141,6 +142,12 @@ If you have B&B I'd recommend SkiRich's [Better Lander Rockets](https://steamcom
 
 # Extra info for incorporated mods/specific fixes:
 
+
+### School Skip Attained Perks
+
+Schools won't pick a trait the colonist already has when training is complete.
+
+https://www.reddit.com/r/SurvivingMars/comments/kgystg/im_playing_as_church_of_the_new_ark_so_everyone/
 
 ### Fix applicants with a func instead of a time.
 

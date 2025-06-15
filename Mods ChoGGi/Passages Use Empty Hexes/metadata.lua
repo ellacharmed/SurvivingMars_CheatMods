@@ -12,9 +12,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "1809321641",
 	"pops_any_uuid", "6285e6a7-f89a-47a3-a3ee-0b22e470e600",
 	"lua_revision", 1007000, -- Picard
-	"version", 11,
+	"version", 12,
 	"version_major", 1,
-	"version_minor", 1,
+	"version_minor", 2,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -41,6 +41,6 @@ Ramps will be ignored till you reload the save.
 You will get warning messages when trying to place passages in "wrong" places (just ignore them).
 I was more concerned with removing limitations than setting new ones, so you can build them in stupid places (if it doesn't place a complete passage then remove it).
 Placing a passage at the life-support/entrance hex works, but you can't do a manual kink in the line.
-Passages overlapping entrances can block drones/colonists from using entrance (use toggle collision button).
+Passages overlapping entrances can block drones/colonists from using entrance (use toggle collision button, but it still might cause issues).
 ]],
 })

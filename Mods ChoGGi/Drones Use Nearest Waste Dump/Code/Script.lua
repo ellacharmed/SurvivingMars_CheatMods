@@ -1,12 +1,30 @@
 -- See LICENSE for terms
 
+local mod_EnableMod
+
+-- Update mod options
+local function ModOptions(id)
+	-- id is from ApplyModOptions
+	if id and id ~= CurrentModId then
+		return
+	end
+
+	mod_EnableMod = CurrentModOptions:GetProperty("EnableMod")
+end
+-- Load default/saved settings
+OnMsg.ModsReloaded = ModOptions
+-- Fired when Mod Options>Apply button is clicked
+OnMsg.ApplyModOptions = ModOptions
+
 local IsValid = IsValid
 local FindNearestObject = FindNearestObject
 
 local ChoOrig_TaskRequestHub_FindDemandRequest = TaskRequestHub.FindDemandRequest
 function TaskRequestHub:FindDemandRequest(obj, resource, amount, ...)
-	-- we only care about WasteRock
-	if not obj or resource ~= "WasteRock" then
+	if not mod_EnableMod
+		-- We only care about WasteRock
+		or not obj or resource ~= "WasteRock"
+	then
 		return ChoOrig_TaskRequestHub_FindDemandRequest(self, obj, resource, amount, ...)
 	end
 

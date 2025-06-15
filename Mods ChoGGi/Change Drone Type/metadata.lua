@@ -12,9 +12,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "1592984375",
 	"pops_any_uuid", "0d35f043-f2eb-4f38-ac2c-12459370a41c",
 	"lua_revision", 1007000, -- Picard
-	"version", 9,
-	"version_major", 0,
-	"version_minor", 9,
+	"version", 10,
+	"version_major", 1,
+	"version_minor", 0,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -27,7 +27,7 @@ Adds a button to hubs and rovers that lets you switch between wasp (flying) and 
 This mod requires Space Race DLC.
 
 Mod Options:
-Option to only show button when Martian Aerodynamics is researched.
+Martian Aerodynamics: Only show button when Martian Aerodynamics has been researched.
 Always Wasp Drones: Forces drones to always be wasp drones (hides button).
 ]],
 })
