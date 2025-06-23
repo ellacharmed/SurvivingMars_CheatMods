@@ -5,6 +5,7 @@
 local ChoGGi_Funcs = ChoGGi_Funcs
 local pairs, type = pairs, type
 local T = T
+local Sleep = Sleep
 local RetName = ChoGGi_Funcs.Common.RetName
 local FindThreadFunc = ChoGGi_Funcs.Common.FindThreadFunc
 local RetParamsParents = ChoGGi_Funcs.Common.RetParamsParents
@@ -23,6 +24,11 @@ DefineClass.ChoGGi_DlgFindValue = {
 
 	found_objs = false,
 	dupe_objs = {},
+
+	-- check this key when searching
+	search_in_progress = false,
+	-- for aborting
+	search_thread = false,
 }
 
 function ChoGGi_DlgFindValue:Init(parent, context)
@@ -100,11 +106,11 @@ function ChoGGi_DlgFindValue:Init(parent, context)
 		Id = "idCancel",
 		Dock = "right",
 		MinWidth = 80,
-		Text = T(302535920001713--[[Cancel]]),
+		Text = T(3687--[[Cancel]]),
 		Background = g_Classes.ChoGGi_XButton.bg_red,
-		RolloverText = T(302535920000074--[[Cancel without changing anything.]]),
+		RolloverText = T(302535920001750--[[Abort search and close dialog.]]),
 		Margins = box(0, 0, 10, 0),
-		OnPress = self.idCloseX.OnPress,
+		OnPress = self.CloseSearch,
 	}, self.idButtonContainer)
 
 	-- new table for each find dialog, so examine only opens once
@@ -126,10 +132,39 @@ end
 
 local result_count
 
+function ChoGGi_DlgFindValue:CloseSearch()
+	self = GetRootDialog(self)
+
+	DeleteThread(self.search_thread)
+
+	self.idCloseX.OnPress()
+end
+
 function ChoGGi_DlgFindValue:FindText()
 	self = GetRootDialog(self)
+
+	if self.search_in_progress then
+
+		local function CallBackFunc(answer)
+			if not answer then
+				DeleteThread(self.search_thread)
+				self.search_in_progress = false
+			end
+		end
+
+		ChoGGi_Funcs.Common.QuestionBox(
+			T(302535920001749--[[Search in progress]]) .. ": " .. self.idEdit:GetText(),
+			CallBackFunc,
+			T(10123--[[Search]]),
+			T(6294--[[OK]]),
+			T(718--[[Abort]]) .. " " .. T(10123--[[Search]])
+		)
+		return
+	end
+
+
 	local str = self.idEdit:GetText()
-	-- no sense in finding nothing
+	-- No sense in finding nothing
 	if str == "" then
 		return
 	end
@@ -140,25 +175,34 @@ function ChoGGi_DlgFindValue:FindText()
 		str = str:lower()
 	end
 
-	-- always start off empty
+	-- Always start off empty
 	table.clear(self.found_objs)
 	table.clear(self.dupe_objs)
 
-	-- build our list of objs
-	result_count = 0
-	self:RetObjects(
-		self.obj,
-		self.obj,
-		str,
-		case,
-		self.idThreads:GetCheck(),
-		tonumber(self.idLimit:GetText()) or 1
-	)
+	-- Stop new searches
+	self.search_in_progress = true
+	-- Just in case?
+	DeleteThread(self.search_thread)
 
-	-- and fire off a new dialog
-	local dlg = OpenExamineReturn(self.found_objs, nil, T(302535920000854--[[Results Found]]))
-	-- should do this nicer, but whatever
-	CreateRealTimeThread(function()
+	self.search_thread = CreateRealTimeThread(function()
+
+		-- build our list of objs
+		result_count = 0
+		self:RetObjects(
+			self.obj,
+			self.obj,
+			str,
+			case,
+			self.idThreads:GetCheck(),
+			tonumber(self.idLimit:GetText()) or 1
+		)
+
+		-- and fire off a new dialog
+		local dlg = OpenExamineReturn(self.found_objs, nil, T(302535920000854--[[Results Found]]))
+
+		self.search_in_progress = false
+
+		-- should do this nicer, but whatever
 		Sleep(10)
 		dlg:SetPos(self:GetPos() + point(0, self.idDialog.box:sizey()))
 	end)
@@ -175,62 +219,68 @@ function ChoGGi_DlgFindValue:RetObjects(obj, parent, str, case, threads, limit, 
 
 	-- should've commented this...
 
-	if type(obj) == "table" then
-
-		-- somewhat useful in results (usually off by + - 1)
-		result_count = result_count + 1
-
-		local location_str1 = "L" .. level .. " P: " .. RetName(obj) .. "; "
-		local location_str2 = ", " .. RetName(parent)
-
-		local count = 0
-		for key, value in pairs(obj) do
-			local key_name, value_name = RetName(key), RetName(value)
-			local key_str, key_type = case and key_name or key_name:lower(), type(key)
-			local value_str, value_type = case and value_name or value_name:lower(), type(value)
-
-			local key_location = location_str1 .. key_name .. location_str2 .. " " .. result_count
-
-			-- :find(str, 1, true) (1, true means don't use lua patterns, just plain text)
-			if not self.dupe_objs[obj] and not self.found_objs[key_location]
-				and (key_str:find(str, 1, true) or value_str:find(str, 1, true))
-			then
-				count = count + 1
-				if threads then
-					self.found_objs[key_location] = key
-					self.dupe_objs[key] = key
-				else
-					self.found_objs[key_location] = obj
-					self.dupe_objs[obj] = obj
-				end
-
-			elseif threads then
-				local value_location = location_str1 .. value_name .. location_str2
-				if key_type == "thread" and not self.dupe_objs[key]
-					and not self.found_objs[key_location] and FindThreadFunc(key, str)
-				then
-					self.found_objs[key_location] = key
-					self.dupe_objs[key] = key
-
-				elseif value_type == "thread" and not self.dupe_objs[value]
-					and not self.found_objs[value_location] and FindThreadFunc(value, str)
-				then
-					self.found_objs[value_location] = value
-					self.dupe_objs[value] = value
-
-				end -- threads
-			end
-
-			-- keep on searching
-			if key_type == "table" then
-				self:RetObjects(key, obj, str, case, threads, limit, level + 1)
-			end
-			if value_type == "table" then
-				self:RetObjects(value, obj, str, case, threads, limit, level + 1)
-			end
-
-		end
+	if type(obj) ~= "table" then
+		return
 	end
+
+	-- somewhat useful in results (usually off by + - 1)
+	result_count = result_count + 1
+
+	local location_str1 = "L" .. level .. " P: " .. RetName(obj) .. "; "
+	local location_str2 = ", " .. RetName(parent)
+
+	-- Don't want to lockup ui for long searches
+	Sleep(1)
+
+	local count = 0
+	for key, value in pairs(obj) do
+
+		local key_name, value_name = RetName(key), RetName(value)
+		local key_str, key_type = case and key_name or key_name:lower(), type(key)
+		local value_str, value_type = case and value_name or value_name:lower(), type(value)
+
+		local key_location = location_str1 .. key_name .. location_str2 .. " " .. result_count
+
+		-- :find(str, 1, true) (1, true means don't use lua patterns, just plain text)
+		if not self.dupe_objs[obj] and not self.found_objs[key_location]
+			and (key_str:find(str, 1, true) or value_str:find(str, 1, true))
+		then
+			count = count + 1
+			if threads then
+				self.found_objs[key_location] = key
+				self.dupe_objs[key] = key
+			else
+				self.found_objs[key_location] = obj
+				self.dupe_objs[obj] = obj
+			end
+
+		elseif threads then
+			local value_location = location_str1 .. value_name .. location_str2
+			if key_type == "thread" and not self.dupe_objs[key]
+				and not self.found_objs[key_location] and FindThreadFunc(key, str)
+			then
+				self.found_objs[key_location] = key
+				self.dupe_objs[key] = key
+
+			elseif value_type == "thread" and not self.dupe_objs[value]
+				and not self.found_objs[value_location] and FindThreadFunc(value, str)
+			then
+				self.found_objs[value_location] = value
+				self.dupe_objs[value] = value
+
+			end -- threads
+		end
+
+		-- keep on searching
+		if key_type == "table" then
+			self:RetObjects(key, obj, str, case, threads, limit, level + 1)
+		end
+		if value_type == "table" then
+			self:RetObjects(value, obj, str, case, threads, limit, level + 1)
+		end
+
+	end
+
 end
 
 local const = const

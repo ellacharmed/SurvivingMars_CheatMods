@@ -396,14 +396,14 @@ do -- RetName
 				end
 			end)
 
-				lookup_table[g.g_Classes] = "g_Classes"
-				if what_game == "Mars" then
-					for i = 1, #g.GlobalVars do
-						local var = g.GlobalVars[i]
-						local obj = g_env[var]
-						if not lookup_table[obj] then
-							lookup_table[obj] = var
-						end
+			lookup_table[g.g_Classes] = "g_Classes"
+			if what_game == "Mars" then
+				for i = 1, #g.GlobalVars do
+					local var = g.GlobalVars[i]
+					local obj = g_env[var]
+					if not lookup_table[obj] then
+						lookup_table[obj] = var
+					end
 				end
 			end
 

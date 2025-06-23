@@ -5,6 +5,32 @@ local mod_DepositAmount
 local mod_VistaEffectAmount
 local mod_ResearchSitePercent
 local mod_AnomalyResourceAmount
+local mod_UnlockAsteroidMiners
+
+local function ToggleSurfaceLock(id, env)
+	BuildingTemplates[id].disabled_in_environment1 = env
+	ClassTemplates.Building[id].disabled_in_environment1 = env
+	DisabledInEnvironment[id][1] = env
+end
+
+-- unlock miners
+local function StartupCode()
+	if not mod_EnableMod or not g_AvailableDlc.picard then
+		return
+	end
+
+	if mod_UnlockAsteroidMiners then
+		ToggleSurfaceLock("MicroGAutoExtractor", "")
+		ToggleSurfaceLock("MicroGExtractor", "")
+	else
+		ToggleSurfaceLock("MicroGAutoExtractor", "Surface")
+		ToggleSurfaceLock("MicroGExtractor", "Surface")
+	end
+end
+-- New games
+OnMsg.CityStart = StartupCode
+-- Saved ones
+OnMsg.LoadGame = StartupCode
 
 -- Update mod options
 local function ModOptions(id)
@@ -18,6 +44,14 @@ local function ModOptions(id)
 	mod_VistaEffectAmount = CurrentModOptions:GetProperty("VistaEffectAmount") * 1000
 	mod_ResearchSitePercent = CurrentModOptions:GetProperty("ResearchSitePercent")
 	mod_AnomalyResourceAmount = CurrentModOptions:GetProperty("AnomalyResourceAmount") * 1000
+	mod_UnlockAsteroidMiners = CurrentModOptions:GetProperty("UnlockAsteroidMiners")
+
+	-- Make sure we're in-game
+	if not GameMaps then
+		return
+	end
+
+	StartupCode()
 end
 -- Load default/saved settings
 OnMsg.ModsReloaded = ModOptions

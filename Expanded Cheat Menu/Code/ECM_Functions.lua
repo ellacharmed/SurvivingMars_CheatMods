@@ -2005,13 +2005,13 @@ do -- UnpublishParadoxMod
 end -- do
 
 function ChoGGi_Funcs.Common.VerticalCheatMenu_Toggle(toggle)
-	if ChoGGi.what_game ~= "Mars" then
+	if what_game ~= "Mars" then
 		return
 	end
 
 
 	local cheatmenu_id = "XShortcutsHost"
-	if ChoGGi.what_game == "JA3" then
+	if what_game == "JA3" then
 		cheatmenu_id = "DeveloperInterface"
 	end
 

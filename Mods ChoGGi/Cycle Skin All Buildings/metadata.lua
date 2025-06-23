@@ -24,7 +24,8 @@ return PlaceObj("ModDef", {
 	"TagInterface", true,
 	"TagCosmetics", true,
 	"TagBuildings", true,
-	"description", [[Hold down Ctrl (gamepad X?) to cycle the skins of all buildings (of the same type) instead of just the selected building.
+	"description", [[
+Hold down Ctrl (gamepad X?) to cycle the skins of all buildings (of the same type) instead of just the selected building.
 Right-click (gamepad Y?) to randomly colour the skin (change "skin" to reset colours).
 
 Known Issues:

@@ -89,12 +89,16 @@ if us.RemoveBuildingLimits then
 	ChoGGi_Funcs.Common.SetBuildingLimits(true)
 end
 
+-- Storybit debugging
+
 -- Should be more than enough?
 local log_limit = 100
+
 GlobalVar("g_StoryBitsLog", {})
 g_StoryBitsLogOld = false
 function OnMsg.ChangeMap()
-	g_StoryBitsLogOld = g_StoryBitsLog
+	g_StoryBitsLogOld = table.copy(g_StoryBitsLog)
+	table.clear(g_StoryBitsLog)
 end
 
 local function StoryBitLogging(...)

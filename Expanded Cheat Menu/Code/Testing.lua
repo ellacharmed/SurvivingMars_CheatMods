@@ -16,7 +16,7 @@ end
 --~ end
 
 local ChoGGi_Funcs = ChoGGi_Funcs
---~ local what_game = ChoGGi.what_game
+local what_game = ChoGGi.what_game
 local Translate = ChoGGi_Funcs.Common.Translate
 
 local g_env, debug
@@ -33,7 +33,7 @@ end
 -- I fucking hate modal windows
 XWindow.SetModal = empty_func
 
-if ChoGGi.what_game == "Mars" then
+if what_game == "Mars" then
 
 --~ 	-- Close enough
 --~ 	local ChoOrig_AchievementUnlock = AchievementUnlock
@@ -628,6 +628,25 @@ end)
 
 
 -- benchmarking stuff
+function ChoGGi.testing.Sleeping()
+	CreateRealTimeThread(function()
+		local Sleep = Sleep
+		local WaitMsg = WaitMsg
+
+		ChoGGi_Funcs.Common.TickStart("Sleeping.1.Tick")
+			for _ = 1, 100 do
+				Sleep(1)
+			end
+		ChoGGi_Funcs.Common.TickEnd("Sleeping.1.Tick")
+
+		ChoGGi_Funcs.Common.TickStart("Sleeping.2.Tick")
+			for _ = 1, 100 do
+				WaitMsg("OnRender")
+			end
+		ChoGGi_Funcs.Common.TickEnd("Sleeping.2.Tick")
+	end)
+end
+
 function ChoGGi.testing.ConcatvsT()
 	ChoGGi_Funcs.Common.TickStart("ConcatvsT.1.Tick")
 	for _ = 1, 100000 do

@@ -1,3 +1,12 @@
+v10.9
+Survey Offer Option 2 never starts (same issue).
+
+v10.8
+Cure For Cancer: Rare Outcome never starts (partially same issue as Free Will: Violent Urges Solved).
+
+v10.7
+Free Will: Violent Urges Solved never shows up after researching story bit tech (Thanks Dark Master).
+
 v10.6
 Some mod is adding OpenAirGyms to the Workplace label,
 which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.

@@ -1,3 +1,6 @@
+v0.6
+Added mod option to unlock asteroid miners for surface minerals.
+
 v0.5
 Added icons for anomalies.
 Added regular Anomaly.

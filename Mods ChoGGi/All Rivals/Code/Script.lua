@@ -39,14 +39,10 @@ local function StartupCode()
 	-- using rawset bypasses the check and prevents log spam (Trying to create new value hr.PlanetColony5Longitude)
 	local hr = hr
 	SetVarTableLock(hr, false)
---~ 	if not rawget(hr, "PlanetColony5Longitude") then
 	if not hr.PlanetColony5Longitude then
---~ 		local rawset = rawset
 		for i = 5, 20 do
 			hr["PlanetColony" .. i .. "Longitude"] = 0
 			hr["PlanetColony" .. i .. "Latitude"] = 0
---~ 			rawset(hr, "PlanetColony" .. i .. "Longitude", 0)
---~ 			rawset(hr, "PlanetColony" .. i .. "Latitude", 0)
 		end
 	end
 

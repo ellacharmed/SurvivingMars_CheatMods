@@ -1,9 +1,11 @@
 ## Library Changelog
 
 ## v12.8 (Unreleased)
+- Find Dialog runs in thread, so you can cancel it and it doesn't lock up the UI.
 - Fixed some GetRealm log spam.
 
 ### Examine:
+- Sped up loading when using Chinese text rendering.
 - Batch code exec now goes backwards through indexed tables (for .label tables).
 
 ## v12.7 (5 June 2025)

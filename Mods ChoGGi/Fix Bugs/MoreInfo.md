@@ -31,6 +31,8 @@ Toggling power to domes with passages in certain instances.
 
 ### Storybits:
 ```
+FollowUp Storybits in wrong category:
+Survey Offer Option 2, Cure For Cancer: Rare Outcome, and Free Will: Violent Urges Solved.
 Twin Peeks: spawning, but not showing Beauty/Research effect deposits.
 The Man From Mars: Outcome 3: Let him be, whoever he is: None of the options reward anything.
 Morale is added based on CustomOutcomeText and Morale stats from Outcome 2.
@@ -143,6 +145,22 @@ If you have B&B I'd recommend SkiRich's [Better Lander Rockets](https://steamcom
 
 # Extra info for incorporated mods/specific fixes:
 
+
+### FollowUp Storybits in wrong category
+
+All three followups have the same issue.
+
+The bit is in the TechResearched category instead of the FollowUp, so it never shows up...
+
+Also it has Enabled = true, but it's a follow up, and it's already started before the actual story (causes other issues depending on which bit it is).
+
+Survey Offer Option 2 New tech
+
+Free Will: Violent Urges Solved
+
+Cure For Cancer: Rare Outcome (doesn't have Enabled = true)
+
+New games will be needed for most of them (if you haven't researched the tech yet then it'll work).
 
 ### School Skip Attained Perks
 

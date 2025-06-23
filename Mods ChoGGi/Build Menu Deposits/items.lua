@@ -7,6 +7,12 @@ return {
 		"Help", T(302535920011793, "Disable mod without having to see missing mod msg."),
 		"DefaultValue", true,
 	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "UnlockAsteroidMiners",
+		"DisplayName", T(0000, "Unlock Asteroid Miners"),
+		"Help", T(0000, "Enable building asteroid miners on the surface for exotic minerals (B&B DLC req)."),
+		"DefaultValue", true,
+	}),
 	PlaceObj("ModItemOptionNumber", {
 		"name", "DepositAmount",
 		"DisplayName", T(0000, "Underground Deposit Amount"),

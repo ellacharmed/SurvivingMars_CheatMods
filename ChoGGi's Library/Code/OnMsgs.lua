@@ -122,7 +122,7 @@ OnMsg.CityStart = Startup
 -- Update my cached strings
 function OnMsg.TranslationChanged()
 	ChoGGi_Funcs.Common.UpdateStringsList()
-	if ChoGGi.what_game == "Mars" then
+	if what_game == "Mars" then
 		ChoGGi_Funcs.Common.UpdateDataTablesCargo()
 		ChoGGi_Funcs.Common.UpdateDataTables()
 		--

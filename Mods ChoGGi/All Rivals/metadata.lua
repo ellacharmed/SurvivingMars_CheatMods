@@ -1,4 +1,12 @@
 return PlaceObj("ModDef", {
+	"dependencies", {
+		PlaceObj("ModDependency", {
+			"id", "ChoGGi_Library",
+			"title", "ChoGGi's Library",
+			"version_major", 12,
+			"version_minor", 7,
+		}),
+	},
 	"title", "All Rivals",
 	"id", "ChoGGi_AllSponsors",
 	"steam_id", "1596612055",

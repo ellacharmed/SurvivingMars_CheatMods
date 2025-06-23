@@ -522,7 +522,7 @@ Press once to clear this examine, again to clear all."]]),
 			DrawOnTop = true,
 		}, self.idToolbarArea)
 
-		if ChoGGi.what_game == "Mars" then
+		if what_game == "Mars" then
 			--
 			self.idViewEnum = g_Classes.ChoGGi_XCheckButton:new({
 				Id = "idViewEnum",
@@ -3948,7 +3948,7 @@ function ChoGGi_DlgExamine:SetToolbarVis(obj, obj_metatable)
 				SetWinObjectVis(self.idButSetObjlist)
 			end
 
-			if ChoGGi.what_game == "Mars" then
+			if what_game == "Mars" then
 				-- pretty rare occurrence
 				self.enum_vars = EnumVars(self.name)
 				SetWinObjectVis(self.idViewEnum, self.enum_vars and next(self.enum_vars))
@@ -4160,7 +4160,7 @@ function ChoGGi_DlgExamine:SetObj(startup)
 		if startup or self.is_chinese then
 			-- the chinese text render is slow as molasses, so we have a Sleep in ConvertObjToInfo to keep ui stuff accessible
 			CreateRealTimeThread(function()
-				WaitMsg("OnRender")
+				Sleep(1)
 --~ ChoGGi_Funcs.Common.TickStart("Examine")
 				local status, result = pcall(self.ConvertObjToInfo, self, obj, obj_type)
 				if status then

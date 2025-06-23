@@ -157,7 +157,44 @@ local function CheckColonistMap(obj, colony)
 		end
 	end
 end
+
 --
+-- Storybit wrong category fix
+local function FixWrongCatStorybit(storybit_id)
+	local bit_state = g_StoryBitStates[storybit_id]
+	if not bit_state then
+		return
+	end
+
+	local states = g_StoryBitCategoryStates
+	local trigger = states.TechResearchedTrigger
+
+	if not trigger
+		or trigger and not trigger.TechResearched
+	then
+		return
+	end
+
+	-- check for it in the wrong cat
+	local idx = table.find(trigger.TechResearched.storybit_states, "id", storybit_id)
+	if not idx then
+		return
+	end
+	-- Is correct cat is already here
+	if not trigger.FollowUp then
+		-- Creates state if it doesn't exist
+		GetStoryBitCategoryState(storybit_id)
+	end
+
+	-- Remove from TechResearched
+	table.remove(trigger.TechResearched.storybit_states, idx)
+	-- and add to FollowUp
+	local fol = trigger.FollowUp.storybit_states
+	fol[#fol + 1] = bit_state
+
+	return bit_state
+end
+
 
 -- Update/set mod options
 local function ModOptions(id)
@@ -206,7 +243,40 @@ OnMsg.ModsReloaded = ModOptions
 -- Fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
 
+--
 -- OnMsgs
+
+-- Early enough on new games to be before storybit stuff, but late enough for mod options
+-- Not sure how often (if ever) this fires during normal gameplay
+-- Fine for what I'm changing though
+function OnMsg.OnRealmLoad()
+	if not mod_EnableMod then
+		return
+	end
+
+	--
+	--[[
+	Free Will: Violent Urges Solved never shows up after researching story bit tech
+	follow ups should be enabled by preceding bits
+	having this already enabled adds the storybit without having a renegade colonist
+	so the ending screen won't remove the renegade from the start of
+
+	and ending doesn't show up at all from Category being TechResearched
+	(1/2)
+	]]
+	StoryBits.FreeWill_2.Enabled = false
+	StoryBits.FreeWill_2.Category = "FollowUp"
+
+	-- Cure For Cancer: Rare Outcome never starts (1/2)
+	StoryBits.Cure4Cancer_RareOutcome.Category = "FollowUp"
+
+	-- Survey Offer Option 2: new research will be made available (1/2)
+	StoryBits.SurveyOffer_TechEffect.Enabled = false
+	StoryBits.SurveyOffer_TechEffect.Category = "FollowUp"
+
+	-- ~g_StoryBitStates
+end
+
 function OnMsg.SectorScanned()
 	if not mod_EnableMod then
 		return
@@ -383,7 +453,11 @@ function OnMsg.TechResearched(tech_id)
 end
 
 --
-do -- CityStart/LoadGame
+--
+
+--
+-- CityStart/LoadGame
+do
 
 	local function StartupCode(event)
 		if not mod_EnableMod then
@@ -646,6 +720,39 @@ do -- CityStart/LoadGame
  		local StoryBits = StoryBits
 		-- Just in case something changes (hah)
 		pcall(function()
+
+			--
+			-- Free Will: Violent Urges Solved
+			-- Cure For Cancer: Rare Outcome never starts
+			-- Survey Offer Option 2: new research will be made available
+			-- (2/2)
+			-- Change cat of storybits and add a renegade if we find one in an Arcology (free will)
+			StoryBits.FreeWill_2.Category = "FollowUp"
+			StoryBits.Cure4Cancer_RareOutcome.Category = "FollowUp"
+			StoryBits.SurveyOffer_TechEffect.Category = "FollowUp"
+
+			local bit_state = FixWrongCatStorybit("FreeWill_2")
+			FixWrongCatStorybit("SurveyOffer_TechEffect")
+			FixWrongCatStorybit("Cure4Cancer_RareOutcome")
+
+			-- FreeWill_2 expects a renegade colonist (it'll show 0 instead of a name if there isn't one).
+			if not bit_state.object then
+				-- Try to find a renegade to use for removal
+				objs = GetObjectsByLabel(main_city, "Arcology")
+				local renegade
+				for i = 1, #(objs or "") do
+					local colonists = objs[i].colonists
+					for j = 1, #colonists do
+						if colonists[j].traits.Renegade then
+							renegade = colonists[j]
+							break
+						end
+					end
+				end
+				if renegade then
+					bit_state.object = renegade
+				end
+			end
 
 			--
 			--[[

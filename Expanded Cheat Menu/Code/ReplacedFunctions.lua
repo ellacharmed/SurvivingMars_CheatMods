@@ -317,7 +317,9 @@ do
 		end
 
 		-- add extra info
+		local UIColony = UIColony
 		StoryBitLog("StoryBit", self.id, "--------------------------------")
+		StoryBitLog("StoryBit", self.id, "Sol", UIColony.day, "Hour", UIColony.hour)
 		StoryBitLog("StoryBit", self.id, "rejected condition class:", subcontext.class)
 		StoryBitLog("StoryBit", self.id, "rejected condition info:", subcontext.Documentation)
 		StoryBitLog("StoryBit", self.id, "rejected condition reqs:", TableToLuaCode(subcontext))
