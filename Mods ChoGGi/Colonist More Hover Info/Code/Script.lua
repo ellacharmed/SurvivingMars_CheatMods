@@ -1,7 +1,25 @@
 -- See LICENSE for terms
 
+local mod_EnableMod
+
+-- Update mod options
+local function ModOptions(id)
+	-- id is from ApplyModOptions
+	if id and id ~= CurrentModId then
+		return
+	end
+
+	mod_EnableMod = CurrentModOptions:GetProperty("EnableMod")
+end
+-- Load default/saved settings
+OnMsg.ModsReloaded = ModOptions
+-- Fired when Mod Options>Apply button is clicked
+OnMsg.ApplyModOptions = ModOptions
+
+
 local sorted_pairs = sorted_pairs
 local T = T
+local IsValid = IsValid
 local TraitPresets = TraitPresets
 
 local function UpdateColour(amount)
@@ -96,74 +114,137 @@ end
 OnMsg.CityStart = StartupCode
 -- Saved ones
 OnMsg.LoadGame = StartupCode
+OnMsg.ClassesPostprocess = StartupCode
+
+local function AddInfo(colonist, win_text, workplace)
+	if not IsValid(colonist) or workplace and workplace ~= colonist.workplace
+		or not colonist:IsKindOf("Colonist")
+	then
+		return
+	end
+
+	local text = {
+		win_text,
+
+		-- extra new line (<left> needed for some popups)
+		T{"<left><newline><newline>Age <em><amount></em>",
+			amount = colonist.age or 0,
+		},
+
+		T{"<newline><name> <em><amount></em>",
+			name = T(692952504653--[[Dome]]),
+			amount = colonist:GetDomeDisplayName(),
+		},
+		T{"<newline><name> <em><amount></em>",
+			name = T(4291--[[Health]]),
+			amount = UpdateColour(colonist:GetHealth() or 0),
+		},
+		T{"<newline><name> <em><amount></em>",
+			name = T(4293--[[Sanity]]),
+			amount = UpdateColour(colonist:GetSanity() or 0),
+		},
+		T{"<newline><name> <em><amount></em>",
+			name = T(4295--[[Comfort]]),
+			amount = UpdateColour(colonist:GetComfort() or 0),
+		},
+		T{"<newline><name> <em><amount></em>",
+			name = T(4297--[[Morale]]),
+			amount = UpdateColour(colonist:GetMorale() or 0),
+		},
+		"\n",
+	}
+	local c = #text
+
+	-- add info from my spec by exp mod
+	if workplace and workplace.ChoGGi_SpecByExp
+		-- something is bugging out, so check it all
+		and colonist.handle
+		and workplace.ChoGGi_SpecByExp[colonist.handle]
+		and workplace.ChoGGi_SpecByExp[colonist.handle].started_on
+	then
+		c = c + 1
+		text[c] = T{0000, "<newline><color -6881386>Spec by Exp</color> Sols trained: <em><time></em><newline>",
+			time = UIColony.day - workplace.ChoGGi_SpecByExp[colonist.handle].started_on,
+		}
+	end
+
+	-- Build traits list
+	for trait_id in sorted_pairs(colonist.traits) do
+		local trait = TraitPresets[trait_id]
+		if trait and trait.show_in_traits_ui then
+
+			c = c + 1
+			text[c] = T{"<newline><em><trait></em>: <descr> <grey><extra_info></grey><newline>",
+				trait = trait.display_name,
+				descr = trait.description,
+				extra_info = cached_trait_info[trait_id] or "",
+			}
+
+		end
+	end
+
+	-- All done
+	local safe_data
+	-- pcall in case concat finds something it doesn't like
+	pcall(function()
+		safe_data = table.concat(text)
+	end)
+
+	return safe_data
+end
 
 local ChoOrig_XRecreateRolloverWindow = XRecreateRolloverWindow
 function XRecreateRolloverWindow(win, ...)
-	local colonist = win.context
-	local workplace = SelectedObj
+	if not mod_EnableMod then
+		return ChoOrig_XRecreateRolloverWindow(win, ...)
+	end
 
-	if IsKindOf(colonist, "Colonist") and workplace == colonist.workplace then
-			local text = {
-				win.RolloverText,
-				T("\n\nDome: <em>"), colonist:GetDomeDisplayName(), T("</em>\n"),
+	local text = AddInfo(win.context, win.RolloverText, SelectedObj)
 
-				T{"<newline><name> <em><amount></em>",
-					name = T(4291--[[Health]]),
-					amount = UpdateColour(colonist:GetHealth() or 0),
-				},
-				T{"<newline><name> <em><amount></em>",
-					name = T(4293--[[Sanity]]),
-					amount = UpdateColour(colonist:GetSanity() or 0),
-				},
-				T{"<newline><name> <em><amount></em>",
-					name = T(4295--[[Comfort]]),
-					amount = UpdateColour(colonist:GetComfort() or 0),
-				},
-				T{"<newline><name> <em><amount></em>",
-					name = T(4297--[[Morale]]),
-					amount = UpdateColour(colonist:GetMorale() or 0),
-				},
-				"\n",
-			}
-			local c = #text
-
-			-- add info from my spec by exp mod
-			if workplace.ChoGGi_SpecByExp
-				-- something is bugging out, so check it all
-				and colonist.handle
-				and workplace.ChoGGi_SpecByExp[colonist.handle]
-				and workplace.ChoGGi_SpecByExp[colonist.handle].started_on
-			then
-				c = c + 1
-				text[c] = T{0000, "<newline><color -6881386>Spec by Exp</color> Sols trained: <em><time></em><newline>",
-					time = UIColony.day - workplace.ChoGGi_SpecByExp[colonist.handle].started_on,
-				}
-			end
-
-			-- Build traits list
-			for trait_id in sorted_pairs(colonist.traits) do
-				local trait = TraitPresets[trait_id]
-				if trait and trait.show_in_traits_ui then
-
-					c = c + 1
-					text[c] = T{"<newline><em><trait></em>: <descr> <grey><extra_info></grey><newline>",
-						trait = trait.display_name,
-						descr = trait.description,
-						extra_info = cached_trait_info[trait_id] or "",
-					}
-
-				end
-			end
-
-			-- All done
-			local safe_data
-			-- pcall in case concat finds something it doesn't like
-			pcall(function()
-				safe_data = table.concat(text)
-			end)
-
-			win.RolloverText = safe_data or win.RolloverText
-		end
+	win.RolloverText = text or win.RolloverText
 
 	return ChoOrig_XRecreateRolloverWindow(win, ...)
+end
+
+local ChoOrig_Colonist_GetUIInfo = Colonist.GetUIInfo
+function Colonist:GetUIInfo(...)
+	if not mod_EnableMod then
+		return ChoOrig_Colonist_GetUIInfo(self, ...)
+	end
+
+	local orig_text = ChoOrig_Colonist_GetUIInfo(self, ...)
+
+	return AddInfo(self, orig_text) or orig_text
+end
+
+function OnMsg.ClassesPostprocess()
+	-- cls msgs are too early for access to CurrentModOptions
+
+	-- [1]>[1]XTemplateForEach>[1]InfopanelPerson>[2]name = "GetRolloverText"
+	local template = XTemplates.sectionResidenceList[1][1][1][2]
+	local ChoOrig_GetRolloverText_func = template.func
+
+	template.func = function(self, ...)
+		if not mod_EnableMod then
+			return ChoOrig_GetRolloverText_func(self, ...)
+		end
+
+		-- Had to copy paste orig func, since doing this way causes double text and I'm lazy
+		-- local orig_text = ChoOrig_GetRolloverText_func(self, ...)
+
+		local orig_text
+		local icon = self:GetIcon()
+		if self.context then
+			orig_text = T(4174, "A Colonist living in this building.<newline><newline>Specialization: <em><Specialization></em>")
+		elseif icon == "UI/Infopanel/colonist_empty.tga" then
+			orig_text = T(4175, "A free Residential slot.")
+		elseif icon == "UI/Infopanel/colonist_appointed.tga" then
+			orig_text = T(7982, "This slot is reserved for a colonist planning to move in from another Dome.")
+		else
+			orig_text = T(4177, "This slot is closed. Colonists will never occupy it.")
+		end
+
+		return AddInfo(self.context, orig_text) or orig_text
+	end
+
 end

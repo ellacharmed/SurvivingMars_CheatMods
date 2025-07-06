@@ -1,3 +1,6 @@
+v0.5
+Found another grid object that was stuck on maps (RangeHexRadiusContainer).
+
 v0.4
 Added other rover ents to the ghosts list.
 

@@ -19,8 +19,6 @@ function OnMsg.ClassesPostprocess()
 	end
 
 	PlaceObj("BuildingTemplate", {
-
-		-- added, not uploaded
 		"disabled_in_environment1", "",
 		"disabled_in_environment2", "",
 		"disabled_in_environment3", "",
@@ -42,25 +40,30 @@ function OnMsg.ClassesPostprocess()
 		"entity", "DroneMaintenance",
 	})
 
-	if not gagarin then
-		return
-	end
-	PlaceObj("BuildingTemplate", {
-		"Id", "ChoGGi_FlyingDroneBuilding",
-		"template_class", "ChoGGi_FlyingDroneBuilding",
-		"construction_cost_Electronics", 2500,
-		"build_points", 1000,
-		"count_as_building", false,
+	if gagarin then
+		PlaceObj("BuildingTemplate", {
+			"disabled_in_environment1", "",
+			"disabled_in_environment2", "",
+			"disabled_in_environment3", "",
+			"disabled_in_environment4", "",
 
-		"build_pos", 0,
-		"build_category", "Rovers",
-		"Group", "Rovers",
-		"display_name", FlyingDrone.display_name,
-		"display_name_pl", FlyingDrone.display_name_pl,
-		"description", FlyingDrone.description,
-		"display_icon", FlyingDrone.display_icon,
-		"entity", "DroneJapanFlying",
-		})
+			"Id", "ChoGGi_FlyingDroneBuilding",
+			"template_class", "ChoGGi_FlyingDroneBuilding",
+			"construction_cost_Electronics", 2500,
+			"build_points", 1000,
+			"count_as_building", false,
+
+			"build_pos", 0,
+			"build_category", "Rovers",
+			"Group", "Rovers",
+			"display_name", FlyingDrone.display_name,
+			"display_name_pl", FlyingDrone.display_name_pl,
+			"description", FlyingDrone.description,
+			"display_icon", FlyingDrone.display_icon,
+			"entity", "DroneJapanFlying",
+			})
+	end
+
 end
 
 local function UpdateCost()

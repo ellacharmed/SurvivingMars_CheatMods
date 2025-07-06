@@ -18,8 +18,10 @@ local SpawnColonist = rawget(_G, "ChoGGi_Funcs") and ChoGGi_Funcs.Common.SpawnCo
 		local colonist
 		if old_c then
 			colonist = GenerateColonistData(city, old_c.age_trait, false, {
-				gender = old_c.gender, entity_gender = old_c.entity_gender,
-				no_traits = "no_traits", no_specialization = true,
+				gender = old_c.gender,
+				entity_gender = old_c.entity_gender,
+				no_traits = "no_traits",
+				no_specialization = true,
 			})
 			-- we set all the set gen doesn't (it's more for random gen after all)
 			colonist.birthplace = old_c.birthplace
@@ -27,12 +29,13 @@ local SpawnColonist = rawget(_G, "ChoGGi_Funcs") and ChoGGi_Funcs.Common.SpawnCo
 			colonist.name = old_c.name
 			colonist.race = old_c.race
 			colonist.specialist = old_c.specialist
-			for trait_id, _ in pairs(old_c.traits) do
+			for trait_id in pairs(old_c.traits) do
 				if trait_id and trait_id ~= "" then
 					colonist.traits[trait_id] = true
 				end
 			end
 		else
+			-- GenerateColonistData(city, age_trait, martianborn, gender, entity_gender, no_traits)
 			colonist = GenerateColonistData(city)
 		end
 
@@ -40,13 +43,15 @@ local SpawnColonist = rawget(_G, "ChoGGi_Funcs") and ChoGGi_Funcs.Common.SpawnCo
 		Msg("ColonistBorn", colonist)
 
 		local realm = GetRealm(colonist)
-		colonist:SetPos(pos or building and realm:GetPassablePointNearby(building:GetPos())
-			or realm:GetRandomPassablePoint())
+		colonist:SetPos((pos
+			or building and realm:GetPassablePointNearby(building:GetPos())
+			or realm:GetRandomPassablePoint()):SetTerrainZ()
+		)
 
-		-- if spec is different then updates to new entity
+		-- If age/spec is different this updates to new entity
 		colonist:ChooseEntity()
-		return colonist
 
+		return colonist
 	end
 
 local function ModOptions(id)

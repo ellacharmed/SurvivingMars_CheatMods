@@ -45,7 +45,6 @@ local WaitMsg = WaitMsg
 local XDestroyRolloverWindow = XDestroyRolloverWindow
 local CmpLower = CmpLower
 
-
 -- JA3 no likey
 local GetMapSectorXY = GetMapSectorXY
 local HexGetNearestCenter = HexGetNearestCenter
@@ -4254,8 +4253,11 @@ do -- UpdateGrowthThreads
 					obj:delete()
 				end
 
-			end
-		end
+			end -- for mapget
+
+--~ 			VegetationTaskRequester
+
+		end -- for gamemap
 
 	end
 end
@@ -4412,7 +4414,9 @@ end -- do
 function ChoGGi_Funcs.Common.RemoveObjsAllMaps(class)
 	local GameMaps = GameMaps
 	for _, map in pairs(GameMaps) do
+		map.realm:SuspendPassEdits("ChoGGi_Funcs.Common.RemoveObjsAllMaps")
 		map.realm:MapDelete(true, class)
+		map.realm:ResumePassEdits("ChoGGi_Funcs.Common.RemoveObjsAllMaps")
 	end
 end
 
@@ -4461,14 +4465,16 @@ if what_game == "Mars" then
 	local GenerateColonistData = GenerateColonistData
 
 	function ChoGGi_Funcs.Common.SpawnColonist(old_c, building, pos, city)
-		city = city or UICity
+		if not city then
+			city = UICity
+		end
 
 		local colonist
 		if old_c then
 			colonist = GenerateColonistData(city, old_c.age_trait, false, {
 				gender = old_c.gender,
 				entity_gender = old_c.entity_gender,
-				no_traits	=	"no_traits",
+				no_traits = "no_traits",
 				no_specialization = true,
 			})
 			-- we set all the set gen doesn't (it's more for random gen after all
@@ -4476,6 +4482,7 @@ if what_game == "Mars" then
 			colonist.death_age = old_c.death_age
 			colonist.name = old_c.name
 			colonist.race = old_c.race
+			colonist.specialist = old_c.specialist
 			for trait_id in pairs(old_c.traits) do
 				if trait_id and trait_id ~= "" then
 					colonist.traits[trait_id] = true
@@ -4489,14 +4496,6 @@ if what_game == "Mars" then
 		Colonist:new(colonist, city:GetMapID())
 		Msg("ColonistBorn", colonist)
 
-		-- can't fire till after :new()
-		if old_c then
-			if old_c.specialist ~= "none" then
-				old_c:RemoveTrait(old_c.specialist)
-			end
-			old_c:AddTrait(old_c.specialist)
---~ 			colonist:SetSpecialization(old_c.specialist)
-		end
 		local realm = GetRealm(colonist)
 		colonist:SetPos((pos
 			or building and realm:GetPassablePointNearby(building:GetPos())

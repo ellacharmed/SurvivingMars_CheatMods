@@ -3,9 +3,9 @@ return PlaceObj("ModDef", {
 	"id", "ChoGGi_FixRemoveBlueYellowGridMarks",
 	"steam_id", "1553086208",
 	"pops_any_uuid", "7486c4ab-af06-42d5-b30d-7815ac10998b",
-	"version", 4,
+	"version", 5,
 	"version_major", 0,
-	"version_minor", 4,
+	"version_minor", 5,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"lua_revision", 1007000, -- Picard

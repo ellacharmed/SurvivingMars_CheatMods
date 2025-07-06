@@ -1,3 +1,7 @@
+v0.9
+Added age.
+Added hover info to residence and selected colonist info.
+
 v0.8
 Freeze when hovering over Celebrity (thanks Neocray).
 

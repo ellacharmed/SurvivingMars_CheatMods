@@ -1961,10 +1961,10 @@ end
 
 --
 -- Remove log spam (SetScale doesn't like anything below 0 and above 2047)
-local ChoOrig_g_CObjectFuncs_SetScale = g_CObjectFuncs.SetScale
-function g_CObjectFuncs:SetScale(scale, ...)
+local ChoOrig_CObject_SetScale = CObject.SetScale
+function CObject:SetScale(scale, ...)
 	if not mod_EnableMod then
-		return ChoOrig_g_CObjectFuncs_SetScale(self, scale, ...)
+		return ChoOrig_CObject_SetScale(self, scale, ...)
 	end
 
 	if scale < 0 then
@@ -1973,7 +1973,7 @@ function g_CObjectFuncs:SetScale(scale, ...)
 		scale = 2047
 	end
 
-	return ChoOrig_g_CObjectFuncs_SetScale(self, scale, ...)
+	return ChoOrig_CObject_SetScale(self, scale, ...)
 end
 
 --

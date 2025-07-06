@@ -4,9 +4,6 @@
 local entity_list = {
 	"SignTest",
 }
--- getting called a bunch, so make them local
-local path_loc_str = CurrentModPath .. "Entities/"
-local mod = CurrentModDef
 
 -- no sense in making a new one for each entity
 local EntityDataTableTemplate = {
@@ -17,13 +14,17 @@ local EntityDataTableTemplate = {
 	},
 }
 
+-- getting called a bunch, so make them local
+local path_loc_str = CurrentModPath .. "Entities/"
+local mod = CurrentModDef
 -- local instead of global is quicker
 local EntityData = EntityData
 local EntityLoadEntities = EntityLoadEntities
 local SetEntityFadeDistances = SetEntityFadeDistances
 
 -- pretty much using what happens when you use ModItemEntity
-local function AddEntity(name)
+for i = 1, #entity_list do
+	local name = entity_list[i]
 	EntityData[name] = EntityDataTableTemplate
 	EntityLoadEntities[#EntityLoadEntities + 1] = {
 		mod,
@@ -31,10 +32,6 @@ local function AddEntity(name)
 		path_loc_str .. name .. ".ent"
 	}
 	SetEntityFadeDistances(name, -1, -1)
-end
-
-for i = 1, #entity_list do
-	AddEntity(entity_list[i])
 end
 
 -- replace the homeless sign with our new one

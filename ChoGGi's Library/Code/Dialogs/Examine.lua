@@ -1294,6 +1294,8 @@ function ChoGGi_DlgExamine:idButDeleteAll_OnPress()
 					if IsValid(obj) then
 						-- true skips dust plume
 						ChoGGi_Funcs.Common.DeleteObject(obj, true)
+					elseif IsValidThread(obj) then
+						DeleteThread(obj)
 					elseif obj.delete then
 						obj:delete()
 					end

@@ -26,12 +26,13 @@ function OnMsg.LoadGame()
 		return
 	end
 
-	-- suspending speeds up deleting
 	local realm = GetActiveRealm()
+
+	-- Suspending speeds up deleting (among other actions, always good to use it for large operations)
 	realm:SuspendPassEdits("ChoGGi.RemoveBlueYellowGridMarks.LoadGame")
 
-	-- blue/yellow markers
-	local objs = realm:MapGet(true, "GridTile", "GridTileWater", "RangeHexRadius", function(o)
+	-- Blue/Yellow markers
+	local objs = realm:MapGet(true, "GridTile", "GridTileWater", "RangeHexRadius", "RangeHexRadiusContainer", function(o)
 		-- SkiRich's Toggle Work Zone
 		if not o.ToggleWorkZone then
 			return true
@@ -42,7 +43,7 @@ function OnMsg.LoadGame()
 		objs[i]:delete()
 	end
 
-	-- remove the rover outlines added from https://forum.paradoxplaza.com/forum/index.php?threads/surviving-mars-persistent-transport-route-blueprint-on-map.1121333/
+	-- Remove the rover outlines added from https://forum.paradoxplaza.com/forum/index.php?threads/surviving-mars-persistent-transport-route-blueprint-on-map.1121333/
 	objs = realm:MapGet(true, "WireFramedPrettification", function(rover)
 		return rover_ents[rover.entity or ""]
 	end)

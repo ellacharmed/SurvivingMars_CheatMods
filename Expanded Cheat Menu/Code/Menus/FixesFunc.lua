@@ -193,7 +193,7 @@ function ChoGGi_Funcs.Menus.ResetAllColonists()
 				local is_valid = IsValid(c)
 				SpawnColonist(c, nil, is_valid and c:GetVisualPos(), city)
 				if is_valid then
-					c:delete()
+					DoneObject(c)
 				end
 			end
 		end
@@ -232,7 +232,7 @@ local function AttachedColonist(c, pos, rocket, city)
 	if IsValid(c) then
 		c:Detach()
 		SpawnColonist(c, rocket, pos, city)
-		c:delete()
+		DeleteObject(c)
 	else
 		SpawnColonist(nil, nil, rocket, pos, city)
 	end

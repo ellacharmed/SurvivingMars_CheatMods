@@ -1,3 +1,6 @@
+v11.0
+Changed g_CObjectFuncs to CObject for SetScale fix (it only worked after loading twice).
+
 v10.9
 Survey Offer Option 2 never starts (same issue).
 
