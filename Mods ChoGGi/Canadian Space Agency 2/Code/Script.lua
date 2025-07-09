@@ -67,8 +67,12 @@ end
 local comm_id = "ChoGGi_CanadianSpaceAgency_Commander"
 local storybit_id = "politician"
 
--- swap any politician storybits
-local function UpdateStoryBits()
+local function StartupCode()
+	if GetCommanderProfile().id ~= comm_id then
+		return
+	end
+
+	-- politician story to CSA
 	local StoryBits = StoryBits
 	for _, storybit in pairs(StoryBits) do
 		for i = 1, #storybit do
@@ -78,34 +82,25 @@ local function UpdateStoryBits()
 			end
 		end
 	end
+
+	return true
 end
 
-function OnMsg.LoadGame()
-	if GetCommanderProfile().id ~= comm_id then
-		return
-	end
+-- Don't update standing when loading saves
+OnMsg.LoadGame = StartupCode
 
-	-- politician story to CSA
-	UpdateStoryBits()
-end
-
+-- Update standing on new games
 function OnMsg.CityStart()
-	if GetCommanderProfile().id ~= comm_id then
-		return
-	end
-
-	-- politician story to CSA
-	UpdateStoryBits()
-
-	-- change standing to Good
-	local RivalAIs = RivalAIs
-	for _, rival in pairs(RivalAIs) do
-		if rival.resources.standing < 22 then
-			-- Oh hey, hows it going eh?
-			rival.resources.standing = 21
+	if StartupCode() then
+		-- Change standing to Good
+		local RivalAIs = RivalAIs
+		for _, rival in pairs(RivalAIs) do
+			if rival.resources.standing < 22 then
+				-- Oh hey, hows it going eh?
+				rival.resources.standing = 21
+			end
 		end
 	end
-
 end
 
 -- change Welcome to Mars audio
