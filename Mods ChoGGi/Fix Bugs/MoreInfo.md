@@ -9,6 +9,7 @@ See mod options to toggle certain fixes.
 ### General bugs:
 ```
 Uneven terrain from Flatten tool (mod option to disable).
+Meteor landed on under construction track while dismantling.
 Water Conservation System doesn't show updated consumption in build menu.
 Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc.
 If you install Space Race DLC then Shuttle Hubs will disappear from build menu in existing saves.

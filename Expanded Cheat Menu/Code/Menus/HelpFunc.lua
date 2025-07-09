@@ -89,6 +89,7 @@ do -- ModUpload
 	-- don't add these mods to upload list
 	local skip_mods = {
 		ChoGGi_ = true,
+		ChoGGi_FakeClasses = true,
 		ChoGGi_testing = true,
 		TESTING = true,
 	}

@@ -1058,6 +1058,17 @@ do
 		--
 
 		--
+		-- Meteor landed on under construction track while dismantling.
+		objs = GetCityLabels("TrackConstructionSite")
+		for i = #objs, 1, -1 do
+			local obj = objs[i]
+			-- check for invalid track_obj
+			if not IsValid(obj.track_obj) then
+				obj.track_obj:ToggleDemolish()
+			end
+		end
+
+		--
 		-- Some mod is adding OpenAirGyms to the Workplace label.
 		-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
 		objs = GetCityLabels("Workplace")

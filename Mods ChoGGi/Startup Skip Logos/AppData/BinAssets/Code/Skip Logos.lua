@@ -1,16 +1,15 @@
 -- Load mods in mainmenu
---~ local load_mods = true
-local load_mods = false
+local load_mods = true
+--~ local load_mods = false
 
 -- Start in Load game dialog
 --~ local load_dialog = true
 local load_dialog = false
 
 -- Disable gamepads
---~ XInput.IsControllerConnected = empty_func
+XInput.IsControllerConnected = empty_func
 
 function OnMsg.DesktopCreated()
-
 	-- Stop intro videos
 	PlayInitialMovies = empty_func
 	-- Get rid of mod manager warnings (not the reboot one though)
@@ -18,7 +17,7 @@ function OnMsg.DesktopCreated()
 	-- Custom cursors in main menu
 --~   MountFolder("UI/Cursors","AppData/Mods/Replace Cursors/Cursors/")
 	-- Enable disabled DLC
---~ 	DLCConfigPreload = empty_func
+	DLCConfigPreload = empty_func
 
   CreateRealTimeThread(function()
 		local WaitMsg = WaitMsg
@@ -32,9 +31,9 @@ function OnMsg.DesktopCreated()
 		local Mods = Mods
 
 		-- Library spacer for sort order in manager
---~ 		if Mods.ChoGGi_Library then
---~ 			Mods.ChoGGi_Library.title = " " .. Mods.ChoGGi_Library.title
---~ 		end
+		if Mods.ChoGGi_Library then
+			Mods.ChoGGi_Library.title = " " .. Mods.ChoGGi_Library.title
+		end
 
 		-- Load mods
 		if load_mods then
@@ -43,9 +42,10 @@ function OnMsg.DesktopCreated()
 			local load_mods = AccountStorage.LoadMods or ""
 			-- Going backwards to remove from list
 			for i = #load_mods, 1, -1 do
-				local mod = load_mods[i]
-				if Mods[mod].bin_assets then
-					asset_mods[#asset_mods+1] = mod
+				local mod_id = load_mods[i]
+				local mod = Mods[mod_id]
+				if mod and mod.bin_assets then
+					asset_mods[#asset_mods+1] = mod_id
 					table.remove(load_mods, i)
 				end
 			end
@@ -57,9 +57,9 @@ function OnMsg.DesktopCreated()
 			-- Add mods back to lists (local ModsLoaded here as it's false before)
  			local ModsLoaded = ModsLoaded
 			for i = 1, #asset_mods do
-				local mod = asset_mods[i]
-				load_mods[#load_mods+1] = mod
-				ModsLoaded[#ModsLoaded+1] = Mods[mod]
+				local mod_id = asset_mods[i]
+				load_mods[#load_mods+1] = mod_id
+				ModsLoaded[#ModsLoaded+1] = Mods[mod_id]
 			end
 		end
 
@@ -79,6 +79,9 @@ function OnMsg.DesktopCreated()
 		if load_dialog then
 			Dialogs.PGMainMenu:SetMode("Load")
 		end
+
+--~ 		-- Remove the update news
+--~ 		UIShowParadoxFeeds = empty_func
   end)
 
 	-- Always random logo on load
