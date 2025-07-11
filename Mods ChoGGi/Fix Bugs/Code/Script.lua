@@ -2396,13 +2396,61 @@ do -- School:OnTrainingCompleted(...) / SchoolSpire:OnTrainingCompleted(...)
 
 end -- do
 
---~ local ChoOrig_FilterCompatibleTraitsWith = FilterCompatibleTraitsWith
---~ function FilterCompatibleTraitsWith(traits, compatible_with, ...)
---~ 	if not mod_EnableMod then
---~ 		return ChoOrig_FilterCompatibleTraitsWith(traits, compatible_with, ...)
---~ 	end
+--
+-- RC Harvester doesn't collect waste rock
+if g_AvailableDlc.gagarin then
+	local ChoOrig_RCHarvester_FindNextRouteSource = RCHarvester.FindNextRouteSource
+	function RCHarvester:FindNextRouteSource(...)
+		if not mod_EnableMod then
+			return ChoOrig_RCHarvester_FindNextRouteSource(self, ...)
+		end
 
---~ end
+		-- same as orig func, but added WasteRockStockpileBase
+		return GetRealm(self):MapFindNearest(self, self, "hex", RCTransport_AutoRouteRadius, "TerrainDeposit", "SurfaceDeposit", "ResourceStockpile", "ResourcePile", "StorageDepot", "WasteRockStockpileBase", ResourceSourcesRoute_func, self)
+	end
+end
+
+--
+-- RC Constructor/RC Terraformer missing Create Transport Route
+-- For some reason they aren't supposed to be able to create routes...
+do -- RCTerraformer.ShouldShowRouteButton/RCTerraformer.ToggleCreateRouteMode_Update/RCConstructor.ShouldShowRouteButton/RCConstructor.ToggleCreateRouteMode_Update
+	local function ShowRCTRansportButton(orig, func, ...)
+		if not mod_EnableMod then
+			return orig(...)
+		end
+
+		return func(...)
+	end
+	if g_AvailableDlc.armstrong then
+		local ChoOrig_RCTerraformer_ShouldShowRouteButton = RCTerraformer.ShouldShowRouteButton
+		function RCTerraformer.ShouldShowRouteButton(...)
+			return ShowRCTRansportButton(ChoOrig_RCTerraformer_ShouldShowRouteButton,
+				RCTransport.ShouldShowRouteButton, ...
+			)
+		end
+		local ChoOrig_RCTerraformer_ToggleCreateRouteMode_Update = RCTerraformer.ToggleCreateRouteMode_Update
+		function RCTerraformer.ToggleCreateRouteMode_Update(...)
+			return ShowRCTRansportButton(ChoOrig_RCTerraformer_ToggleCreateRouteMode_Update,
+				RCTransport.ToggleCreateRouteMode_Update, ...
+			)
+		end
+	end
+	if g_AvailableDlc.gagarin then
+		local ChoOrig_RCConstructor_ShouldShowRouteButton = RCConstructor.ShouldShowRouteButton
+		function RCConstructor.ShouldShowRouteButton(...)
+			return ShowRCTRansportButton(ChoOrig_RCConstructor_ShouldShowRouteButton,
+				RCTransport.ShouldShowRouteButton, ...
+			)
+		end
+		local ChoOrig_RCConstructor_ToggleCreateRouteMode_Update = RCConstructor.ToggleCreateRouteMode_Update
+		function RCConstructor.ToggleCreateRouteMode_Update(...)
+			return ShowRCTRansportButton(ChoOrig_RCConstructor_ToggleCreateRouteMode_Update,
+				RCTransport.ToggleCreateRouteMode_Update, ...
+			)
+		end
+	end
+end -- do
+
 
 --
 --

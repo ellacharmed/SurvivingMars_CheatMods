@@ -9,6 +9,8 @@ See mod options to toggle certain fixes.
 ### General bugs:
 ```
 Uneven terrain from Flatten tool (mod option to disable).
+RC Harvester doesn't collect waste rock.
+RC Constructor/RC Terraformer missing Create Transport Route button.
 Meteor landed on under construction track while dismantling.
 Water Conservation System doesn't show updated consumption in build menu.
 Show actual resources in build menu for Dome Streamlining, Mars Nouveau, etc.
@@ -138,6 +140,7 @@ Fix Transports Don't Move After Route Set
 Fix Unlock RC Safari Resupply
 Fix Unrepairable Attack Rovers
 Pins Missing Some Status Icons
+RC Constructor Terraformer Routes
 School Skip Attained Perks
 ```
 

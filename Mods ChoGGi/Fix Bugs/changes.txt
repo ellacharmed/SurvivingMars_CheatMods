@@ -1,3 +1,8 @@
+v11.2
+RC Harvester doesn't collect waste rock (Thanks Dark Master).
+Added my mod:
+RC Constructor Terraformer Routes
+
 v11.1
 Meteor landed on under construction track while dismantling (Thanks Tremualin).
 
