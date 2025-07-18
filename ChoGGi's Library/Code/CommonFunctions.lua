@@ -4987,15 +4987,13 @@ if what_game == "Mars" then
 			break_order[#break_order] = nil
 		end
 
-		tech_list = {}
-		remove_added = {}
+		local tech_list = {}
 
 		local c = #break_order
 		for i = 1, c do
 			local id = break_order[i]
 			-- translate tech
 			tech_list[i] = translated_tech[id]
-			remove_added[id] = true
 		end
 
 		return tech_list

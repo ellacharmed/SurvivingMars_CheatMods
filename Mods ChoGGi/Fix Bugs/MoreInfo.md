@@ -34,6 +34,8 @@ Toggling power to domes with passages in certain instances.
 
 ### Storybits:
 ```
+Cyber War: Anyone up for some good old blackmailing? Never rewards funds only lowers standing.
+Eureka!: Option 2/3: Always picks from Biotech instead of random category.
 FollowUp Storybits in wrong category:
 Survey Offer Option 2, Cure For Cancer: Rare Outcome, and Free Will: Violent Urges Solved.
 Twin Peeks: spawning, but not showing Beauty/Research effect deposits.

@@ -2,6 +2,7 @@
 
 ## v19.8 (Unreleased)
 ### Changed:
+- Start Storybits has option for selecteing rival.
 - Fuzted around how Start Storybits displays names.
 
 ## v19.7 (5 June 2025)

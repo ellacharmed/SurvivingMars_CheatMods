@@ -721,10 +721,6 @@ If it's an associative table then o = value."]]),
 			self:PostInit(context.parent)
 		end
 	end -- everything else
-
-
-	-- Hide it "till" I fix it
-	self.idChildLock:SetVisible(false)
 end
 
 do -- SafeExamine
@@ -1700,7 +1696,7 @@ Use Shift- or Ctrl- for random colours/reset colours.]]),
 				ChoGGi_Funcs.Common.ChangeObjectColour(self.obj_ref)
 			end,
 		},
-		{name = T(302535920001305--[[Find Within]]),
+		{name = T(10123--[[Search]]),
 			hint = T{302535920001303--[["Search for text within <color ChoGGi_green><str></color>."]],
 				str = self.name,
 			},

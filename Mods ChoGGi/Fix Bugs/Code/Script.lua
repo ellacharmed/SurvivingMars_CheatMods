@@ -5,6 +5,7 @@ local table, type, pairs, tostring, next = table, type, pairs, tostring, next
 local pcall, setmetatable = pcall, setmetatable
 local _InternalTranslate = _InternalTranslate
 local AsyncRand = AsyncRand
+local GetActiveRealm = GetActiveRealm
 local GetBuildingTechsStatus = GetBuildingTechsStatus
 local GetCity = GetCity
 local GetDomeAtPoint = GetDomeAtPoint
@@ -18,7 +19,7 @@ local IsKindOf = IsKindOf
 local IsUnitInDome = IsUnitInDome
 local IsValid = IsValid
 local IsValidThread = IsValidThread
-local GetActiveRealm = GetActiveRealm
+local PlaceObj = PlaceObj
 local TestSunPanelRange = TestSunPanelRange
 local ValidateBuilding = ValidateBuilding
 local WorldToHex = WorldToHex
@@ -721,6 +722,37 @@ do
 		-- Just in case something changes (hah)
 		pcall(function()
 
+			-- check dlc for storybits
+
+			--
+			-- Eureka!: Focus on single topic / Do various optimizations
+			-- Always picks from Biotech instead of random category
+			local Eureka = StoryBits.Boost9_Eureka
+			if Eureka[5].Weight == 100 then
+				Eureka[5].Weight = 20
+				Eureka[6].Weight = 20
+				Eureka[7].Weight = 20
+				Eureka[8].Weight = 20
+				Eureka[9].Weight = 20
+				Eureka[11].Weight = 20
+				Eureka[12].Weight = 20
+				Eureka[13].Weight = 20
+				Eureka[14].Weight = 20
+				Eureka[15].Weight = 20
+			end
+
+			--
+			-- Cyber War: Anyone up for some good old blackmailing?
+			-- Removes standing, but doesn't give funding.
+			local CyberWar = StoryBits.CyberWar
+			-- gagarin dlc
+			if CyberWar and #CyberWar == 10 then
+				CyberWar[9].Effects[2] = PlaceObj("RewardFunding", {
+					"Amount", "<blackmail>",
+				})
+				table.remove(CyberWar, 10)
+			end
+
 			--
 			-- Free Will: Violent Urges Solved
 			-- Cure For Cancer: Rare Outcome never starts
@@ -769,116 +801,137 @@ do
 			--
 			-- Blank Slate doesn't remove any applicants for options 2 or 3 (fix 1/2)
 			local BlankSlate = StoryBits.BlankSlate[9].Effects
-			BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {"Amount", 20})
-			BlankSlate = StoryBits.BlankSlate[12].Effects
-			BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {"Amount", 20})
+			if #BlankSlate == 2 then
+				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
+					"Amount", 20,
+				})
+				BlankSlate = StoryBits.BlankSlate[12].Effects
+				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
+					"Amount", 20,
+				})
+			end
 
 			--
 			-- Fhtagn! Fhtagn! "Let's wait it out" makes all colonists cowards instead of only religious ones
 			local FhtagnFhtagn = StoryBits.FhtagnFhtagn[4].Effects[1].Filters
-			FhtagnFhtagn[#FhtagnFhtagn+1] = PlaceObj("HasTrait", {"Trait", "Religious"})
+			if #FhtagnFhtagn == 0 then
+				FhtagnFhtagn[#FhtagnFhtagn+1] = PlaceObj("HasTrait", {
+					"Trait", "Religious",
+				})
+			end
 
 			--
 			-- Dust Sickness: Deaths doesn't apply morale penalty
-			local outcome = PlaceObj("StoryBitOutcome", {
-				"Prerequisites", {},
-				"Effects", {
-					PlaceObj("ForEachExecuteEffects", {
-						"Label", "Colonist",
-						"Filters", {},
-						"Effects", {
-							PlaceObj("ModifyObject", {
-								"Prop", "base_morale",
-								"Amount", "<morale_penalty>",
-								"Sols", "<morale_penalty_duration>",
-							}),
-						},
-					}),
-				},
-			})
-			table.insert(StoryBits.DustSickness_Deaths, 5, outcome)
-			table.insert(StoryBits.DustSickness_Deaths, 7, outcome)
-			table.insert(StoryBits.DustSickness_Deaths, 9, PlaceObj("StoryBitOutcome", {
-				"Prerequisites", {},
-				"Effects", {
-					PlaceObj("ForEachExecuteEffects", {
-						"Label", "Colonist",
-						"Filters", {},
-						"Effects", {
-							PlaceObj("ModifyObject", {
-								"Prop", "base_morale",
-								"Amount", "<lower_morale_penalty>",
-								"Sols", "<morale_penalty_duration>",
-							}),
-						},
-					}),
-				},
-			}))
-
+			local DustSickness_Deaths = StoryBits.DustSickness_Deaths
+			if #DustSickness_Deaths == 6 then
+				local outcome = PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_penalty>",
+									"Sols", "<morale_penalty_duration>",
+								}),
+							},
+						}),
+					},
+				})
+				table.insert(StoryBits.DustSickness_Deaths, 5, outcome)
+				table.insert(StoryBits.DustSickness_Deaths, 7, outcome)
+				table.insert(StoryBits.DustSickness_Deaths, 9, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<lower_morale_penalty>",
+									"Sols", "<morale_penalty_duration>",
+								}),
+							},
+						}),
+					},
+				}))
+			end
 			--
 			-- Asylum will never start
-			local Asylum = StoryBits.Asylum.Prerequisites
-			table.remove(Asylum, 2)
-			table.remove(Asylum, 2)
-			Asylum = Asylum[1].Conditions
-			Asylum[#Asylum+1] = PlaceObj("RivalHasTechYouDont", nil)
-			Asylum[#Asylum+1] = PlaceObj("CountRivalResource", {
-				"Resource", "funding",
-				"Amount", 500000000
-			})
+			-- gagarin dlc
+			local Asylum = StoryBits.Asylum
+			if Asylum then
+				Asylum = Asylum.Prerequisites
+				if #Asylum == 3 then
+					table.remove(Asylum, 2)
+					table.remove(Asylum, 2)
+					Asylum = Asylum[1].Conditions
+					Asylum[#Asylum+1] = PlaceObj("RivalHasTechYouDont", nil)
+					Asylum[#Asylum+1] = PlaceObj("CountRivalResource", {
+						"Resource", "funding",
+						"Amount", 500000000
+					})
+				end
+			end
 
 			--
 			-- The Man From Mars: Outcome 3: Let him be, whoever he is.
 			-- None of the options reward anything, Morale is based on CustomOutcomeText and Morale stats from outcome 2.
 			local TheManFromMars = StoryBits.TheManFromMars_FollowUp4
-			table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamNumber", {
-				"Name", "morale_gain",
-				"Value", 20,
-			}))
-			table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamSols", {
-				"Name", "morale_sols",
-				"Value", 7200000,
-			}))
-			table.insert(TheManFromMars, 5, PlaceObj("StoryBitOutcome", {
-				"Prerequisites", {},
-				"Effects", {
-					PlaceObj("ForEachExecuteEffects", {
-						"Label", "Colonist",
-						"Filters", {
-							PlaceObj("HasTrait", {
-								"Trait", "Nerd",
-							}),
-						},
-						"Effects", {
-							PlaceObj("ModifyObject", {
-								"Prop", "base_morale",
-								"Amount", "<morale_gain>",
-								"Sols", "<morale_sols>",
-							}),
-						},
-					}),
-				},
-			}))
-			table.insert(TheManFromMars, 7, PlaceObj("StoryBitOutcome", {
-				"Prerequisites", {},
-				"Effects", {
-					PlaceObj("ForEachExecuteEffects", {
-						"Label", "Colonist",
-						"Filters", {
-							PlaceObj("HasTrait", {
-								"Trait", "Hippie",
-							}),
-						},
-						"Effects", {
-							PlaceObj("ModifyObject", {
-								"Prop", "base_morale",
-								"Amount", "<morale_gain>",
-								"Sols", "<morale_sols>",
-							}),
-						},
-					}),
-				},
-			}))
+			-- armstrong dlc
+			if TheManFromMars and #TheManFromMars == 4 then
+				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamNumber", {
+					"Name", "morale_gain",
+					"Value", 20,
+				}))
+				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamSols", {
+					"Name", "morale_sols",
+					"Value", 7200000,
+				}))
+				table.insert(TheManFromMars, 5, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {
+								PlaceObj("HasTrait", {
+									"Trait", "Nerd",
+								}),
+							},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_gain>",
+									"Sols", "<morale_sols>",
+								}),
+							},
+						}),
+					},
+				}))
+				table.insert(TheManFromMars, 7, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {
+								PlaceObj("HasTrait", {
+									"Trait", "Hippie",
+								}),
+							},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_gain>",
+									"Sols", "<morale_sols>",
+								}),
+							},
+						}),
+					},
+				}))
+			end
 
 		-- Fix Storybits end
 		end)
@@ -1063,7 +1116,7 @@ do
 		for i = #objs, 1, -1 do
 			local obj = objs[i]
 			-- check for invalid track_obj
-			if not IsValid(obj.track_obj) then
+			if obj and not IsValid(obj.track_obj) then
 				obj.track_obj:ToggleDemolish()
 			end
 		end

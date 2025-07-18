@@ -860,9 +860,53 @@ function ChoGGi_Funcs.Menus.TestStoryBits()
 			obj = table.rand(GetCityLabels("Rover"))
 		elseif choice.check6 then
 			obj = SelectedObj
+		elseif choice.check7 then
+			-- rand enough
+			for _, rival in pairs(RivalAIs) do
+				obj = rival
+				break
+			end
 		end
 
 		ForceActivateStoryBit(choice.value, ActiveMapID, obj, true)
+	end
+
+	local checkboxes = {
+		{
+			title = Translate(5426--[[Building]]),
+			hint = Translate(302535920001555--[[Choose a random %s to be the context for this storybit.]]):format(Translate(5426--[[Building]])),
+		},
+		{
+			title = Translate(1234--[[Dome]]),
+			hint = Translate(302535920001555--[[snipped]]):format(Translate(1234--[[Dome]])),
+		},
+		{
+			title = Translate(4290--[[Colonist]]),
+			hint = Translate(302535920001555--[[snipped]]):format(Translate(4290--[[Colonist]])),
+		},
+
+		{
+			title = Translate(1681--[[Drone]]),
+			hint = Translate(302535920001555--[[snipped]]):format(Translate(1681--[[Drone]])),
+			level = 2,
+		},
+		{
+			title = Translate(10147--[[Rover]]),
+			hint = Translate(302535920001555--[[snipped]]):format(Translate(10147--[[Rover]])),
+			level = 2,
+		},
+		{
+			title = T(302535920000769--[[Selected]]),
+			hint = T(302535920001556--[[Use the selected object.]]),
+			level = 2,
+		},
+	}
+	if g_AvailableDlc.gagarin then
+		checkboxes[#checkboxes+1] = {
+			title = T(11034--[[Rival Colonies]]),
+			hint = Translate(302535920001555--[[Choose a random %s to be the context for this storybit.]]):format(Translate(11034--[[Rival Colonies]])),
+			level = 2,
+		}
 	end
 
 	ChoGGi_Funcs.Common.OpenInListChoice{
@@ -870,36 +914,7 @@ function ChoGGi_Funcs.Menus.TestStoryBits()
 		items = item_list,
 		title = T(186760604064--[[Test]]) .. " " .. T(948928900281--[[Story Bits]]),
 		hint = T(302535920001359--[[Activate a story bit.]]),
-		checkboxes = {
-			{
-				title = Translate(5426--[[Building]]),
-				hint = Translate(302535920001555--[[Choose a random %s to be the context for this storybit.]]):format(Translate(5426--[[Building]])),
-			},
-			{
-				title = Translate(1234--[[Dome]]),
-				hint = Translate(302535920001555--[[snipped]]):format(Translate(1234--[[Dome]])),
-			},
-			{
-				title = Translate(4290--[[Colonist]]),
-				hint = Translate(302535920001555--[[snipped]]):format(Translate(4290--[[Colonist]])),
-			},
-
-			{
-				title = Translate(1681--[[Drone]]),
-				hint = Translate(302535920001555--[[snipped]]):format(Translate(1681--[[Drone]])),
-				level = 2,
-			},
-			{
-				title = Translate(10147--[[Rover]]),
-				hint = Translate(302535920001555--[[snipped]]):format(Translate(10147--[[Rover]])),
-				level = 2,
-			},
-			{
-				title = T(302535920000769--[[Selected]]),
-				hint = T(302535920001556--[[Use the selected object.]]),
-				level = 2,
-			},
-		},
+		checkboxes = checkboxes,
 	}
 end
 

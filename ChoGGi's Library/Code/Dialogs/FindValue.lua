@@ -36,7 +36,7 @@ function ChoGGi_DlgFindValue:Init(parent, context)
 
 	self.obj = context.obj
 	self.obj_name = RetName(self.obj)
-	self.title = T(302535920001305--[[Find Within]]) .. ": " .. self.obj_name
+	self.title = T(10123--[[Search]]) .. ": " .. self.obj_name
 	self.title_image = "CommonAssets/UI/Menu/EV_OpenFirst.tga"
 	self.title_image_single = true
 
@@ -119,6 +119,11 @@ function ChoGGi_DlgFindValue:Init(parent, context)
 	self.idEdit:SetFocus()
 
 	self:PostInit(context.parent)
+
+	local hint = self.idMoveControl.RolloverText
+	hint = T(302535920001305--[[Find text within object, Use Threads checkmark for ""ThreadsRegister"" and other objs.]])
+		.. "\n\n" .. hint
+	self.idMoveControl.RolloverText = hint
 end
 
 --~ function ChoGGi_DlgFindValue:RetStringCase(value, case)
@@ -229,7 +234,7 @@ function ChoGGi_DlgFindValue:RetObjects(obj, parent, str, case, threads, limit, 
 	local location_str1 = "L" .. level .. " P: " .. RetName(obj) .. "; "
 	local location_str2 = ", " .. RetName(parent)
 
-	-- Don't want to lockup ui for long searches
+	-- Don't want to lockup ui for long searches even if it takes longer
 	Sleep(1)
 
 	local count = 0
@@ -283,7 +288,6 @@ function ChoGGi_DlgFindValue:RetObjects(obj, parent, str, case, threads, limit, 
 
 end
 
-local const = const
 function ChoGGi_DlgFindValue:Input_OnKbdKeyDown(vk)
 	self = GetRootDialog(self)
 	if vk == const.vkEnter then

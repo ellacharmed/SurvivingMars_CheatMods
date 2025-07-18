@@ -457,9 +457,9 @@ do !Skipped Line! [[FindValue.lua]] !Skipped Line!
 302535920001361, "Will also search thread func names for value (case is ignored for this)."
 302535920000501, "Case-sensitive"
 302535920000502, "Treat uppercase and lowercase as distinct."
-302535920001305, "Find Within"
+302535920001305, "Find text within object, Use Threads checkmark for ""ThreadsRegister"" and other objs."
 302535920001306, "Enter text to find"
-302535920001304, "Set how many levels within this table we search. <color ChoGGi_red>Warning</color>: O(n)."
+302535920001304, "Set how many levels within this object to search. <color ChoGGi_red>Warning</color>: O(n)."
 end !Skipped Line!
 do !Skipped Line! [[TerraformingFunc.lua TerraformingMenu.lua]] !Skipped Line!
 302535920000870, "Max amount of pools that can form."
