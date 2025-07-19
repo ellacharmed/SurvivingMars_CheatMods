@@ -2,6 +2,7 @@ v11.3
 Didn't check for DLC for some storybit fixes and fixed some issues with loading saves.
 Cyber War: Anyone up for some good old blackmailing? Never rewards funds only lowers standing.
 Eureka!: Option 2/3: Always picks from Biotech instead of random category.
+(Thanks Lycrist Katkiller/Dark Master)
 
 v11.2
 RC Harvester doesn't collect waste rock (Thanks Dark Master).
