@@ -1,6 +1,8 @@
 ## Library Changelog
 
-## v12.8 (Unreleased)
+## v12.9 (Unreleased)
+
+## v12.8 (20 July 2025)
 - Renamed Find Within to Search.
 - Find Dialog runs in thread, so you can cancel it and it doesn't lock up the UI.
 - Fixed some GetRealm log spam.

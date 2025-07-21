@@ -316,12 +316,12 @@ end
 -- This is the main by-time internal function of the profiler and should not
 -- be called except by the hook wrapper
 --
-function _profiler._internal_profile_by_time(self,action)
+function _profiler._internal_profile_by_time(self)
 	-- we do this first so we add the minimum amount of extra time to this call
 	local timetaken = os.clock() - self.lastclock
 
 	local depth = 3
-	local at_top = true
+	--local at_top = true
 	local last_caller
 	local caller = debug.getinfo(depth)
 	while caller do
@@ -407,7 +407,7 @@ function _profiler.report( self, outfile, sort_by_total_time )
 
 	local total_time = 0
 	local ordering = {}
-	for func,record in pairs(self.rawstats) do
+	for func in pairs(self.rawstats) do
 		table.insert(ordering, func)
 	end
 
@@ -501,7 +501,7 @@ function _profiler.lua_report(self,outfile)
 	-- Purpose: Write out the entire raw state in a cross-referenceable form.
 	local ordering = {}
 	local functonum = {}
-	for func,record in pairs(self.rawstats) do
+	for func in pairs(self.rawstats) do
 		table.insert(ordering, func)
 		functonum[func] = #ordering
 	end
@@ -531,7 +531,7 @@ function _profiler.lua_report(self,outfile)
 		local thisfunc = ordering[i]
 		local record = self.rawstats[thisfunc]
 		outfile:write( "children[" .. i .. "] = { " )
-		for k,v in pairs(record.children) do
+		for k in pairs(record.children) do
 			if functonum[k] then -- non-recorded functions will be ignored now
 				outfile:write( functonum[k] .. ", " )
 			end
@@ -557,7 +557,7 @@ function _profiler.lua_report(self,outfile)
 		local thisfunc = ordering[i]
 		local record = self.rawstats[thisfunc];
 		outfile:write( "children[" .. i .. "] = { " )
-		for k,v in pairs(record.children) do
+		for k in pairs(record.children) do
 			if functonum[k] then -- non-recorded functions will be ignored now
 				outfile:write( record.children_time[k] .. ", " )
 			end

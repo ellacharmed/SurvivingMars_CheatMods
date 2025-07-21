@@ -2350,7 +2350,7 @@ function GetModifierObject(template, ...)
 --~ 		local modifiers = UICity.label_modifiers[lbl]
 		local modifiers = UIColony.city_labels.label_modifiers[lbl]
 		if modifiers then
-			for id, mod in pairs(modifiers) do
+			for _, mod in pairs(modifiers) do
 				--gather all modifiers that would potentially affect this building
 				local prop = mod.prop
 				local modification = modifications[prop]

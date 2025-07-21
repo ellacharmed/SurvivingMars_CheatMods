@@ -6,86 +6,113 @@
 	try that breakthrough where they carry two, and get a depot (at a factory/mine/etc) with one resource left in it
 	yes it took awhile to figure it out, hence the name...
 ]]
-local FuckingDrones = ChoGGi_Funcs.Common.FuckingDrones
+local DronesPickupAmount = ChoGGi_Funcs.Common.DronesPickupAmount
+
+local mod_EnableMod
+local mod_CarryAmount
+local mod_UseCarryAmount
+
+local function StartupCode(tech_id)
+	if not mod_EnableMod
+		-- Waste of time if it isn't the right tech
+		or tech_id and tech_id ~= "ArtificialMuscles"
+	then
+		return
+	end
+
+	-- get default (ArtificialMuscles is the only tech that changes it)
+	local default_drone_amount = IsTechResearched("ArtificialMuscles") and 2 or 1
+
+	local amount
+	if mod_UseCarryAmount then
+		if g_Consts.DroneResourceCarryAmount ~= mod_CarryAmount then
+			amount = mod_CarryAmount
+		end
+	elseif g_Consts.DroneResourceCarryAmount ~= default_drone_amount then
+		amount = default_drone_amount
+	end
+
+	ChoGGi_Funcs.Common.SetConsts("DroneResourceCarryAmount", amount)
+	UpdateDroneResourceUnits()
+end
+
+OnMsg.CityStart = StartupCode
+OnMsg.LoadGame = StartupCode
+-- Update amount if tech gets researched
+OnMsg.TechResearched = StartupCode
+
+-- Update mod options
+local function ModOptions(id)
+	-- id is from ApplyModOptions
+	if id and id ~= CurrentModId then
+		return
+	end
+
+	mod_EnableMod = CurrentModOptions:GetProperty("EnableMod")
+	mod_CarryAmount = CurrentModOptions:GetProperty("CarryAmount")
+	mod_UseCarryAmount = CurrentModOptions:GetProperty("UseCarryAmount")
+
+	-- Make sure we're in-game
+	if not GameMaps then
+		return
+	end
+
+	StartupCode()
+end
+-- Load default/saved settings
+OnMsg.ModsReloaded = ModOptions
+-- Fired when Mod Options>Apply button is clicked
+OnMsg.ApplyModOptions = ModOptions
 
 function OnMsg.ClassesPostprocess()
 
 	local ChoOrig_SingleResourceProducer_Produce = SingleResourceProducer.Produce
 	function SingleResourceProducer:Produce(...)
-		-- get them lazy drones working
-		if self:GetStoredAmount() > 1000 then
-			FuckingDrones(self, "single")
+		if not mod_EnableMod or ChoGGi.UserSettings.DroneResourceCarryAmountFix then
+			return ChoOrig_SingleResourceProducer_Produce(self, ...)
 		end
-		-- be on your way
+
+		-- Get them lazy drones working
+		if self:GetStoredAmount() >= 1000 then
+			DronesPickupAmount(self, "single")
+		end
+
+		-- Be on your way
 		return ChoOrig_SingleResourceProducer_Produce(self, ...)
 	end
 
 end
 
+-- Honestly it should be fine with the func replace...
 function OnMsg.NewHour()
-	-- Hey. Do I preach at you when you're lying stoned in the gutter? No!
-	local prods = UIColony:GetCityLabels("ResourceProducer")
-	for i = 1, #prods do
-		local prod = prods[i]
-		-- most are fine with GetProducerObj, but some like water extractor don't have one
-		local obj = prod:GetProducerObj() or prod
-		local func = obj.GetStoredAmount and "GetStoredAmount" or obj.GetAmountStored and "GetAmountStored"
-		if obj[func](obj) > 1000 then
-			FuckingDrones(obj)
-		end
-		obj = prod.wasterock_producer
-		if obj and obj:GetStoredAmount() > 1000 then
-			FuckingDrones(obj, "single")
-		end
-	end
-
-	prods = UIColony:GetCityLabels("BlackCubeStockpiles")
-	for i = 1, #prods do
-		local obj = prods[i]
-		if obj:GetStoredAmount() > 1000 then
-			FuckingDrones(obj)
-		end
-	end
-end
-
-
--- update carry amount (manually define it, as the setting is stored in Const)
-local default_drone_amount = 1
-
-local function UpdateAmount(amount)
-	ChoGGi_Funcs.Common.SetConsts("DroneResourceCarryAmount", amount)
-	UpdateDroneResourceUnits()
-end
-
--- fired when option is changed
-function OnMsg.ApplyModOptions(id)
-	if id ~= CurrentModId then
+	if not mod_EnableMod or ChoGGi.UserSettings.DroneResourceCarryAmountFix then
 		return
 	end
 
-	-- If enabled then apply option
-	if g_Consts then
-		if CurrentModOptions:GetProperty("UseCarryAmount") then
-			local amount = CurrentModOptions:GetProperty("CarryAmount")
-			if g_Consts.DroneResourceCarryAmount ~= amount then
-				UpdateAmount(amount)
+	-- Hey. Do I preach at you when you're lying stoned in the gutter? No!
+	local objs = UIColony:GetCityLabels("ResourceProducer")
+	for i = 1, #objs do
+		local prod = objs[i]
+		-- most are fine with GetProducerObj, but some like water extractor don't have one
+		local obj = prod:GetProducerObj() or prod
+		if obj then
+			local func = obj.GetStoredAmount and "GetStoredAmount" or obj.GetAmountStored and "GetAmountStored"
+			if obj[func](obj) >= 1000 then
+				DronesPickupAmount(obj)
 			end
-		elseif g_Consts.DroneResourceCarryAmount ~= default_drone_amount then
-			UpdateAmount(default_drone_amount)
+		end
+
+		obj = prod.wasterock_producer
+		if obj and obj:GetStoredAmount() >= 1000 then
+			DronesPickupAmount(obj, "single")
+		end
+	end
+
+	objs = UIColony:GetCityLabels("BlackCubeStockpiles")
+	for i = 1, #objs do
+		local obj = objs[i]
+		if obj:GetStoredAmount() >= 1000 then
+			DronesPickupAmount(obj)
 		end
 	end
 end
-
-local function StartupCode()
-	if g_Consts then
-		-- get default
-		default_drone_amount = g_Consts.DroneResourceCarryAmount or 1
-
-		if CurrentModOptions:GetProperty("UseCarryAmount") then
-			UpdateAmount(CurrentModOptions:GetProperty("CarryAmount"))
-		end
-	end
-end
-
-OnMsg.CityStart = StartupCode
-OnMsg.LoadGame = StartupCode

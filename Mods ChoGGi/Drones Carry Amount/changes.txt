@@ -1,3 +1,7 @@
+v1.4
+Added mod option to disable mod.
+Cleaned up code to be more in line with recent code.
+
 v1.3
 Evans update.
 

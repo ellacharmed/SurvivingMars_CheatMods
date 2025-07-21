@@ -1049,25 +1049,28 @@ function OnMsg.NewHour()
 		local FuckingDrones = ChoGGi_Funcs.Common.FuckingDrones
 
 		-- Hey. Do I preach at you when you're lying stoned in the gutter? No!
-		local prods = GetCityLabels("ResourceProducer")
-		for i = 1, #prods do
-			local prod = prods[i]
+		local objs = GetCityLabels("ResourceProducer")
+		for i = 1, #objs do
+			local prod = objs[i]
 			-- Most are fine with GetProducerObj, but some like water extractor don't have one
 			local obj = prod:GetProducerObj() or prod
-			local func = obj.GetStoredAmount and "GetStoredAmount" or obj.GetAmountStored and "GetAmountStored"
-			if obj[func](obj) > 1000 then
-				FuckingDrones(obj)
+			if obj then
+				local func = obj.GetStoredAmount and "GetStoredAmount" or obj.GetAmountStored and "GetAmountStored"
+				if obj[func](obj) >= 1000 then
+					FuckingDrones(obj)
+				end
 			end
+			-- waste rock (water extractors)
 			obj = prod.wasterock_producer
-			if obj and obj:GetStoredAmount() > 1000 then
+			if obj and obj:GetStoredAmount() >= 1000 then
 				FuckingDrones(obj, "single")
 			end
 		end
 
-		prods = GetCityLabels("BlackCubeStockpiles")
-		for i = 1, #prods do
-			local obj = prods[i]
-			if obj:GetStoredAmount() > 1000 then
+		objs = GetCityLabels("BlackCubeStockpiles")
+		for i = 1, #objs do
+			local obj = objs[i]
+			if obj:GetStoredAmount() >= 1000 then
 				FuckingDrones(obj)
 			end
 		end

@@ -1583,7 +1583,7 @@ function OnMsg.ClassesPostprocess()
 			end
 
 			-- get them lazy drones working (bugfix for drones ignoring amounts less then their carry amount)
-			if UserSettings.DroneResourceCarryAmountFix and self:GetStoredAmount() > 1000 then
+			if UserSettings.DroneResourceCarryAmountFix and self:GetStoredAmount() >= 1000 then
 				ChoGGi_Funcs.Common.FuckingDrones(self, "single")
 			end
 

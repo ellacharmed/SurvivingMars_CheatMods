@@ -1,8 +1,10 @@
 ## ECM Changelog
 
-## v19.8 (Unreleased)
+## v19.9 (Unreleased)
+
+## v19.8 (20 July 2025)
 ### Changed:
-- Start Storybits has option for selecteing rival.
+- Start Storybits has option for selecting rival.
 - Fuzted around how Start Storybits displays names.
 
 ## v19.7 (5 June 2025)

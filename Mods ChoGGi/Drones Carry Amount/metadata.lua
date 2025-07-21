@@ -4,7 +4,7 @@ return PlaceObj("ModDef", {
 			"id", "ChoGGi_Library",
 			"title", "ChoGGi's Library",
 			"version_major", 12,
-			"version_minor", 7,
+			"version_minor", 8,
 		}),
 	},
 	"title", "Drones Carry Amount",
@@ -12,9 +12,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "1411107961",
 	"pops_any_uuid", "f89fcb61-6a9b-494a-852f-aa37b68dafcc",
 	"lua_revision", 1007000, -- Picard
-	"version", 13,
+	"version", 14,
 	"version_major", 1,
-	"version_minor", 3,
+	"version_minor", 4,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {

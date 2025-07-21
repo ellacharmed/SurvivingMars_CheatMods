@@ -1,17 +1,18 @@
 -- See LICENSE for terms
 
--- keep it unique folks
+-- Keep it unique folks
 local layout_id = "ChoGGi_LayoutConstruction_Example"
 
 function OnMsg.ClassesPostprocess()
-	-- don't want dupes showing up
+	-- Don't want dupes showing up
 	if BuildingTemplates[layout_id] then
 		return
 	end
 
 	PlaceObj("BuildingTemplate", {
 
---~ 		"Asteroid","Underground","Surface",
+		-- Stop it from showing up in certain environments
+ 		-- "Asteroid","Underground","Surface",
 		"disabled_in_environment1", "",
 		"disabled_in_environment2", "",
 		"disabled_in_environment3", "",
@@ -20,19 +21,21 @@ function OnMsg.ClassesPostprocess()
 		"Id", layout_id,
 		-- LayoutList corresponds to the LayoutConstruction id below
 		"LayoutList", layout_id,
-		-- what group to add it to
+		-- What group to add it to
 		"Group", "Infrastructure",
 		"build_category", "Infrastructure",
-		-- pos in build menu
+		-- Position in build menu
 		"build_pos", 1,
 
-		-- don't look at me (0 means no id, use in-game mod editor to generate ids)
+		-- name/desc/icon to use (0 means no id, use in-game mod editor to generate ids)
 		"display_name", T(0000, "Layout Construction Example ChoGGi"),
 		"display_name_pl", T(0000, "Layout Construction Example ChoGGis"),
 		"description", T(0000, "Some buildings"),
 		"display_icon", "UI/Icons/Buildings/self-sufficient_dome.tga",
+		-- You can use my ECM mod to browse icons if you don't want to make your own:
+		-- In the console paste this in: ~"UI/Icons/Buildings/"
 
-		-- hands off
+		-- Hands off (always needed for layouts)
 		"template_class", "LayoutConstructionBuilding",
 		"entity", "InvisibleObject",
 		"construction_mode", "layout",
@@ -42,11 +45,11 @@ function OnMsg.ClassesPostprocess()
 		group = "Default",
 		id = layout_id,
 
-		-- you can find template names here:
+		-- You can find template names here:
 		-- https://github.com/HaemimontGames/SurvivingMars/blob/master/Data/BuildingTemplate.lua
 		-- for DLC use my Expanded Cheat Menu mod, and in the console type in ~BuildingTemplates
 
-		-- they usually have the same entity name, but not always (check the building template with Examine(obj) ).
+		-- they usually have the same entity name, but not always (check the building template with ~obj in the console ).
 
 		PlaceObj("LayoutConstructionEntry", {
 			"template", "DomeBasic",

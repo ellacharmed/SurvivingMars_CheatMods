@@ -385,7 +385,8 @@ function XBuildMenu.GetItems(...)
 		if lookup_icons[button.icon] then
 			button.idButton:SetColumns(1)
 			button.idButton.RolloverZoom = 1100
-			button.idButton.SetRollover = function(this, ...)
+			button.idButton.SetRollover = function(_, ...)
+--~			button.idButton.SetRollover = function(this, ...)
 --~ 				button:SetRollover(...)
 				XWindow.OnSetRollover(button, true)
 				button.idButton.idShine:SetRollover(...)

@@ -557,7 +557,7 @@ local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 function ChoGGi_Funcs.Common.GetRealm(obj)
 	return IsValid(obj) and GetRealm(obj) or GetActiveRealm()
 end
-local GetRealm = ChoGGi_Funcs.Common.GetRealm
+GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 -- Copied in Fix Bugs
 function ChoGGi_Funcs.Common.GetCityLabels(label)
@@ -2574,12 +2574,12 @@ function ChoGGi_Funcs.Common.ColonistUpdateRace(c, race)
 end
 
 
-do -- FuckingDrones
+do -- DronesPickupAmount
 	--[[
-		fucking drones because if you assign more than one resource cube to be picked up
+		If you assign more than one resource cube to be picked up
 		the drones won't pick up any if that number isn't available for pickup
 		try that breakthrough where they carry two, and get a depot (at a factory/mine/etc) with one resource left in i
-		yes it took awhile to figure it out, hence the name...
+		yes it took awhile to figure it out...
 	]]
 
 	local function GetNearestIdleDrone(bld)
@@ -2623,7 +2623,7 @@ do -- FuckingDrones
 	end
 	ChoGGi_Funcs.Common.GetNearestIdleDrone = GetNearestIdleDrone
 
-	function ChoGGi_Funcs.Common.FuckingDrones(obj, single)
+	function ChoGGi_Funcs.Common.DronesPickupAmount(obj, single)
 		if not IsValid(obj) then
 			return
 		end
@@ -2631,13 +2631,15 @@ do -- FuckingDrones
 		-- Come on, Bender. Grab a jack. I told these guys you were cool.
 		-- Well, if jacking on will make strangers think I'm cool, I'll do it.
 
+		-- Single is for invis prod attached to the main building
 		local is_single = single == "single" or obj:IsKindOf("SingleResourceProducer")
+
 		local stored = obj:GetStoredAmount()
 		-- 1000
 		local rs = const.ResourceScale
 
-		-- Only fire if more then one resource
-		if stored > rs then
+		-- Only fire if there's at least 1 resource
+		if stored >= rs then
 			local parent
 			local request
 			local resource
@@ -2661,11 +2663,12 @@ do -- FuckingDrones
 			-- Round to nearest 1000 (don't want uneven stacks)
 			stored = (stored - stored % rs) / rs * rs
 			-- If carry is smaller then stored then they may not pickup (depends on storage)
-			if carry < stored or
+			if carry <= stored or
 				-- No picking up more then they can carry
-				stored > carry then
+				stored >= carry then
 					stored = carry
 			end
+
 			-- Pretend it's the user doing it (for more priority?)
 			drone:SetCommandUserInteraction(
 				"PickUp", request, false, resource, stored
