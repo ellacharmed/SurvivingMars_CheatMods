@@ -557,7 +557,8 @@ local IsValidXWin = ChoGGi_Funcs.Common.IsValidXWin
 function ChoGGi_Funcs.Common.GetRealm(obj)
 	return IsValid(obj) and GetRealm(obj) or GetActiveRealm()
 end
-GetRealm = ChoGGi_Funcs.Common.GetRealm
+-- leave local or stack overflow
+local GetRealm = ChoGGi_Funcs.Common.GetRealm
 
 -- Copied in Fix Bugs
 function ChoGGi_Funcs.Common.GetCityLabels(label)
