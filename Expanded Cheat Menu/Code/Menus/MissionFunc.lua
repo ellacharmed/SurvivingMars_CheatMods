@@ -222,7 +222,6 @@ function ChoGGi_Funcs.Menus.StartChallenge()
 end
 
 function ChoGGi_Funcs.Menus.InstantMissionGoals()
-	local T = T
 	local GetGoalDescription = GetGoalDescription
 	local SponsorGoalsMap = SponsorGoalsMap
 	local SponsorGoalProgress = SponsorGoalProgress
@@ -230,14 +229,26 @@ function ChoGGi_Funcs.Menus.InstantMissionGoals()
 	local item_list = {}
 	local c = 0
 	local sponsor = GetMissionSponsor()
-	for i = 1, 5 do
+	for i = 1, g_Consts.SponsorGoalsCount do
 		-- no sense in showing done ones
-		if not SponsorGoalProgress[i].state then
+		if not SponsorGoalProgress[i].state
+			or SponsorGoalProgress[i].state and SponsorGoalProgress[i].state == "fail"
+		then
 			local reward = sponsor["reward_effect_" .. i]
+
+			local param1 = sponsor:GetProperty(string.format("goal_%d_param_1", i))
+			local param2 = sponsor:GetProperty(string.format("goal_%d_param_2", i))
+			local param3 = sponsor:GetProperty(string.format("goal_%d_param_3", i))
+			param1 = ConvertParam(param1)
+			param2 = ConvertParam(param2, type(param1)=="number" and param1>0)
+			param3 = ConvertParam(param3, type(param2)=="number" and param2>0)
+			local context = {param1 = param1, param2 = param2, param3 = param3}
+
+			local goal = sponsor["sponsor_goal_" .. i]
 
 			c = c + 1
 			item_list[c] = {
-				text = i .. " " .. sponsor["sponsor_goal_" .. i],
+				text = i .. " " .. goal,
 				value = i,
 				hint = "<image " .. sponsor["goal_image_" .. i] .. ">\n\n"
 					.. T(302535920001409--[[Goal]]) .. ": "
@@ -245,7 +256,8 @@ function ChoGGi_Funcs.Menus.InstantMissionGoals()
 					.. T(128569337702--[[Reward:]]) .. " "
 					.. T{reward.Description, reward},
 				reward = reward,
-				goal = SponsorGoalsMap[sponsor["sponsor_goal_" .. i]],
+				goal = SponsorGoalsMap[goal],
+				context = context,
 			}
 		end
 	end
@@ -256,15 +268,22 @@ function ChoGGi_Funcs.Menus.InstantMissionGoals()
 		end
 		for i = 1, #choice do
 			local goalprog = SponsorGoalProgress[choice[i].value]
-			-- you weiner
+
+			-- you a weiner
 			goalprog.state = GameTime()
 			goalprog.progress = goalprog.target
 
 			local reward = choice[i].reward
 			local goal = choice[i].goal
-			-- stuff from City:SetGoals()
-			reward:Execute()
-			AddOnScreenNotification("GoalCompleted", OpenMissionProfileDlg, {reward_description = T(reward.Description, reward), context = context, rollover_title = T(4773--[[<em>Goal:</em> ]]), rollover_text = goal.description})
+
+			-- stuff from MissionGoalUpdate()
+			reward:Execute(MainMapID)
+			AddOnScreenNotification("GoalCompleted", OpenMissionProfileDlg, {
+				reward_description = T(reward.Description, reward),
+				context = choice[i].context,
+				rollover_title = T(4773--[[<em>Goal:</em> ]]),
+				rollover_text = goal.description,
+			})
 			Msg("GoalComplete", goal)
 			if AreAllSponsorGoalsCompleted() then
 				Msg("MissionEvaluationDone")

@@ -28,12 +28,13 @@ Gale crater name doesn't show up for 4S138E, 5S138E.
 
 Log spam:
 Loading older saves.
-IsBuildingInDomeRange().
+IsBuildingInDomeRange(): Dome.lua:1657: attempt to index a nil value (local 'dome')
 Toggling power to domes with passages in certain instances.
 ```
 
 ### Storybits:
 ```
+Make Dust Sickness not effect Biorobots: It doesn't always cure colonists for some reason and Biorobots never die, plus they're robots...
 Cyber War: Anyone up for some good old blackmailing? Never rewards funds only lowers standing.
 Eureka!: Option 2/3: Always picks from Biotech instead of random category.
 FollowUp Storybits in wrong category:

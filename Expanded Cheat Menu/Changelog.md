@@ -1,6 +1,8 @@
 ## ECM Changelog
 
 ## v19.9 (Unreleased)
+### Changed:
+- Instant Mission Goals will allow you to complete failed goals.
 
 ## v19.8 (20 July 2025)
 ### Changed:

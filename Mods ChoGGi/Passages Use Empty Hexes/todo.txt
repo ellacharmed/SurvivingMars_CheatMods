@@ -1,0 +1,1 @@
+See about only allowing passages in white hexes, or removing them after being placed badly

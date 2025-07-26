@@ -170,9 +170,12 @@ do -- MapData
 	--[[
 
 ChoGGi_Funcs.Common.ExportMapDataToCSV(XAction:new{
-	setting_breakthroughs = true,
+	-- add breakthroughs to list
+	setting_breakthroughs = false,
+	-- don't export csv files and return as table
 	setting_skip_csv = false,
-	setting_limit_count = 6,
+	-- how many breakthroughs to add to list
+	setting_limit_count = 13,
 })
 
 	]]
@@ -189,14 +192,14 @@ ChoGGi_Funcs.Common.ExportMapDataToCSV(XAction:new{
 			if action.setting_skip_csv then
 				skip_csv = action.setting_skip_csv
 			end
-
 		end
 
 		-- Remove first four if bb dlc and my fix bugs mod not enabled
 		if skip_csv then
-			local fix_bugs = table.find(ModsLoaded, "id", "ChoGGi_FixBBBugs")
+			local fix_bugs_mod = table.find(ModsLoaded, "id", "ChoGGi_FixBBBugs")
 			local ava_bb_dlc = g_AvailableDlc.picard
-			bb_dlc_skip = ava_bb_dlc and not fix_bugs
+
+			bb_dlc_skip = ava_bb_dlc and not fix_bugs_mod
 			if bb_dlc_skip then
 				print("ExportMapDataToCSV: B&B DLC detected and Fix Bugs mod not loaded: Skipping first four breakthroughs!")
 			end

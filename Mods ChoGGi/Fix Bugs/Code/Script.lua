@@ -40,6 +40,7 @@ local mod_MainMenuMusic
 local mod_ColonistsWrongMap
 local mod_NoFlyingDronesUnderground
 local mod_ColonistsWrongRealmPath
+local mod_DustSicknessBiorobots
 
 --
 -- Uneven terrain fix funcs
@@ -213,6 +214,7 @@ local function ModOptions(id)
 	mod_ColonistsWrongMap = CurrentModOptions:GetProperty("ColonistsWrongMap")
 	mod_NoFlyingDronesUnderground = CurrentModOptions:GetProperty("NoFlyingDronesUnderground")
 	mod_ColonistsWrongRealmPath = CurrentModOptions:GetProperty("ColonistsWrongRealmPath")
+	mod_DustSicknessBiorobots = CurrentModOptions:GetProperty("DustSicknessBiorobots")
 
 	if not mod_EnableMod then
 		return
@@ -491,659 +493,45 @@ do
 
 		-- Anything that only needs a specific event
 		if event == "LoadGame" then
-			--
-			-- Fix Rover In Dome
-			-- Checks on load for rovers stuck in domes (not open air ones).
-			-- No point in checking if domes have been opened
-			if not GetOpenAirBuildings(main_city.map_id) then
-				local dome_size = box(0, 0, 32000, 32000)
-				objs = GetCityLabels("BaseRover")
+
+			-- Dust Sickness storybit will give Biorobots (and other colonists) dust sickness.
+			-- It may not remove it from the colonists, and since Biorobots live forever then they have it forever.
+			-- This will remove the dust sickness trait from Biorobots.
+			if mod_DustSicknessBiorobots then
+				objs = GetCityLabels("Colonist")
 				for i = 1, #objs do
 					local obj = objs[i]
-					local dome = IsUnitInDome(obj)
-					-- I've got a mod that lets you open domes individually
-					if dome and not dome.open_air then
-						local x, y = (dome:GetObjectBBox() or dome_size):sizexyz()
-						-- whichever is larger (the radius starts from the centre, so we only need half-size)
-						local radius = (x >= y and x or y) / 2
-						obj:SetPos(GetRandomPassableAround(dome, radius + 650, radius + 150))
-					end
-				end
-			end
+					if obj.traits.DustSickness and obj.traits.Android then
+						obj:RemoveTrait("DustSickness")
 
-			--
-			-- Drones stuck in pastures
-			local ranch_size = box(0, 0, 4000, 4000)
-			objs = GetCityLabels("Drone")
-			for i = 1, #objs do
-				local obj = objs[i]
-				local q, r = WorldToHex(obj)
-				local map_id = obj:GetMapID()
-				local object_hex_grid = GameMaps[map_id].object_hex_grid
-				local ranch = object_hex_grid:GetObject(q, r, "Pasture")
-
-				if ranch then
-					local x, y = (ranch:GetObjectBBox() or ranch_size):sizexyz()
-					-- whichever is larger (the radius starts from the centre, so we only need half-size)
-					local radius = (x >= y and x or y) / 2
-					obj:SetPos(GetRandomPassableAround(ranch, radius + 650, radius + 150))
-				end
-			end
-
-			--
-			-- If you install Space Race DLC then Shuttle Hubs will disappear from build menu in existing saves.
-			-- For some reason it changes .save_in to "gagarin" when normally it's "".
-			-- Which makes UIGetBuildingPrerequisites() fail as it has IsDlcAccessible(template.save_in)
-			BuildingTemplates.ShuttleHub.save_in = ""
-
-			--
-			-- If you have more than one ArtificialSun then solar panels ignore sun + 1. (fix 1/2)
-			objs = GetCityLabels("ArtificialSun")
-			if #objs > 0 then
-				-- Update all solar panels
-				local panels = GetCityLabels("SolarPanelBase")
-				for i = 1, #panels do
-					local panel = panels[i]
-					if IsValid(panel) then
-						UpdateSolarPanel(panel, objs)
-					end
-				end
-			end
-
-			--
-			-- Fix Unlock RC Safari Resupply
-			-- RC Safaris aren't automagically unlocked in the resupply screen for games saved before Tito/Tourism update.
-			local id = "RCSafari"
-			local idx = table.find(ResupplyItemDefinitions, "id", id)
-			if not idx then
-				-- insert after rc transport
-				local transport_idx = table.find(ResupplyItemDefinitions, "id", "RCTransport")
-				-- function ResupplyItemsInit() (last checked lua rev 1011166)
-				local sponsor = g_CurrentMissionParams and g_CurrentMissionParams.idMissionSponsor or ""
-				local mods = GetSponsorModifiers(sponsor)
-				local locks = GetSponsorLocks(sponsor)
-				local def = setmetatable({}, {__index = CargoPreset.RCSafari})
-				table.insert(ResupplyItemDefinitions, transport_idx, def)
-				UpdateResupplyDef(sponsor, mods, locks, def)
-			end
-
-			--
-			-- Fix Unrepairable Attack Rovers
-			-- Allows Attack Rovers to be repaired when you can't repair them.
-			-- https://www.reddit.com/r/SurvivingMars/comments/12vkbrb/
-			if colony.mystery_id == "MarsgateMystery" then
-				local registers = colony.mystery.seq_player.registers
-				-- What the game checks for
-				if registers._malfunctions
-					and registers._malfunctions > 1
-				then
-					colony.mystery.enable_rover_repair = true
-				end
-			end
-
-			--
-			-- Gene Forging tech doesn't increase rare traits chance.
-			-- See OnMsg.TechResearched below for more info about GeneForging
-			if colony:IsTechResearched("GeneForging") then
-				TechDef.GeneSelection.param1 = 150
-			end
-
-			--
-			-- Fix Defence Towers Not Firing At Rovers (1/2)
-			if #(main_city.labels.HostileAttackRovers or "") > 0 then
-				colony.mystery.can_shoot_rovers = true
-			end
-
-			--
-			-- Update all maps for uneven terrain (if using mod that allows landscaping maps other than surface)
-			if mod_UnevenTerrain then
-				FixUnevenTerrainMaps()
-			end
-
-			--
-			-- Fix FindDroneToRepair Log Spam
-			local broke = g_BrokenDrones
-			for i = #broke, 1, -1 do
-				if not IsValid(broke[i]) then
-					table.remove(broke, i)
-				end
-			end
-
-			--
-			-- Fix Destroyed Tunnels Still Work
-			-- Update path finding tunnels to stop rovers from using them
-			objs = GetCityLabels("Tunnel")
-			for i = 1, #objs do
-				local obj = objs[i]
-				obj:RemovePFTunnel()
-				obj:AddPFTunnel()
-			end
-
-			--
-			-- If you removed modded rules from your current save then the Mission Profile dialog will be blank.
-			local rules = g_CurrentMissionParams.idGameRules
-			if rules then
-				local GameRulesMap = GameRulesMap
-				for rule_id in pairs(rules) do
-					-- If it isn't in the map then it isn't a valid rule
-					if not GameRulesMap[rule_id] then
-						rules[rule_id] = nil
-					end
-				end
-			end
-
-			--
-			-- Wind turbine gets locked by a game event.
-			local bmpo = BuildMenuPrerequisiteOverrides
-			if bmpo.WindTurbine
-				and TGetID(bmpo.WindTurbine) == 401896326435--[[You can't construct this building at this time]]
-			then
-				bmpo.WindTurbine = nil
-			end
-
-			--
-			-- Removes any meteorites stuck on the map.
-			local meteors = main_realm:MapGet("map", "BaseMeteor")
-			for i = #meteors, 1, -1 do
-				local obj = meteors[i]
-
-				-- Same pt as the dest means stuck on ground
-				if obj:GetPos() == obj.dest
-				-- Stuck on roof of dome
-					or not IsValidThread(obj.fall_thread)
-				then
-					obj:delete()
-				end
-			end
--- LoadGame end
-
--- CityStart
-		elseif event == "CityStart" then
-
-			--
-			-- Possible fix for main menu music not stopping when starting a new game
-			-- Hopefully delay helps?
-			CreateRealTimeThread(function()
-				Sleep(5000)
-				-- What the game usually does
-				SetMusicPlaylist("")
-				Sleep(1000)
-				-- Make sure menu music is stopped... Hopefully
-				Music = Music or MusicClass:new()
-				Music:StopTrack(false)
-				Sleep(1000)
-				StartRadioStation(GetStoredRadioStation())
-			end)
-
-		end
-		-- CityStart end
-
-		--
-		-- Anything that needs to loop through GameMaps
-		local ElectricityGridObject_GameInit = ElectricityGridObject.GameInit
-		for _, map in pairs(GameMaps) do
-
-			--
-			-- Remove stuck cursor buildings (reddish coloured).
-			map.realm:MapDelete("map", "CursorBuilding")
-
-			--
-			-- Fix No Power Dome Buildings
-			map.realm:MapGet("map", "ElectricityGridObject", function(obj)
-				-- should be good enough to not get false positives?
-				if obj.working == false and obj.signs and obj.signs.SignNoPower and ValidateBuilding(obj.parent_dome)
-					and obj.electricity and not obj.electricity.parent_dome
-				then
-					obj:DeleteElectricity()
-					ElectricityGridObject_GameInit(obj)
-				end
-			end)
-
-			--
-			-- Leftover particles from re-fabbing rare extractors with particles attached (concrete/reg metals seem okay)
-			-- Leftover from before my fix to stop it from happening
-			map.realm:MapGet("map", "ParSystem", function(par_obj)
-				local par_name = par_obj:GetParticlesName()
-				if par_name == "UniversalExtractor_Steam_02"
-					or par_name == "UniversalExtractor_Smoke"
-				then
-					local q, r = WorldToHex(par_obj:GetPos())
-					if not map.object_hex_grid:GetObject(q, r, "PreciousMetalsExtractor") then
-						par_obj:delete()
-					end
-				end
-			end)
-
-		end
-
-		--
-		-- Fix Storybits
- 		local StoryBits = StoryBits
-		-- Just in case something changes (hah)
-		pcall(function()
-
-			-- check dlc for storybits
-
-			--
-			-- Eureka!: Focus on single topic / Do various optimizations
-			-- Always picks from Biotech instead of random category
-			local Eureka = StoryBits.Boost9_Eureka
-			if Eureka[5].Weight == 100 then
-				Eureka[5].Weight = 20
-				Eureka[6].Weight = 20
-				Eureka[7].Weight = 20
-				Eureka[8].Weight = 20
-				Eureka[9].Weight = 20
-				Eureka[11].Weight = 20
-				Eureka[12].Weight = 20
-				Eureka[13].Weight = 20
-				Eureka[14].Weight = 20
-				Eureka[15].Weight = 20
-			end
-
-			--
-			-- Cyber War: Anyone up for some good old blackmailing?
-			-- Removes standing, but doesn't give funding.
-			local CyberWar = StoryBits.CyberWar
-			-- gagarin dlc
-			if CyberWar and #CyberWar == 10 then
-				CyberWar[9].Effects[2] = PlaceObj("RewardFunding", {
-					"Amount", "<blackmail>",
-				})
-				table.remove(CyberWar, 10)
-			end
-
-			--
-			-- Free Will: Violent Urges Solved
-			-- Cure For Cancer: Rare Outcome never starts
-			-- Survey Offer Option 2: new research will be made available
-			-- (2/2)
-			-- Change cat of storybits and add a renegade if we find one in an Arcology (free will)
-			StoryBits.FreeWill_2.Category = "FollowUp"
-			StoryBits.Cure4Cancer_RareOutcome.Category = "FollowUp"
-			StoryBits.SurveyOffer_TechEffect.Category = "FollowUp"
-
-			local bit_state = FixWrongCatStorybit("FreeWill_2")
-			FixWrongCatStorybit("SurveyOffer_TechEffect")
-			FixWrongCatStorybit("Cure4Cancer_RareOutcome")
-
-			-- FreeWill_2 expects a renegade colonist (it'll show 0 instead of a name if there isn't one).
-			if not bit_state.object then
-				-- Try to find a renegade to use for removal
-				objs = GetObjectsByLabel(main_city, "Arcology")
-				local renegade
-				for i = 1, #(objs or "") do
-					local colonists = objs[i].colonists
-					for j = 1, #colonists do
-						if colonists[j].traits.Renegade then
-							renegade = colonists[j]
-							break
+						if obj.status_effects.StatusEffect_UnableToWork then
+							obj:Affect("StatusEffect_UnableToWork", false)
 						end
 					end
 				end
-				if renegade then
-					bit_state.object = renegade
+			end
+
+			--
+			-- Meteor landed on under construction track while dismantling.
+			objs = GetCityLabels("TrackConstructionSite")
+			for i = #objs, 1, -1 do
+				local obj = objs[i]
+				-- check for invalid track_obj
+				if obj and not IsValid(obj.track_obj) then
+					obj.track_obj:ToggleDemolish()
 				end
 			end
 
 			--
-			--[[
-			No breakthrough tech reward for The Door To Summer: Let No Noble Deed
-			The Satoshi Nisei option doesn't mention a breakthrough, but the second option does;
-			One gives a genius and the other gives $750m
-			I'm guessing it's supposed to give a break for both; as you figure a genius joining your colony would do.
-			There's also obvious grammar errors in it, so I think the storybit got forgotten about...?
-			]]
-			local TheDoorToSummer = StoryBits.TheDoorToSummer_LetNoNobleDeed
-			TheDoorToSummer[3].Effects[1].Field = "Breakthroughs"
-			TheDoorToSummer[5].Effects[1].Field = "Breakthroughs"
-
-			--
-			-- Blank Slate doesn't remove any applicants for options 2 or 3 (fix 1/2)
-			local BlankSlate = StoryBits.BlankSlate[9].Effects
-			if #BlankSlate == 2 then
-				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
-					"Amount", 20,
-				})
-				BlankSlate = StoryBits.BlankSlate[12].Effects
-				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
-					"Amount", 20,
-				})
-			end
-
-			--
-			-- Fhtagn! Fhtagn! "Let's wait it out" makes all colonists cowards instead of only religious ones
-			local FhtagnFhtagn = StoryBits.FhtagnFhtagn[4].Effects[1].Filters
-			if #FhtagnFhtagn == 0 then
-				FhtagnFhtagn[#FhtagnFhtagn+1] = PlaceObj("HasTrait", {
-					"Trait", "Religious",
-				})
-			end
-
-			--
-			-- Dust Sickness: Deaths doesn't apply morale penalty
-			local DustSickness_Deaths = StoryBits.DustSickness_Deaths
-			if #DustSickness_Deaths == 6 then
-				local outcome = PlaceObj("StoryBitOutcome", {
-					"Prerequisites", {},
-					"Effects", {
-						PlaceObj("ForEachExecuteEffects", {
-							"Label", "Colonist",
-							"Filters", {},
-							"Effects", {
-								PlaceObj("ModifyObject", {
-									"Prop", "base_morale",
-									"Amount", "<morale_penalty>",
-									"Sols", "<morale_penalty_duration>",
-								}),
-							},
-						}),
-					},
-				})
-				table.insert(StoryBits.DustSickness_Deaths, 5, outcome)
-				table.insert(StoryBits.DustSickness_Deaths, 7, outcome)
-				table.insert(StoryBits.DustSickness_Deaths, 9, PlaceObj("StoryBitOutcome", {
-					"Prerequisites", {},
-					"Effects", {
-						PlaceObj("ForEachExecuteEffects", {
-							"Label", "Colonist",
-							"Filters", {},
-							"Effects", {
-								PlaceObj("ModifyObject", {
-									"Prop", "base_morale",
-									"Amount", "<lower_morale_penalty>",
-									"Sols", "<morale_penalty_duration>",
-								}),
-							},
-						}),
-					},
-				}))
-			end
-			--
-			-- Asylum will never start
-			-- gagarin dlc
-			local Asylum = StoryBits.Asylum
-			if Asylum then
-				Asylum = Asylum.Prerequisites
-				if #Asylum == 3 then
-					table.remove(Asylum, 2)
-					table.remove(Asylum, 2)
-					Asylum = Asylum[1].Conditions
-					Asylum[#Asylum+1] = PlaceObj("RivalHasTechYouDont", nil)
-					Asylum[#Asylum+1] = PlaceObj("CountRivalResource", {
-						"Resource", "funding",
-						"Amount", 500000000
-					})
+			-- Some mod is adding OpenAirGyms to the Workplace label.
+			-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
+			objs = GetCityLabels("Workplace")
+			for i = #objs, 1, -1 do
+				local obj = objs[i]
+				if obj.class == "OpenAirGym" then
+					obj.city:RemoveFromLabel("Workplace", obj)
 				end
 			end
-
-			--
-			-- The Man From Mars: Outcome 3: Let him be, whoever he is.
-			-- None of the options reward anything, Morale is based on CustomOutcomeText and Morale stats from outcome 2.
-			local TheManFromMars = StoryBits.TheManFromMars_FollowUp4
-			-- armstrong dlc
-			if TheManFromMars and #TheManFromMars == 4 then
-				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamNumber", {
-					"Name", "morale_gain",
-					"Value", 20,
-				}))
-				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamSols", {
-					"Name", "morale_sols",
-					"Value", 7200000,
-				}))
-				table.insert(TheManFromMars, 5, PlaceObj("StoryBitOutcome", {
-					"Prerequisites", {},
-					"Effects", {
-						PlaceObj("ForEachExecuteEffects", {
-							"Label", "Colonist",
-							"Filters", {
-								PlaceObj("HasTrait", {
-									"Trait", "Nerd",
-								}),
-							},
-							"Effects", {
-								PlaceObj("ModifyObject", {
-									"Prop", "base_morale",
-									"Amount", "<morale_gain>",
-									"Sols", "<morale_sols>",
-								}),
-							},
-						}),
-					},
-				}))
-				table.insert(TheManFromMars, 7, PlaceObj("StoryBitOutcome", {
-					"Prerequisites", {},
-					"Effects", {
-						PlaceObj("ForEachExecuteEffects", {
-							"Label", "Colonist",
-							"Filters", {
-								PlaceObj("HasTrait", {
-									"Trait", "Hippie",
-								}),
-							},
-							"Effects", {
-								PlaceObj("ModifyObject", {
-									"Prop", "base_morale",
-									"Amount", "<morale_gain>",
-									"Sols", "<morale_sols>",
-								}),
-							},
-						}),
-					},
-				}))
-			end
-
-		-- Fix Storybits end
-		end)
-
-		-- New fixes go here
-		--
-		--
-		--
-		--
-		--
-		--
-		--
-
-		--
-		-- Rare Anomaly Analyzed: Fossils choices list always shows Global Support even if you don't have Space Race
-		-- Update before underground is unlocked so user doesn't get the wrong dialog
-		-- I would put this in ClassesPostprocess, but no mod options
-		if g_AvailableDlc.picard and not g_AccessibleDlc.gagarin then
-			local anom = DataInstances.Scenario.UndergroundAnomalies_Rare
-			local idx = table.find(anom, "name", "BR_New_Options")
-			anom = anom[idx]
-
-			-- Making it "" will choose a random breakthrough
-			anom[34].tech = ""
-			anom[35].text_param1 = T(3733--[[Random Breakthrough]])
-		end
-
-		--
-		--	Unlock ArtificialSun for re-fabbing
-		if g_AvailableDlc.picard then
-			ClassTemplates.Building.ArtificialSun.can_refab = true
-		end
-
-		--
-		-- Rivals Trade Minerals mod hides Exotic Minerals from lander UI
-		if table.find(ModsLoaded, "id", "LH_RivalsMinerals") then
-			local cargo = Presets.Cargo["Basic Resources"].PreciousMinerals
-			if cargo then
-				cargo.group = "Other Resources"
-				Presets.Cargo["Other Resources"].PreciousMinerals = cargo
-			end
-			ResupplyItemsInit()
-		end
-
-		--
-		-- tech_field log spam from a mod
-		-- [LUA ERROR] Mars/Lua/Research.lua:647: attempt to index a nil value (field '?')
-		local TechFields = TechFields
-		for _, item in pairs(TechFields) do
-			if not item.SortKey then
-				item.SortKey = 9999
-			end
-		end
-
-		--
-		-- Cargo presets are missing images for some buildings/all resources
-		local articles = Presets.EncyclopediaArticle.Resources
-		local lookup_res = {
-			Concrete = articles.Concrete.image,
-			Electronics = articles.Electronics.image,
-			Food = articles.Food.image,
-			Fuel = articles.Fuel.image,
-			MachineParts = articles["Mechanical Parts"].image,
-			Metals = articles.Metals.image,
-			Polymers = articles.Polymers.image,
-			PreciousMetals = articles["Rare Metals"].image,
-			-- Close enough
-			WasteRock = "UI/Messages/Tutorials/Tutorial1/Tutorial1_WasteRockConcreteDepot.tga",
-		}
-		if g_AvailableDlc.picard then
-			lookup_res.PreciousMinerals = articles.ExoticMinerals.image
-		end
-		if g_AvailableDlc.armstrong then
-			lookup_res.Seeds = articles.Seeds.image
-		end
-
-		for id, cargo in pairs(CargoPreset) do
-			if cargo.icon then
-				goto continue
-			end
-			--
-			if lookup_res[id] then
-				cargo.icon = lookup_res[id]
-			elseif BuildingTemplates[id] then
-				cargo.icon = BuildingTemplates[id].encyclopedia_image
-			end
-			--
-			::continue::
-		end
-
-		--
-		-- Fix Future Contemporary Asset Pack when placing spires.
-		if g_AvailableDlc.ariane then
-			local hex = HexOutlineShapes.PeakNodeCCP2
-			if #hex == 8 then
-				table.remove(hex, 6)
-				-- Removing HexOutlineShapes seems to fix it, but it doesn't hurt to remove HexCombinedShapes as well.
-				table.remove(HexCombinedShapes.PeakNodeCCP2, 6)
-
-				-- The other borked buildings
-				table.remove(HexOutlineShapes.FusionArcologyCCP2, 6)
-				table.remove(HexCombinedShapes.FusionArcologyCCP2, 6)
-				table.remove(HexOutlineShapes.VerticalGardenCCP2, 6)
-				table.remove(HexCombinedShapes.VerticalGardenCCP2, 6)
-			end
-		end
-
-		--
-		-- Fix for Silva's Orion Heavy Rocket mod (part 2/2, restoring the original func)
-		-- He only calls the original func when the rocket mod isn't installed, so I have to remove it completely.
-		PlacePlanet = ChoOrig_PlacePlanet
-
-		--
-		-- Add Xeno-Extraction tech to Automatic Metals Extractor, Micro-G Extractors, RC Harvester, and RC Driller
-		local tech = TechDef.XenoExtraction
-		-- Figure it's safer to check for both dlcs then just checking the table length (in case some other mod)
-		if not table.find(tech, "Label", "AutomaticMetalsExtractor")
-			and not table.find(tech, "Label", "MicroGAutoExtractor")
-		then
-			local function AddBld(obj)
-				tech[#tech+1] = PlaceObj("Effect_ModifyLabel", {
-					Label = obj,
-					Percent = 50,
-					Prop = obj == "MicroGAutoWaterExtractor" and "water_production" or "production_per_day1",
-				})
-			end
-
-			if g_AvailableDlc.gagarin then
-				objs = {
-					"AutomaticMetalsExtractor",
-					"RCHarvester",
-					"RCDriller",
-				}
-				for i = 1, #objs do
-					AddBld(objs[i])
-				end
-			end
-			if g_AvailableDlc.picard then
-				objs = {
-					"MicroGAutoExtractor",
-					"MicroGExtractor",
-					"MicroGAutoWaterExtractor",
-				}
-				for i = 1, #objs do
-					AddBld(objs[i])
-				end
-			end
-		end
-
-		--
-		-- Probably from a mod?
-		if type(g_ActiveOnScreenNotifications) ~= "table" then
-			g_ActiveOnScreenNotifications = {}
-		end
-
-		--
-		-- For some reason the devs put it in the Decorations instead of the Outside Decorations category.
-		BuildingTemplates.LampProjector.build_category = "Outside Decorations"
-		BuildingTemplates.LampProjector.group = "Outside Decorations"
-		BuildingTemplates.LampProjector.label1 = ""
-
-		--
-		-- Fix Resupply Menu Not Opening
-		-- Probably caused by a mod badly adding cargo.
-		-- Also from cargo being removed mid-gameplay.
-		if table.find(ResupplyItemDefinitions, "id", "MissingPreset") then
-			ResupplyItemsInit(true)
-		end
-
-
-
-		-- -------------------- -- GetCityLabels below -- -------------------- --
-
-		--
-		--
-		--
-		--
-
-		--
-		-- Meteor landed on under construction track while dismantling.
-		objs = GetCityLabels("TrackConstructionSite")
-		for i = #objs, 1, -1 do
-			local obj = objs[i]
-			-- check for invalid track_obj
-			if obj and not IsValid(obj.track_obj) then
-				obj.track_obj:ToggleDemolish()
-			end
-		end
-
-		--
-		-- Some mod is adding OpenAirGyms to the Workplace label.
-		-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
-		objs = GetCityLabels("Workplace")
-		for i = #objs, 1, -1 do
-			local obj = objs[i]
-			if obj.class == "OpenAirGym" then
-				obj.city:RemoveFromLabel("Workplace", obj)
-			end
-		end
-
-		--
-		-- Force heat grid to update (if you paused game on new game load then cold areas don't update till you get a working Subsurface Heater).
-		objs = GetCityLabels("SubsurfaceHeater")
-		if #objs == 0 then
-			CreateGameTimeThread(function()
-				Sleep(5000)
-				-- When game isn't paused wait 5 secs and call it for main city (no cold areas underground?, eh can always do it later).
-				surface_map.heat_grid:WaitLerpFinish()
-			end)
-		end
-
-		if event == "LoadGame" then
 
 			--
 			-- Fix Shuttles Stuck Mid-Air (req has an invalid building)
@@ -1334,7 +722,485 @@ do
 				end
 			end
 
+			--
+			-- Fix Rover In Dome
+			-- Checks on load for rovers stuck in domes (not open air ones).
+			-- No point in checking if domes have been opened
+			if not GetOpenAirBuildings(main_city.map_id) then
+				local dome_size = box(0, 0, 32000, 32000)
+				objs = GetCityLabels("BaseRover")
+				for i = 1, #objs do
+					local obj = objs[i]
+					local dome = IsUnitInDome(obj)
+					-- I've got a mod that lets you open domes individually
+					if dome and not dome.open_air then
+						local x, y = (dome:GetObjectBBox() or dome_size):sizexyz()
+						-- whichever is larger (the radius starts from the centre, so we only need half-size)
+						local radius = (x >= y and x or y) / 2
+						obj:SetPos(GetRandomPassableAround(dome, radius + 650, radius + 150))
+					end
+				end
+			end
+
+			--
+			-- Drones stuck in pastures
+			local ranch_size = box(0, 0, 4000, 4000)
+			objs = GetCityLabels("Drone")
+			for i = 1, #objs do
+				local obj = objs[i]
+				local q, r = WorldToHex(obj)
+				local map_id = obj:GetMapID()
+				local object_hex_grid = GameMaps[map_id].object_hex_grid
+				local ranch = object_hex_grid:GetObject(q, r, "Pasture")
+
+				if ranch then
+					local x, y = (ranch:GetObjectBBox() or ranch_size):sizexyz()
+					-- whichever is larger (the radius starts from the centre, so we only need half-size)
+					local radius = (x >= y and x or y) / 2
+					obj:SetPos(GetRandomPassableAround(ranch, radius + 650, radius + 150))
+				end
+			end
+
+			--
+			-- If you install Space Race DLC then Shuttle Hubs will disappear from build menu in existing saves.
+			-- For some reason it changes .save_in to "gagarin" when normally it's "".
+			-- Which makes UIGetBuildingPrerequisites() fail as it has IsDlcAccessible(template.save_in)
+			BuildingTemplates.ShuttleHub.save_in = ""
+
+			--
+			-- If you have more than one ArtificialSun then solar panels ignore sun + 1. (fix 1/2)
+			objs = GetCityLabels("ArtificialSun")
+			if #objs > 0 then
+				-- Update all solar panels
+				local panels = GetCityLabels("SolarPanelBase")
+				for i = 1, #panels do
+					local panel = panels[i]
+					if IsValid(panel) then
+						UpdateSolarPanel(panel, objs)
+					end
+				end
+			end
+
+			--
+			-- Fix Unlock RC Safari Resupply
+			-- RC Safaris aren't automagically unlocked in the resupply screen for games saved before Tito/Tourism update.
+			local id = "RCSafari"
+			local idx = table.find(ResupplyItemDefinitions, "id", id)
+			if not idx then
+				-- insert after rc transport
+				local transport_idx = table.find(ResupplyItemDefinitions, "id", "RCTransport")
+				-- function ResupplyItemsInit() (last checked lua rev 1011166)
+				local sponsor = g_CurrentMissionParams and g_CurrentMissionParams.idMissionSponsor or ""
+				local mods = GetSponsorModifiers(sponsor)
+				local locks = GetSponsorLocks(sponsor)
+				local def = setmetatable({}, {__index = CargoPreset.RCSafari})
+				table.insert(ResupplyItemDefinitions, transport_idx, def)
+				UpdateResupplyDef(sponsor, mods, locks, def)
+			end
+
+			--
+			-- Fix Unrepairable Attack Rovers
+			-- Allows Attack Rovers to be repaired when you can't repair them.
+			-- https://www.reddit.com/r/SurvivingMars/comments/12vkbrb/
+			if colony.mystery_id == "MarsgateMystery" then
+				local registers = colony.mystery.seq_player.registers
+				-- What the game checks for
+				if registers._malfunctions
+					and registers._malfunctions > 1
+				then
+					colony.mystery.enable_rover_repair = true
+				end
+			end
+
+			--
+			-- Gene Forging tech doesn't increase rare traits chance.
+			-- See OnMsg.TechResearched below for more info about GeneForging
+			if colony:IsTechResearched("GeneForging") then
+				TechDef.GeneSelection.param1 = 150
+			end
+
+			--
+			-- Fix Defence Towers Not Firing At Rovers (1/2)
+			if #(main_city.labels.HostileAttackRovers or "") > 0 then
+				colony.mystery.can_shoot_rovers = true
+			end
+
+			--
+			-- Update all maps for uneven terrain (if using mod that allows landscaping maps other than surface)
+			if mod_UnevenTerrain then
+				FixUnevenTerrainMaps()
+			end
+
+			--
+			-- Fix FindDroneToRepair Log Spam
+			local broke = g_BrokenDrones
+			for i = #broke, 1, -1 do
+				if not IsValid(broke[i]) then
+					table.remove(broke, i)
+				end
+			end
+
+			--
+			-- Fix Destroyed Tunnels Still Work
+			-- Update path finding tunnels to stop rovers from using them
+			objs = GetCityLabels("Tunnel")
+			for i = 1, #objs do
+				local obj = objs[i]
+				obj:RemovePFTunnel()
+				obj:AddPFTunnel()
+			end
+
+			--
+			-- If you removed modded rules from your current save then the Mission Profile dialog will be blank.
+			local rules = g_CurrentMissionParams.idGameRules
+			if rules then
+				local GameRulesMap = GameRulesMap
+				for rule_id in pairs(rules) do
+					-- If it isn't in the map then it isn't a valid rule
+					if not GameRulesMap[rule_id] then
+						rules[rule_id] = nil
+					end
+				end
+			end
+
+			--
+			-- Wind turbine gets locked by a game event.
+			local bmpo = BuildMenuPrerequisiteOverrides
+			if bmpo.WindTurbine
+				and TGetID(bmpo.WindTurbine) == 401896326435--[[You can't construct this building at this time]]
+			then
+				bmpo.WindTurbine = nil
+			end
+
+			--
+			-- Removes any meteorites stuck on the map.
+			local meteors = main_realm:MapGet("map", "BaseMeteor")
+			for i = #meteors, 1, -1 do
+				local obj = meteors[i]
+
+				-- Same pt as the dest means stuck on ground
+				if obj:GetPos() == obj.dest
+				-- Stuck on roof of dome
+					or not IsValidThread(obj.fall_thread)
+				then
+					obj:delete()
+				end
+			end -- LoadGame end
+
+		elseif event == "CityStart" then
+
+			--
+			-- Possible fix for main menu music not stopping when starting a new game
+			-- Hopefully delay helps?
+			if mod_MainMenuMusic then
+				CreateRealTimeThread(function()
+					Sleep(5000)
+					-- What the game usually does
+					SetMusicPlaylist("")
+					Sleep(1000)
+					-- Make sure menu music is stopped... Hopefully
+					Music = Music or MusicClass:new()
+					Music:StopTrack(false)
+					Sleep(1000)
+					StartRadioStation(GetStoredRadioStation())
+				end)
+			end
+
+		end -- CityStart end
+
+
+		--
+		-- Anything that needs to loop through GameMaps
+		local ElectricityGridObject_GameInit = ElectricityGridObject.GameInit
+		for _, map in pairs(GameMaps) do
+
+			--
+			-- Remove stuck cursor buildings (reddish coloured).
+			map.realm:MapDelete("map", "CursorBuilding")
+
+			--
+			-- Fix No Power Dome Buildings
+			map.realm:MapGet("map", "ElectricityGridObject", function(obj)
+				-- should be good enough to not get false positives?
+				if obj.working == false and obj.signs and obj.signs.SignNoPower and ValidateBuilding(obj.parent_dome)
+					and obj.electricity and not obj.electricity.parent_dome
+				then
+					obj:DeleteElectricity()
+					ElectricityGridObject_GameInit(obj)
+				end
+			end)
+
+			--
+			-- Leftover particles from re-fabbing rare extractors with particles attached (concrete/reg metals seem okay)
+			-- Leftover from before my fix to stop it from happening
+			map.realm:MapGet("map", "ParSystem", function(par_obj)
+				local par_name = par_obj:GetParticlesName()
+				if par_name == "UniversalExtractor_Steam_02"
+					or par_name == "UniversalExtractor_Smoke"
+				then
+					local q, r = WorldToHex(par_obj:GetPos())
+					if not map.object_hex_grid:GetObject(q, r, "PreciousMetalsExtractor") then
+						par_obj:delete()
+					end
+				end
+			end)
+
 		end
+
+		--
+		-- Fix Storybits
+ 		local StoryBits = StoryBits
+		-- Just in case something changes (hah)
+		pcall(function()
+
+
+			-- check dlc for storybits
+
+
+			--
+			-- Eureka!: Focus on single topic / Do various optimizations
+			-- Always picks from Biotech instead of random category
+			local Eureka = StoryBits.Boost9_Eureka
+			if Eureka[5].Weight == 100 then
+				Eureka[5].Weight = 20
+				Eureka[6].Weight = 20
+				Eureka[7].Weight = 20
+				Eureka[8].Weight = 20
+				Eureka[9].Weight = 20
+				Eureka[11].Weight = 20
+				Eureka[12].Weight = 20
+				Eureka[13].Weight = 20
+				Eureka[14].Weight = 20
+				Eureka[15].Weight = 20
+			end
+
+			--
+			-- Cyber War: Anyone up for some good old blackmailing?
+			-- The bit removes standing, but doesn't give funding.
+			local CyberWar = StoryBits.CyberWar
+			-- gagarin dlc
+			if CyberWar and #CyberWar == 10 then
+				CyberWar[9].Effects[2] = PlaceObj("RewardFunding", {
+					"Amount", "<blackmail>",
+				})
+				table.remove(CyberWar, 10)
+			end
+
+			--
+			-- Free Will: Violent Urges Solved
+			-- Cure For Cancer: Rare Outcome never starts
+			-- Survey Offer Option 2: new research will be made available
+			-- (2/2)
+			-- Change cat of storybits and add a renegade if we find one in an Arcology (free will)
+			StoryBits.FreeWill_2.Category = "FollowUp"
+			StoryBits.Cure4Cancer_RareOutcome.Category = "FollowUp"
+			StoryBits.SurveyOffer_TechEffect.Category = "FollowUp"
+
+			local bit_state = FixWrongCatStorybit("FreeWill_2")
+			FixWrongCatStorybit("SurveyOffer_TechEffect")
+			FixWrongCatStorybit("Cure4Cancer_RareOutcome")
+
+			-- FreeWill_2 expects a renegade colonist (it'll show 0 instead of a name if there isn't one).
+			if not bit_state.object then
+				-- Try to find a renegade to use for removal
+				objs = GetObjectsByLabel(main_city, "Arcology")
+				local renegade
+				for i = 1, #(objs or "") do
+					local colonists = objs[i].colonists
+					for j = 1, #colonists do
+						if colonists[j].traits.Renegade then
+							renegade = colonists[j]
+							break
+						end
+					end
+				end
+				if renegade then
+					bit_state.object = renegade
+				end
+			end
+
+			--
+			--[[
+			No breakthrough tech reward for The Door To Summer: Let No Noble Deed
+			The Satoshi Nisei option doesn't mention a breakthrough, but the second option does;
+			One gives a genius and the other gives $750m
+			I'm guessing it's supposed to give a break for both; as you figure a genius joining your colony would do.
+			There's also obvious grammar errors in it, so I think the storybit got forgotten about...?
+			]]
+			local TheDoorToSummer = StoryBits.TheDoorToSummer_LetNoNobleDeed
+			TheDoorToSummer[3].Effects[1].Field = "Breakthroughs"
+			TheDoorToSummer[5].Effects[1].Field = "Breakthroughs"
+
+			--
+			-- Blank Slate doesn't remove any applicants for options 2 or 3 (fix 1/2)
+			local BlankSlate = StoryBits.BlankSlate[9].Effects
+			if #BlankSlate == 2 then
+				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
+					"Amount", 20,
+				})
+				BlankSlate = StoryBits.BlankSlate[12].Effects
+				BlankSlate[#BlankSlate+1] = PlaceObj("ChoGGi_RemoveApplicants", {
+					"Amount", 20,
+				})
+			end
+
+			--
+			-- Fhtagn! Fhtagn! "Let's wait it out" makes all colonists cowards instead of only religious ones
+			local FhtagnFhtagn = StoryBits.FhtagnFhtagn[4].Effects[1].Filters
+			if #FhtagnFhtagn == 0 then
+				FhtagnFhtagn[#FhtagnFhtagn+1] = PlaceObj("HasTrait", {
+					"Trait", "Religious",
+				})
+			end
+
+			--
+			-- Make Dust Sickness not effect Biorobots
+			-- It doesn't always cure colonists for some reason and Biorobots never die, plus they're robots...
+			if mod_DustSicknessBiorobots then
+				local DustSickness = StoryBits.DustSickness
+				local sick_filter = DustSickness[2].Effects[1].Filters
+				if #sick_filter == 1 then
+					sick_filter[#sick_filter+1] = PlaceObj("HasTrait", {
+						"Trait", "Android",
+						"Negate", true,
+					})
+					sick_filter = DustSickness[4].Effects[1].Filters
+					sick_filter[#sick_filter+1] = PlaceObj("HasTrait", {
+						"Trait", "Android",
+						"Negate", true,
+					})
+				end
+			end
+
+			--
+			-- Dust Sickness: Deaths doesn't apply morale penalty
+			local DustSickness_Deaths = StoryBits.DustSickness_Deaths
+			if #DustSickness_Deaths == 6 then
+				local outcome = PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_penalty>",
+									"Sols", "<morale_penalty_duration>",
+								}),
+							},
+						}),
+					},
+				})
+				table.insert(StoryBits.DustSickness_Deaths, 5, outcome)
+				table.insert(StoryBits.DustSickness_Deaths, 7, outcome)
+				table.insert(StoryBits.DustSickness_Deaths, 9, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<lower_morale_penalty>",
+									"Sols", "<morale_penalty_duration>",
+								}),
+							},
+						}),
+					},
+				}))
+			end
+			--
+			-- Asylum will never start
+			local Asylum = StoryBits.Asylum
+			-- gagarin dlc
+			if Asylum then
+				Asylum = Asylum.Prerequisites
+				if #Asylum == 3 then
+					table.remove(Asylum, 2)
+					table.remove(Asylum, 2)
+					Asylum = Asylum[1].Conditions
+					Asylum[#Asylum+1] = PlaceObj("RivalHasTechYouDont", nil)
+					Asylum[#Asylum+1] = PlaceObj("CountRivalResource", {
+						"Resource", "funding",
+						"Amount", 500000000
+					})
+				end
+			end
+
+			--
+			-- The Man From Mars: Outcome 3: Let him be, whoever he is.
+			-- None of the options reward anything, Morale is based on CustomOutcomeText and Morale stats from outcome 2.
+			local TheManFromMars = StoryBits.TheManFromMars_FollowUp4
+			-- armstrong dlc
+			if TheManFromMars and #TheManFromMars == 4 then
+				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamNumber", {
+					"Name", "morale_gain",
+					"Value", 20,
+				}))
+				table.insert(TheManFromMars, 2, PlaceObj("StoryBitParamSols", {
+					"Name", "morale_sols",
+					"Value", 7200000,
+				}))
+				table.insert(TheManFromMars, 5, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {
+								PlaceObj("HasTrait", {
+									"Trait", "Nerd",
+								}),
+							},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_gain>",
+									"Sols", "<morale_sols>",
+								}),
+							},
+						}),
+					},
+				}))
+				table.insert(TheManFromMars, 7, PlaceObj("StoryBitOutcome", {
+					"Prerequisites", {},
+					"Effects", {
+						PlaceObj("ForEachExecuteEffects", {
+							"Label", "Colonist",
+							"Filters", {
+								PlaceObj("HasTrait", {
+									"Trait", "Hippie",
+								}),
+							},
+							"Effects", {
+								PlaceObj("ModifyObject", {
+									"Prop", "base_morale",
+									"Amount", "<morale_gain>",
+									"Sols", "<morale_sols>",
+								}),
+							},
+						}),
+					},
+				}))
+			end
+
+		-- Fix Storybits end
+		end)
+
+		-- -------------------- -- GetCityLabels below -- -------------------- --
+
+		--
+		-- Force heat grid to update (if you paused game on new game load then cold areas don't update till you get a working Subsurface Heater).
+		objs = GetCityLabels("SubsurfaceHeater")
+		if #objs == 0 then
+			CreateGameTimeThread(function()
+				Sleep(5000)
+				-- When game isn't paused wait 5 secs and call it for main city (no cold areas underground?, eh can always do it later).
+				surface_map.heat_grid:WaitLerpFinish()
+			end)
+		end
+
 		-- -------------------- -- GetCityLabels above -- -------------------- --
 
 		--
@@ -1503,22 +1369,190 @@ do
 				main_city.available_prefabs.UndergroundDome = nil
 			end
 			--
+		end -- underground_map_unlocked
+
+
+		-- New fixes go here
+		--
+		--
+		--
+		--
+		--
+		--
+		--
+
+		--
+		-- Rare Anomaly Analyzed: Fossils choices list always shows Global Support even if you don't have Space Race
+		-- Update before underground is unlocked so user doesn't get the wrong dialog
+		-- I would put this in ClassesPostprocess, but no mod options
+		if g_AvailableDlc.picard and not g_AccessibleDlc.gagarin then
+			local anom = DataInstances.Scenario.UndergroundAnomalies_Rare
+			local idx = table.find(anom, "name", "BR_New_Options")
+			anom = anom[idx]
+
+			-- Making it "" will choose a random breakthrough
+			anom[34].tech = ""
+			anom[35].text_param1 = T(3733--[[Random Breakthrough]])
 		end
+
+		--
+		--	Unlock Artificial Sun for re-fabbing
+		if g_AvailableDlc.picard then
+			ClassTemplates.Building.ArtificialSun.can_refab = true
+		end
+
+		--
+		-- Rivals Trade Minerals mod hides Exotic Minerals from lander UI
+		if table.find(ModsLoaded, "id", "LH_RivalsMinerals") then
+			local cargo = Presets.Cargo["Basic Resources"].PreciousMinerals
+			if cargo then
+				cargo.group = "Other Resources"
+				Presets.Cargo["Other Resources"].PreciousMinerals = cargo
+			end
+			ResupplyItemsInit()
+		end
+
+		--
+		-- Cargo presets are missing images for some buildings/all resources
+		local articles = Presets.EncyclopediaArticle.Resources
+		local lookup_res = {
+			Concrete = articles.Concrete.image,
+			Electronics = articles.Electronics.image,
+			Food = articles.Food.image,
+			Fuel = articles.Fuel.image,
+			MachineParts = articles["Mechanical Parts"].image,
+			Metals = articles.Metals.image,
+			Polymers = articles.Polymers.image,
+			PreciousMetals = articles["Rare Metals"].image,
+			-- Close enough
+			WasteRock = "UI/Messages/Tutorials/Tutorial1/Tutorial1_WasteRockConcreteDepot.tga",
+		}
+		if g_AvailableDlc.picard then
+			lookup_res.PreciousMinerals = articles.ExoticMinerals.image
+		end
+		if g_AvailableDlc.armstrong then
+			lookup_res.Seeds = articles.Seeds.image
+		end
+
+		for id, cargo in pairs(CargoPreset) do
+			if cargo.icon then
+				goto continue
+			end
+			--
+			if lookup_res[id] then
+				cargo.icon = lookup_res[id]
+			elseif BuildingTemplates[id] then
+				cargo.icon = BuildingTemplates[id].encyclopedia_image
+			end
+			--
+			::continue::
+		end
+
+		--
+		-- Fix Future Contemporary Asset Pack when placing spires.
+		if g_AvailableDlc.ariane then
+			local hex = HexOutlineShapes.PeakNodeCCP2
+			if #hex == 8 then
+				table.remove(hex, 6)
+				-- Removing HexOutlineShapes seems to fix it, but it doesn't hurt to remove HexCombinedShapes as well.
+				table.remove(HexCombinedShapes.PeakNodeCCP2, 6)
+
+				-- The other borked buildings
+				table.remove(HexOutlineShapes.FusionArcologyCCP2, 6)
+				table.remove(HexCombinedShapes.FusionArcologyCCP2, 6)
+				table.remove(HexOutlineShapes.VerticalGardenCCP2, 6)
+				table.remove(HexCombinedShapes.VerticalGardenCCP2, 6)
+			end
+		end
+
+		--
+		-- Add Xeno-Extraction tech to Automatic Metals Extractor, Micro-G Extractors, RC Harvester, and RC Driller
+		local tech = TechDef.XenoExtraction
+		-- Figure it's safer to check for both dlcs then just checking the table length (in case some other mod)
+		if not table.find(tech, "Label", "AutomaticMetalsExtractor")
+			and not table.find(tech, "Label", "MicroGAutoExtractor")
+		then
+			local function AddBld(obj)
+				tech[#tech+1] = PlaceObj("Effect_ModifyLabel", {
+					Label = obj,
+					Percent = 50,
+					Prop = obj == "MicroGAutoWaterExtractor" and "water_production" or "production_per_day1",
+				})
+			end
+
+			if g_AvailableDlc.gagarin then
+				objs = {
+					"AutomaticMetalsExtractor",
+					"RCHarvester",
+					"RCDriller",
+				}
+				for i = 1, #objs do
+					AddBld(objs[i])
+				end
+			end
+			if g_AvailableDlc.picard then
+				objs = {
+					"MicroGAutoExtractor",
+					"MicroGExtractor",
+					"MicroGAutoWaterExtractor",
+				}
+				for i = 1, #objs do
+					AddBld(objs[i])
+				end
+			end
+		end
+
+		--
+		-- For some reason the devs put it in the Decorations instead of the Outside Decorations category.
+		BuildingTemplates.LampProjector.build_category = "Outside Decorations"
+		BuildingTemplates.LampProjector.group = "Outside Decorations"
+		BuildingTemplates.LampProjector.label1 = ""
+
+		--
+		-- Fix Resupply Menu Not Opening
+		-- Probably caused by a mod badly adding cargo, but also from cargo being removed mid-gameplay.
+		if table.find(ResupplyItemDefinitions, "id", "MissingPreset") then
+			ResupplyItemsInit(true)
+		end
+
+		--
+		-- tech_field log spam from a mod
+		-- [LUA ERROR] Mars/Lua/Research.lua:647: attempt to index a nil value (field '?')
+		local TechFields = TechFields
+		for _, item in pairs(TechFields) do
+			if not item.SortKey then
+				item.SortKey = 9999
+			end
+		end
+
+		--
+		-- Probably from a mod?
+		if type(g_ActiveOnScreenNotifications) ~= "table" then
+			g_ActiveOnScreenNotifications = {}
+		end
+
+		--
+		-- Fix for Silva's Orion Heavy Rocket mod (part 2/2, restoring the original func)
+		-- He only calls the original func when the rocket mod isn't installed, so I have to remove it completely.
+		PlacePlanet = ChoOrig_PlacePlanet
 
 		--
 		realm:ResumePassEdits("ChoGGi_FixBugs_Startup")
 		main_realm:ResumePassEdits("ChoGGi_FixBugs_Startup")
 	end
 
+	--
 	function OnMsg.CityStart()
 		-- Add a delay for new games so stuff can load
 		-- LoadGame happens late enough that this isn't needed
 		CreateGameTimeThread(StartupCode, "CityStart")
 	end
+	--
 	function OnMsg.LoadGame()
 		StartupCode("LoadGame")
 	end
-end -- StartupCode do
+	--
+end -- StartupCode do end
 -- do
 
 --
@@ -2503,7 +2537,6 @@ do -- RCTerraformer.ShouldShowRouteButton/RCTerraformer.ToggleCreateRouteMode_Up
 		end
 	end
 end -- do
-
 
 --
 --

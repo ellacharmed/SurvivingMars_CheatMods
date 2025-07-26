@@ -16,6 +16,13 @@ local mod_options = {
 I added it as an option since this is causing issues for a user; it'll lock up on save game loading when it tries to remove some buggy objects.]]),
 		"DefaultValue", false,
 	}),
+
+	PlaceObj("ModItemOptionToggle", {
+		"name", "DustSicknessBiorobots",
+		"DisplayName", T(0000, "Make Dust Sickness not effect Biorobots"),
+		"Help", T(0000, [[The storybit doesn't always cure colonists for some reason and Biorobots never die, plus they're robots...]]),
+		"DefaultValue", true,
+	}),
 	PlaceObj("ModItemOptionToggle", {
 		"name", "ColonistsWrongRealmPath",
 		"DisplayName", T(0000, "Colonists Underground Crash"),
