@@ -55,13 +55,13 @@ for i = 1, #dlc do
 	c = c + 1
 	local id = dlc[i]
 	local available = g_AvailableDlc[id]
-	local ava_str = available and " *" or ""
 
 	mod_options[c] = PlaceObj("ModItemOptionToggle", {
 		"name", id,
-		"DisplayName", table.concat{dlc_names[id], ava_str},
+		"DisplayName", table.concat{dlc_names[id], available and " *" or ""},
 		"DefaultValue", true,
-		"Help", T(0000, "* means you have the dlc."),
+		"Help", available and T(0000, "You have the dlc installed.")
+			or T(0000, "You don't have the dlc."),
 	})
 
 	-- remove when released

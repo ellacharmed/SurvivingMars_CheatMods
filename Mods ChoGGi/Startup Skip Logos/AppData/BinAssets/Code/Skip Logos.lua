@@ -6,10 +6,15 @@ local load_mods = true
 --~ local load_dialog = true
 local load_dialog = false
 
+-- Remove Missing Mods Msg on loading saves (Needs: load_mods = true)
+local skip_missing_msg = true
+--~ local skip_missing_msg = false
+
 -- Disable gamepads
 XInput.IsControllerConnected = empty_func
 
 function OnMsg.DesktopCreated()
+
 	-- Stop intro videos
 	PlayInitialMovies = empty_func
 	-- Get rid of mod manager warnings (not the reboot one though)
@@ -53,6 +58,13 @@ function OnMsg.DesktopCreated()
 			-- Load mods
 			ModsReloadItems()
 			WaitMsg("OnRender")
+
+			-- stops confirmation dialog about missing mods (still lets you know they're missing)
+			if skip_missing_msg then
+				function GetMissingMods()
+					return "", false
+				end
+			end
 
 			-- Add mods back to lists (local ModsLoaded here as it's false before)
  			local ModsLoaded = ModsLoaded

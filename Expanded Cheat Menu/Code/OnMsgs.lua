@@ -1044,9 +1044,9 @@ function OnMsg.NewHour()
 		FlushLogFile()
 	end
 
-	-- Make them lazy drones stop abusing electricity (we need to have an hourly update if people are using large prod amounts/low amount of drones)
+	-- Make them lazy drones stop abusing electricity (we need? to have an hourly update if people are using large prod amounts/low amount of drones)
 	if UserSettings.DroneResourceCarryAmountFix then
-		local FuckingDrones = ChoGGi_Funcs.Common.FuckingDrones
+		local DronesPickupAmount = ChoGGi_Funcs.Common.DronesPickupAmount
 
 		-- Hey. Do I preach at you when you're lying stoned in the gutter? No!
 		local objs = GetCityLabels("ResourceProducer")
@@ -1057,13 +1057,13 @@ function OnMsg.NewHour()
 			if obj then
 				local func = obj.GetStoredAmount and "GetStoredAmount" or obj.GetAmountStored and "GetAmountStored"
 				if obj[func](obj) >= 1000 then
-					FuckingDrones(obj)
+					DronesPickupAmount(obj)
 				end
 			end
 			-- waste rock (water extractors)
 			obj = prod.wasterock_producer
 			if obj and obj:GetStoredAmount() >= 1000 then
-				FuckingDrones(obj, "single")
+				DronesPickupAmount(obj, "single")
 			end
 		end
 
@@ -1071,7 +1071,7 @@ function OnMsg.NewHour()
 		for i = 1, #objs do
 			local obj = objs[i]
 			if obj:GetStoredAmount() >= 1000 then
-				FuckingDrones(obj)
+				DronesPickupAmount(obj)
 			end
 		end
 

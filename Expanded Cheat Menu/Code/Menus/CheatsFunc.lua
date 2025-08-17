@@ -1882,6 +1882,28 @@ do -- ResearchRemove
 		ProductivityTraining = UpdateColonistPref,
 		EmergencyTraining = UpdateColonistPref,
 		SystematicTraining = UpdateColonistPref,
+		-- Consts
+		SuperiorCables = function()
+			g_Consts.InstantCables = 0
+		end,
+		SuperiorPipes = function()
+			g_Consts.InstantPipes = 0
+		end,
+		ArtificialMuscles = function()
+			g_Consts.DroneResourceCarryAmount = 1
+		end,
+		DeepScanning = function()
+			g_Consts.DeepScanAvailable = 0
+		end,
+		DeepWaterExtraction = function()
+			g_Consts.IsDeepWaterExploitable = 0
+		end,
+		DeepMetalExtraction = function()
+			g_Consts.IsDeepMetalsExploitable = 0
+			g_Consts.IsDeepPreciousMetalsExploitable = 0
+			g_Consts.IsDeepPreciousMineralsExploitable = 0
+		end,
+		-- Do something for all the other modifiers
 	}
 
 	function ChoGGi_Funcs.Menus.ResearchRemove()

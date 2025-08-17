@@ -1896,9 +1896,9 @@ do do do do !Skipped Line! [[HelpMenu.lua HelpFunc.lua]] !Skipped Line!
 302535920001648, "If you don't want ECM to change the window title than disable this (restart to take effect)."
 302535920001634, "This mod requires my library mod (ChoGGi's Library) < use space on the end when searching for it."
 302535920000990, "You need to have a mouse to use this mod."
-302535920000887, "If you get a disabled content restrictions error: Please let me know and I'll tell Paradox (can take a few days or weeks).
+302535920000887, "Mod disabled by content restrictions: https://steamcommunity.com/sharedfiles/filedetails/?id=2835850170
 
-If you have any issues with this mod then send me a bug report instead of reporting the mod to Paradox.
+If you have any issues with this mod then send me a note instead of reporting the mod to Paradox (or it'll get taken down).
 https://forum.paradoxplaza.com/forum/members/choggi_2.1304787/
 https://github.com/ChoGGi/SurvivingMars_CheatMods
 https://discord.gg/ZXXYaExThy

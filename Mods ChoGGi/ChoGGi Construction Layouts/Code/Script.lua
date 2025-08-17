@@ -288,9 +288,11 @@ local function BuildLayouts(params)
 	elseif params.id == "ChoGGi_LayoutConstruction_ServiceSlice"
 		or params.id == "ChoGGi_LayoutConstruction_ServiceSlice2"
 	then
-		local extra = "Infirmary"
+		local extra1 = "Diner"
+		local extra2 = "Restaurant"
 		if params.id == "ChoGGi_LayoutConstruction_ServiceSlice2" then
-			extra = "Amphitheater"
+			extra1 = "Amphitheater"
+			extra2 = "Amphitheater"
 		end
 
 		PlaceObj("LayoutConstruction", {
@@ -303,14 +305,14 @@ local function BuildLayouts(params)
 			}),
 
 			PlaceObj("LayoutConstructionEntry", {
-				"template", "Diner",
-				"entity", "Restaurant",
+				"template", "Infirmary",
+				"entity", "Infirmary",
 				"pos", point(0, -1),
 				"dir", 1,
 			}),
 			PlaceObj("LayoutConstructionEntry", {
-				"template", extra,
-				"entity", extra,
+				"template", extra1,
+				"entity", extra2,
 				"pos", point(-1, 1),
 				"dir", 5,
 			}),
@@ -432,7 +434,7 @@ function OnMsg.ClassesPostprocess()
 		id = "ChoGGi_LayoutConstruction_ServiceSlice",
 		build_pos = 1,
 		display_name = T(0000, "Service Slice Infirm"),
-		display_name_pl = T(0000, "Service Slices"),
+		display_name_pl = T(0000, "Service Slices Infirm"),
 		description = T(0000, "Service slice of Diner, Infirmary, and Grocer."),
 		display_icon = "UI/Icons/Buildings/infirmary.tga",
 		build_category = "Dome Services",
@@ -441,7 +443,7 @@ function OnMsg.ClassesPostprocess()
 		id = "ChoGGi_LayoutConstruction_ServiceSlice2",
 		build_pos = 1,
 		display_name = T(0000, "Service Slice Amphit"),
-		display_name_pl = T(0000, "Service Slices"),
+		display_name_pl = T(0000, "Service Slices Amphit"),
 		description = T(0000, "Service slice of Amphitheater, Infirmary, and Grocer."),
 		display_icon = "UI/Icons/Buildings/amphitheater.tga",
 		build_category = "Dome Services",

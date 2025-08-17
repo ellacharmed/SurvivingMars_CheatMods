@@ -1,12 +1,13 @@
 -- See LICENSE for terms
 
 --[[
-	fucking drones because if you assign more than one resource cube to be picked up
+	If you assign more than one resource cube to be picked up
 	the drones won't pick up any if that number isn't available for pickup
-	try that breakthrough where they carry two, and get a depot (at a factory/mine/etc) with one resource left in it
-	yes it took awhile to figure it out, hence the name...
+	try that breakthrough where they carry two, and get a depot (at a factory/mine/etc) with one resource left in i
+	yes it took awhile to figure it out...
 ]]
 local DronesPickupAmount = ChoGGi_Funcs.Common.DronesPickupAmount
+local GetCityLabels = ChoGGi_Funcs.Common.GetCityLabels
 
 local mod_EnableMod
 local mod_CarryAmount
@@ -83,14 +84,15 @@ function OnMsg.ClassesPostprocess()
 
 end
 
--- Honestly it should be fine with the func replace...
+-- Make them lazy drones stop abusing electricity (we need? to have an hourly update if people are using large prod amounts/low amount of drones)
 function OnMsg.NewHour()
+	-- If DroneResourceCarryAmountFix is true then ECM is doing the same
 	if not mod_EnableMod or ChoGGi.UserSettings.DroneResourceCarryAmountFix then
 		return
 	end
 
 	-- Hey. Do I preach at you when you're lying stoned in the gutter? No!
-	local objs = UIColony:GetCityLabels("ResourceProducer")
+	local objs = GetCityLabels("ResourceProducer")
 	for i = 1, #objs do
 		local prod = objs[i]
 		-- most are fine with GetProducerObj, but some like water extractor don't have one
@@ -108,11 +110,12 @@ function OnMsg.NewHour()
 		end
 	end
 
-	objs = UIColony:GetCityLabels("BlackCubeStockpiles")
+	objs = GetCityLabels("BlackCubeStockpiles")
 	for i = 1, #objs do
 		local obj = objs[i]
 		if obj:GetStoredAmount() >= 1000 then
 			DronesPickupAmount(obj)
 		end
 	end
+	--
 end

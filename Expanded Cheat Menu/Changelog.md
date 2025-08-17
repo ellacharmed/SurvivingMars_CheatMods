@@ -1,6 +1,8 @@
 ## ECM Changelog
 
 ## v19.9 (Unreleased)
+### Fixed:
+- Research Remove: Superior Cables/Pipes (thanks ChocoNoodles).
 ### Changed:
 - Instant Mission Goals will allow you to complete failed goals.
 

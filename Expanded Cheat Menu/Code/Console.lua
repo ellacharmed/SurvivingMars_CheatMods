@@ -178,9 +178,8 @@ local function BuildExamineItem(name, title)
 
 				-- values
 					if name == "OnMsg" then
-						-- Gotta do a little metatable/upvalue digging
-						local meta_table = getmetatable(g_env.OnMsg).__newindex
-						local _, value = debug.getupvalue(meta_table, 1)
+						-- Gotta do a little upvalue digging (message_to_staticfuncs is local only)
+						local _, value = debug.getupvalue(MsgClear, 1)
 						OpenExamine(value, nil, name)
 					else
 						OpenExamine(name, "str", name)

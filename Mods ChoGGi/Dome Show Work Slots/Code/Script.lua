@@ -33,8 +33,9 @@ function Dome:GetUISectionCitizensRollover(...)
 	local ret = ChoOrig_Dome_GetUISectionCitizensRollover(self, ...)
 	local list = ret[1]
 	list.j = list.j + 1
-	table.insert(list.table, 3, T{0000, "Total work slots<right><work(number)>",
-		number = work_slots * 3,
+	table.insert(list.table, 3, T{0000, "Total work slots<right><number>/<work(total)>",
+		number = work_slots,
+		total = work_slots * 3,
 	})
 
 	return ret

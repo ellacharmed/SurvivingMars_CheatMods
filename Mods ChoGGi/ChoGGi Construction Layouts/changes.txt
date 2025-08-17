@@ -1,3 +1,6 @@
+v1.0
+Corrected the Service Slice Amphit.
+
 v0.9
 Amphitheater, Diner, and Grocer service slice.
 
