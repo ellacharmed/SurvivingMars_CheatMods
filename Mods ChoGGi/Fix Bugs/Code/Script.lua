@@ -2476,9 +2476,11 @@ do -- School:OnTrainingCompleted(...) / SchoolSpire:OnTrainingCompleted(...)
 		return OnTrainingCompleted(ChoOrig_School_OnTrainingCompleted, ...)
 	end
 
-	local ChoOrig_SchoolSpire_OnTrainingCompleted = SchoolSpire.OnTrainingCompleted
-	function SchoolSpire.OnTrainingCompleted(...)
-		return OnTrainingCompleted(ChoOrig_SchoolSpire_OnTrainingCompleted, ...)
+	if g_AvailableDlc.kerwin then
+		local ChoOrig_SchoolSpire_OnTrainingCompleted = SchoolSpire.OnTrainingCompleted
+		function SchoolSpire.OnTrainingCompleted(...)
+			return OnTrainingCompleted(ChoOrig_SchoolSpire_OnTrainingCompleted, ...)
+		end
 	end
 
 end -- do
