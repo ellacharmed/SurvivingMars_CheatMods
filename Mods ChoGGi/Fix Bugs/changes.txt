@@ -2,11 +2,11 @@ v11.5
 Missed a DLC check (thanks Charmich0802).
 
 v11.4
+Main Menu Music mod option was ignored.
 Make Dust Sickness from storybit not effect Biorobots:
 It doesn't always cure colonists for some reason and Biorobots never die, plus they're robots...
 Also checks on load for any dust sick Biorobots and removes the trait.
-There's a mod option if you perfer dust sick Biorobots.
-Main Menu Music mod option was ignored.
+There's a mod option if you prefer dust sick Biorobots.
 
 v11.3
 Didn't check for DLC for some storybit fixes and fixed some issues with loading saves.

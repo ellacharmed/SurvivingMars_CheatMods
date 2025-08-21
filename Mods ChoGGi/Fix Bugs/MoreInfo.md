@@ -32,7 +32,7 @@ IsBuildingInDomeRange(): Dome.lua:1657: attempt to index a nil value (local 'dom
 Toggling power to domes with passages in certain instances.
 ```
 
-### Storybits:
+### Storybits (SPOILERS):
 ```
 Make Dust Sickness not effect Biorobots: It doesn't always cure colonists for some reason and Biorobots never die, plus they're robots...
 Cyber War: Anyone up for some good old blackmailing? Never rewards funds only lowers standing.
