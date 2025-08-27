@@ -7413,13 +7413,17 @@ do -- BBoxLines_Toggle
 	end
 	local function BBoxLines_Clear(obj, is_box)
 		local realm = GetRealm(obj)
-		realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		if realm then
+			realm:SuspendPassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		end
 		if not is_box and obj.ChoGGi_bboxobj then
 			ChoGGi_Funcs.Common.objlist_Destroy(obj.ChoGGi_bboxobj)
 			obj.ChoGGi_bboxobj = nil
 			return true
 		end
-		realm:ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		if realm then
+			realm:ResumePassEdits("ChoGGi_Funcs.Common.BBoxLines_Clear")
+		end
 	end
 	ChoGGi_Funcs.Common.BBoxLines_Clear = BBoxLines_Clear
 

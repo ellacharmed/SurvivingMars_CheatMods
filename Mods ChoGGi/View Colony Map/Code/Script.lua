@@ -439,9 +439,9 @@ end
 --~ end
 
 function ChoGGi_VCM_ExtraInfoDlg:UpdateInfo(gen)
-printC("UpdateInfo")
---~ 	if false then
+	-- playing around with underground
 	if ChoGGi.testing and g_AvailableDlc.picard then
+		printC("UpdateInfo")
 		local state = RandState(gen.Seed)
 		local rand = function(min, max)
 			return state:GetStable(min, max)
@@ -503,6 +503,19 @@ rand()2 1729522667
 	table.insert(display_list, self.planet_title_count, self.breakthrough_title)
 	-- first four are POI breaks
 	table.insert(display_list, 1, self.planet_title)
+
+	--	Add DLC info for screenshots
+	local dlc = g_AvailableDlc
+	if dlc.armstrong and dlc.picard then
+		table.insert(display_list, 1, T(0000, "<color 200 200 256>DLC:</color>\n") .. T(429022939682--[[Green Planet]]) .. ", " .. T(850718940827--[[Below and Beyond]]))
+	elseif dlc.armstrong then
+		table.insert(display_list, 1, T(0000, "<color 200 200 256>DLC:</color>\n") .. T(429022939682--[[Green Planet]]))
+	elseif dlc.picard then
+		table.insert(display_list, 1, T(0000, "<color 200 200 256>DLC:</color>\n") .. T(850718940827--[[Below and Beyond]]))
+	else
+		table.insert(display_list, 1, T(0000, "<color 200 200 256>DLC:</color>\nDefault"))
+	end
+		table.insert(display_list, 2, T(0000, "\n"))
 
 	self.idText:SetText(table.concat(display_list, "\n"))
 end

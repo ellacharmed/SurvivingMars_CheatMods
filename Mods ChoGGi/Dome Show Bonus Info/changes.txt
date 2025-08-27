@@ -1,2 +1,5 @@
+v0.3
+Added a pcall for domes with borked workplaces.
+
 v0.2
 Always show bonus info.

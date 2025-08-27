@@ -1,3 +1,6 @@
+v2.8
+Shows relevant DLC in breakthrough list for sharing screenshots.
+
 v2.7
 Warning for game rules didn't show tech info in proper colour.
 

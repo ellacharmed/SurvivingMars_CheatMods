@@ -57,14 +57,14 @@ Storybit notification issue.
 ### Mysteries:
 ```
 Dredger tech fix (Spoilers: https://www.reddit.com/r/SurvivingMars/comments/xnprjg/).
-Marsgate blank transportation panel in CCC after a certain point in mystery.
+Marsgate: blank transportation panel in CCC after a certain point in mystery.
 St. Elmo's Fire: Stop meteoroids from destroying sinkholes and soft locking the mystery.
 The Philosopher's Stone doesn't update sector scanned count when paused.
 ```
 
 ### B&B:
 ```
-Cargo Shuttle flying underground with a colonist being transported to a surface dome (Thanks DamnedLife).
+Cargo Shuttle flying underground with a colonist being transported to a surface dome.
 Rare Anomaly Analyzed: Fossils: Global Support didn't check for Space Race DLC (it now gives random breakthrough).
 Colonists underground crash (mod option enabled by default, more info below).
 Unlock Artificial Sun for refabbing.
@@ -86,6 +86,7 @@ Water Reclamation Spire and B&B upgrade tech caused issues.
 ### Strings (mispeelings or not good grammer):
 ```
 8390
+297691849913
 
 Actual strings not included as there could be spoilers, so only ids (mostly useful for me).
 Additions are welcome in any language.
@@ -146,8 +147,6 @@ Pins Missing Some Status Icons
 RC Constructor Terraformer Routes
 School Skip Attained Perks
 ```
-
-If you have B&B I'd recommend SkiRich's [Better Lander Rockets](https://steamcommunity.com/sharedfiles/filedetails/?id=2619013940)
 
 
 # Extra info for incorporated mods/specific fixes:

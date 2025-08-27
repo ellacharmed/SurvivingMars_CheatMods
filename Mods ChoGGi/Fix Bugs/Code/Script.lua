@@ -523,13 +523,29 @@ do
 			end
 
 			--
-			-- Some mod is adding OpenAirGyms to the Workplace label.
+			-- Some mod? is adding OpenAirGyms to the Workplace label.
 			-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
 			objs = GetCityLabels("Workplace")
+			local not_a_workplace = {
+				OpenAirGym = true,
+				TaiChiGarden = true,
+			}
 			for i = #objs, 1, -1 do
 				local obj = objs[i]
-				if obj.class == "OpenAirGym" then
+				if not_a_workplace[obj.class] then
 					obj.city:RemoveFromLabel("Workplace", obj)
+				end
+			end
+			-- Do the same for dome labels
+			objs = GetCityLabels("Dome")
+			for i = 1, #objs do
+				local dome = objs[i]
+				local workplaces = dome.labels.Workplace or ""
+				for j = #workplaces, 1, -1 do
+					local obj = workplaces[j]
+					if not_a_workplace[obj.class] then
+						dome:RemoveFromLabel("Workplace", obj)
+					end
 				end
 			end
 
@@ -1547,11 +1563,11 @@ do
 		-- LoadGame happens late enough that this isn't needed
 		CreateGameTimeThread(StartupCode, "CityStart")
 	end
-	--
 	function OnMsg.LoadGame()
 		StartupCode("LoadGame")
 	end
 	--
+
 end -- StartupCode do end
 -- do
 
@@ -2539,6 +2555,7 @@ do -- RCTerraformer.ShouldShowRouteButton/RCTerraformer.ToggleCreateRouteMode_Up
 		end
 	end
 end -- do
+
 
 --
 --

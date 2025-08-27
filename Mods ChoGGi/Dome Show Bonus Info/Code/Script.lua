@@ -22,7 +22,10 @@ function Dome:GetUISectionCitizensRollover(...)
 		return ChoOrig_Dome_GetUISectionCitizensRollover(self, ...)
 	end
 
-	local rollover = ChoOrig_Dome_GetUISectionCitizensRollover(self, ...)
+	local result, rollover = pcall(ChoOrig_Dome_GetUISectionCitizensRollover, self, ...)
+	if not result then
+		return rollover
+	end
 
 	--
 	local comfort_amount = 0

@@ -1,3 +1,6 @@
+v11.6
+Didn't fully cleanup Workplaces that had buildings added to the wrong label (GetFreeWorkSlots log spam).
+
 v11.5
 Missed a DLC check (thanks Charmich0802).
 

@@ -1,8 +1,5 @@
 -- See LICENSE for terms
 
-local pcall = pcall
-local IsGameRuleActive = IsGameRuleActive
-
 function OnMsg.ClassesPostprocess()
 	if GameRulesMap.ChoGGi_RandomBreakthroughs then
 		return
