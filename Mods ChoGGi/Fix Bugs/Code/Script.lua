@@ -197,6 +197,31 @@ local function FixWrongCatStorybit(storybit_id)
 	return bit_state
 end
 
+local function CleanupLabels(label)
+	local objs = GetCityLabels(label)
+	for i = #objs, 1, -1 do
+		local obj = objs[i]
+		-- If a workplace isn't a workplace then remove it from workplace
+		if not obj:IsKindOf(label) then
+			obj.city:RemoveFromLabel(label, obj)
+		end
+	end
+	-- Do the same for dome labels
+	objs = GetCityLabels("Dome")
+	for i = 1, #objs do
+		local dome = objs[i]
+		local workplaces = dome.labels[label] or ""
+		for j = #workplaces, 1, -1 do
+			local obj = workplaces[j]
+			if not obj:IsKindOf(label) then
+				dome:RemoveFromLabel(label, obj)
+			end
+		end
+	end
+end
+
+
+-- -------------------- New Local Funcs Above Here!
 
 -- Update/set mod options
 local function ModOptions(id)
@@ -262,9 +287,9 @@ function OnMsg.OnRealmLoad()
 	Free Will: Violent Urges Solved never shows up after researching story bit tech
 	follow ups should be enabled by preceding bits
 	having this already enabled adds the storybit without having a renegade colonist
-	so the ending screen won't remove the renegade from the start of
+	so the end screen won't remove the renegade from the start of
 
-	and ending doesn't show up at all from Category being TechResearched
+	and end doesn't show up at all from Category being TechResearched
 	(1/2)
 	]]
 	StoryBits.FreeWill_2.Enabled = false
@@ -523,31 +548,12 @@ do
 			end
 
 			--
-			-- Some mod? is adding OpenAirGyms to the Workplace label.
+			-- Some mod (or the game?) is adding OpenAirGyms (and other non-workplaces) to the Workplace label.
 			-- which means "attempt to call a nil value (method 'GetFreeWorkSlots')" log spam.
-			objs = GetCityLabels("Workplace")
-			local not_a_workplace = {
-				OpenAirGym = true,
-				TaiChiGarden = true,
-			}
-			for i = #objs, 1, -1 do
-				local obj = objs[i]
-				if not_a_workplace[obj.class] then
-					obj.city:RemoveFromLabel("Workplace", obj)
-				end
-			end
-			-- Do the same for dome labels
-			objs = GetCityLabels("Dome")
-			for i = 1, #objs do
-				local dome = objs[i]
-				local workplaces = dome.labels.Workplace or ""
-				for j = #workplaces, 1, -1 do
-					local obj = workplaces[j]
-					if not_a_workplace[obj.class] then
-						dome:RemoveFromLabel("Workplace", obj)
-					end
-				end
-			end
+			CleanupLabels("Workplace")
+			-- It's also doing it for Residences
+			-- which means "attempt to call a nil value (method 'GetFreeSpace')" log spam.
+			CleanupLabels("Residence")
 
 			--
 			-- Fix Shuttles Stuck Mid-Air (req has an invalid building)
@@ -1730,7 +1736,7 @@ do
 		end
 
 		return ChoOrig_AreDomesConnectedWithPassage(d1, d2, ...)
-			-- If orig func returns true then check if domes are within walking dist
+			-- If orig func return true then check if domes are within walking dist
 			-- "d1 == d2" is from orig func (no need to check dist if both domes are the same)
 			and (d1 == d2 or d1:GetDist2D(d2) <= dome_walk_dist)
 	end
@@ -2389,7 +2395,7 @@ function GetModifierObject(template, ...)
 		return ChoOrig_GetModifierObject(template, ...)
 	end
 
-	--returns a fake modifier object that holds all modifiers of the template's potential labels
+	--return a fake modifier object that holds all modifiers of the template's potential labels
 	--and can be used to modify costs appropriately
 	--note, this gets all potential labels, hence it will get both construction site labels and bld labels, which means that any duplicate mods in those groups will get doubled.
 	if type(template) == "string" then template = BuildingTemplates[template] end
@@ -2556,6 +2562,19 @@ do -- RCTerraformer.ShouldShowRouteButton/RCTerraformer.ToggleCreateRouteMode_Up
 	end
 end -- do
 
+--
+-- Some mod isn't checking for a table beforehand
+local ChoOrig_table_insert_unique = table.insert_unique
+function table.insert_unique(t, ...)
+	if not mod_EnableMod then
+		return ChoOrig_table_insert_unique(t, ...)
+	end
+
+	if type(t) ~= "table" then
+		return false
+	end
+	return ChoOrig_table_insert_unique(t, ...)
+end
 
 --
 --

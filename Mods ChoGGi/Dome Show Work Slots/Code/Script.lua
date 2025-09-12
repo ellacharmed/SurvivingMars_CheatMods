@@ -22,6 +22,11 @@ function Dome:GetUISectionCitizensRollover(...)
 		return ChoOrig_Dome_GetUISectionCitizensRollover(self, ...)
 	end
 
+	local result, rollover = pcall(ChoOrig_Dome_GetUISectionCitizensRollover, self, ...)
+	if not result then
+		return rollover
+	end
+
 	-- Get all work slots
 	local work_slots = 0
 	local objs = self.labels.Workplace or ""
@@ -30,13 +35,12 @@ function Dome:GetUISectionCitizensRollover(...)
 	end
 
 	-- insert into rollover
-	local ret = ChoOrig_Dome_GetUISectionCitizensRollover(self, ...)
-	local list = ret[1]
+	local list = rollover[1]
 	list.j = list.j + 1
 	table.insert(list.table, 3, T{0000, "Total work slots<right><number>/<work(total)>",
 		number = work_slots,
 		total = work_slots * 3,
 	})
 
-	return ret
+	return rollover
 end

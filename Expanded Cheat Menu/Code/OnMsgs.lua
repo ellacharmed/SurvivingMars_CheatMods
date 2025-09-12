@@ -71,8 +71,10 @@ function OnMsg.ClassesGenerate()
 
 	--
 	if ChoGGi.UserSettings.AllLoadingScreens then
+		-- Why does it always want to show this one for first load?
 		g_FirstLoadingScreen = false
 
+		-- DLC overrides the list with it's own screens, this mashes them all together.
 		g_LoadingScreens = {
 			"UI/SplashScreen.dds",
 			"UI/LoadingScreens/002.tga",
@@ -97,20 +99,19 @@ function OnMsg.ClassesGenerate()
 		}
 		-- These were not
 		if g_AvailableDlc.picard then
+			local dlc_screens = {
+				"UI/LoadingScreens/asteroid_01.tga",
+				"UI/LoadingScreens/asteroid_02.tga",
+				"UI/LoadingScreens/asteroid_03.tga",
+				"UI/LoadingScreens/underground_01.tga",
+				"UI/LoadingScreens/underground_02.tga",
+				"UI/LoadingScreens/underground_03.tga",
+			}
 			local screens = g_LoadingScreens
-			local c = #g_LoadingScreens
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/asteroid_01.tga"
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/asteroid_02.tga"
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/asteroid_03.tga"
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/underground_01.tga"
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/underground_02.tga"
-			c = c + 1
-			screens[c] = "UI/LoadingScreens/underground_03.tga"
+			local count = #g_LoadingScreens
+			for i = 1, #dlc_screens do
+				screens[i+count] = dlc_screens[i]
+			end
 		end
 	end
 
@@ -216,8 +217,11 @@ function OnMsg.ClassesPostprocess()
 	local function true_return()
 		return true
 	end
-	XTemplates.EditorToolbarButton[1].__condition = true_return
-	XTemplates.EditorToolbarToggleButton[1].__condition = true_return
+
+	if XTemplates.EditorToolbarButton then
+		XTemplates.EditorToolbarButton[1].__condition = true_return
+		XTemplates.EditorToolbarToggleButton[1].__condition = true_return
+	end
 
 	if UserSettings.FlushLog then
 		FlushLogFile()
@@ -452,10 +456,12 @@ s = SelectedObj, c() = GetCursorWorldPos(), restart() = quit(""restart"")"]])
 			-- add a hint about rightclicking
 			if UserSettings.EnableToolTips then
 				local toolbar = XShortcutsTarget.idMenuBar
-				toolbar:SetRolloverTemplate("Rollover")
-				toolbar:SetRolloverTitle(T(302535920001717--[[Info]]))
-				toolbar:SetRolloverText(T(302535920000503--[[Right-click an item/submenu to add/remove it from the quickbar.]]))
-				toolbar:SetRolloverHint(T(302535920001441--[["<left_click> Activate MenuItem <right_click> Add/Remove"]]))
+				if toolbar then
+					toolbar:SetRolloverTemplate("Rollover")
+					toolbar:SetRolloverTitle(T(302535920001717--[[Info]]))
+					toolbar:SetRolloverText(T(302535920000503--[[Right-click an item/submenu to add/remove it from the quickbar.]]))
+					toolbar:SetRolloverHint(T(302535920001441--[["<left_click> Activate MenuItem <right_click> Add/Remove"]]))
+				end
 			end
 
 			-- always show menu

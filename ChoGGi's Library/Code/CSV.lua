@@ -1,5 +1,6 @@
 -- See LICENSE for terms
 
+local what_game = ChoGGi.what_game
 if ChoGGi.what_game ~= "Mars" then
 	return
 end

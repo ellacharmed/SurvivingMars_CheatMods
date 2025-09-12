@@ -3,7 +3,9 @@
 local ChoGGi_Funcs = ChoGGi_Funcs
 
 -- needed to be able to open the inspector
-XTemplates.GedInspector.save_in = "Ged"
+if XTemplates.GedInspector then
+	XTemplates.GedInspector.save_in = "Ged"
+end
 
 -- If it gets added then
 if rawget(_G, "GedSocket") then

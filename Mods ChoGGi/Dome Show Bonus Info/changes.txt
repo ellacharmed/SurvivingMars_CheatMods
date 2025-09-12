@@ -1,3 +1,6 @@
+v0.4
+Fixed issue with Dome Show Work Slots (thanks Nyx).
+
 v0.3
 Added a pcall for domes with borked workplaces.
 

@@ -1175,8 +1175,10 @@ function ChoGGi_DlgExamine:idChildLock_OnChange(visible)
 
 	if visible then
 		visible = ""
+		self.child_lock_dlg = self
 	else
 		visible = T(302535920001695--[[NOT]]) .. " "
+		self.child_lock_dlg = false
 	end
 
 	self.idChildLock:SetRolloverText(T{302535920000920--[[Examining objs from this dlg will <color ChoGGi_red><var></color>examine them all in a single dlg.]],
@@ -4337,6 +4339,7 @@ function ChoGGi_Funcs.Common.OpenInExamineDlg(obj, parent, title, ...)
 		end
 	end
 
+
 	if params.parent ~= "str" and not (IsKindOf(params.parent, "XWindow") or IsPoint(params.parent)) then
 		params.parent = nil
 	end
@@ -4351,6 +4354,7 @@ function ChoGGi_Funcs.Common.OpenInExamineDlg(obj, parent, title, ...)
 			params.parent.idChildLock:SetVisible()
 		end
 	else
+
 		parent = params.parent
 
 		if parent and IsKindOf(parent, "ChoGGi_DlgExamine") and parent.child_lock then

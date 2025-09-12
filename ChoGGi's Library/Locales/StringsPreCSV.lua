@@ -3,7 +3,6 @@ do !Skipped Line! [[BLANKS]]
 !Skipped Line! <color ChoGGi_green>%s</color>
 !Skipped Line! <color ChoGGi_yellow>%s</color>
 "ID", "Text", "Translation"
-302535920001751, ""
 302535920001752, ""
 302535920001753, ""
 302535920001754, ""
@@ -1904,6 +1903,7 @@ https://github.com/ChoGGi/SurvivingMars_CheatMods
 https://discord.gg/ZXXYaExThy
 https://steamcommunity.com/id/ChoGGi/
 SurvivingMarsMods@choggi.org"
+302535920001751, "Batch Upload mods?"
 302535920000221, "See log for any batch errors."
 302535920001572, "<color ChoGGi_red>Pack Warning</color>: Will instantly crash SM when calling it a second time, pack the mod manually to workaround it.
 You can also stick the executable in the profile folder to use it instead (<color ChoGGi_green>no crashing</color>):
@@ -2022,7 +2022,7 @@ do !Skipped Line! [[MiscMenu.lua MiscFunc.lua]] !Skipped Line!
 302535920001109, "Loops though and makes all <color ChoGGi_green><str></color> visible."
 302535920001117, "Opacity"
 302535920001118, "You can still select items after making them invisible (0), but it may take some effort :)."
-302535920001122, "%s: HAXOR"
+302535920001122, "Cheat Section: <status>"
 302535920001127, "Triple"
 302535920001128, "Quadruple"
 302535920001129, "Octuple"

@@ -1,3 +1,6 @@
+v0.6
+ChoGGi's lib error.
+
 v0.5
 Added mod option to disable mod.
 

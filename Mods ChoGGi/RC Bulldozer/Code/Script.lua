@@ -102,9 +102,7 @@ function RCBulldozer:GameInit()
 
 end
 
---~ function RCBulldozer:GetStatusUpdate()
 function RCBulldozer:Getui_command()
---~ 	return table.concat({self.status_text}, "<newline><left>")
 	return self.status_text .. "<newline><left>"
 end
 

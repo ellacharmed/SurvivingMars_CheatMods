@@ -1,5 +1,8 @@
 -- See LICENSE for terms
 
+local table = table
+local ModLog = ModLog
+
 local mod_EnableMod
 
 local function ModOptions(id)
@@ -15,7 +18,7 @@ OnMsg.ModsReloaded = ModOptions
 -- Fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
 
-local AddParentToClass = ChoGGi_Funcs.Common.AddParentToClass
+local AddParentToClass = rawget(_G, "ChoGGi_Funcs") and ChoGGi_Funcs.Common.AddParentToClass
 	or function(class_obj, parent_name)
 		local p = class_obj.__parents
 		if not table.find(p, parent_name) then
@@ -45,21 +48,20 @@ function OnMsg.PersistPostLoad()
 	local s_Heaters = s_Heaters
 	for obj, _ in pairs(s_Heaters) do
 		if obj:IsKindOf("UnpersistedMissingClass") then
-			ModLog(str:format("s_Heaters", RetName(obj), obj:GetEntity(), obj.handle))
+			ModLog(str:format("s_Heaters", print(obj), obj:GetEntity(), obj.handle))
 			s_Heaters[obj] = nil
 		end
 	end
 
 	-- GetFreeSpace, GetFreeLivingSpace, GetFreeWorkplaces, GetFreeWorkplacesAround
 	local labels = UIColony.city_labels.labels or empty_table
-	local ModLog = ModLog
 	for label_id, label in pairs(labels) do
 		for i = #label, 1, -1 do
 			local obj = label[i]
 			if obj:IsKindOf("UnpersistedMissingClass") then
-				ModLog(str:format(label_id, RetName(obj), obj:GetEntity(), obj.handle))
-				obj:delete()
+				ModLog(str:format(label_id, print(obj), obj:GetEntity(), obj.handle))
 				table.remove(label, i)
+				obj:delete()
 			end
 		end
 	end

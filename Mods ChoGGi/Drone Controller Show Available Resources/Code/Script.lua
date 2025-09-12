@@ -30,6 +30,7 @@ local res_str, res_str_c = {}, 0
 local res_list, res_list_c
 local r
 
+-- Build rollover for drone controllers
 local function GetAvailableResources(self, cursor_obj)
 	if not res_list then
 		-- Build list of resources
@@ -136,6 +137,7 @@ local function AddTemplate(xtemplate)
 		return
 	end
 	xtemplate.ChoGGi_Added_DroneControllerShowAvailableResources = true
+	-- Append to existing rollover or add a new one
 	if xtemplate.RolloverText then
 		xtemplate.RolloverText = xtemplate.RolloverText .. T("<newline><ChoGGi_GetAvailableResources>")
 	else

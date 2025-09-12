@@ -202,7 +202,9 @@ function ChoGGi_Funcs.Menus.InfopanelCheats_Toggle()
 
 	ChoGGi_Funcs.Settings.WriteSettings()
 	MsgPopup(
-		Translate(302535920001122--[[%s: HAXOR]]):format(ChoGGi.UserSettings.InfopanelCheats),
+		T{302535920001122--[[Cheat Section: <status>]],
+			status = ChoGGi_Funcs.Common.SettingState(ChoGGi.UserSettings.InfopanelCheats),
+		},
 		T(302535920000696--[[Infopanel Cheats]])
 	)
 end

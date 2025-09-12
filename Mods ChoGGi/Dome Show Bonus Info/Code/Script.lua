@@ -49,7 +49,7 @@ function Dome:GetUISectionCitizensRollover(...)
 	end
 	--
 
-	-- Skip showing when no bonus
+	-- Don't show when no bonus
 --~ 	if comfort_amount == 0 and morale_amount == 0 and research_percent == 0 then
 --~ 		return rollover
 --~ 	end
@@ -68,5 +68,5 @@ function Dome:GetUISectionCitizensRollover(...)
 		}
 
 --~ 	ex(rollover)
-	return table.concat(rollover, "<newline><left>")
+	return rollover
 end

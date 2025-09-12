@@ -1,14 +1,14 @@
 return PlaceObj("ModDef", {
 	"title", "Fix Missing Mod Icons",
-	"version", 6,
-	"version_major", 0,
-	"version_minor", 6,
-	"image", "Preview.png",
 	"id", "ChoGGi_FixMissingBuildUpgradeIcons",
 	"steam_id", "1725437808",
 	"pops_any_uuid", "348b873f-0bb9-4d0f-be3d-875bdeec513e",
-	"author", "ChoGGi",
 	"lua_revision", 1007000, -- Picard
+	"version", 6,
+	"version_major", 0,
+	"version_minor", 6,
+	"image", "Preview.jpg",
+	"author", "ChoGGi",
 	"code", {
 		"Code/Script.lua",
 	},

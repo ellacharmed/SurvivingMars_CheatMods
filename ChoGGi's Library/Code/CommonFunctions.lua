@@ -61,7 +61,8 @@ local WorldToHex = WorldToHex
 local is_gp = ChoGGi.is_gp
 local GetBuildableGrid = not is_gp and GetBuildableGrid
 local GetObjectHexGrid = not is_gp and GetObjectHexGrid
-local GetCursorWorldPos = not is_gp and GetCursorWorldPos or function()
+-- cursor position on map (GP compat)
+GetCursorWorldPos = not is_gp and GetCursorWorldPos or function()
 	return UseGamepadUI() and GetTerrainGamepadCursor() or GetTerrainCursor()
 end
 

@@ -599,18 +599,18 @@ You can also stick the executable in the profile folder to use it instead (<gree
 							local temp_mod = choice.mod
 							if temp_mod then
 								titles_c = titles_c + 1
-								titles[titles_c] = temp_mod.title
+								titles[titles_c] = "<color ChoGGi_green>" .. temp_mod.title
 									-- remove blacklist warning from title (added in helpermod)
-									:gsub(" %(Warning%)$", "")
+									:gsub(" %(Warning%)$", "") .. "</color>"
 							end
 						end
 						-- and show msg
 						if not UserSettings.SkipModUploadConfirmDoneMsgs then
 							if ChoGGi_Funcs.Common.QuestionBox(
-								T(302535920000221--[[Batch Upload mods?]]) .. "\n\n"
+								T(302535920000221--[[See log for any batch errors.]]) .. "\n\n"
 									.. table.concat(titles, ", "),
 								CallBackFunc_BQ,
-								T(302535920000221--[[Batch Upload!]]),
+								T(302535920001751--[[Batch Upload mods?]]),
 								nil,
 								nil,
 								upload_image,
@@ -701,9 +701,9 @@ You can also stick the executable in the profile folder to use it instead (<gree
 		local ValidateImage = ChoGGi_Funcs.Common.ValidateImage
 		for id, mod in pairs(Mods) do
 			-- skip some mods and all packed mods
-			if not skip_mods[id] and mod.content_path:sub(1,11) ~= "PackedMods/" then
+			if not skip_mods[id] and mod.content_path:sub(1, 11) ~= "PackedMods/" then
 				local image = ""
-				-- can't use <image> tags unless there's no spaces in the path...
+				-- can't use <image> tags unless there's no spaces in the image path...
 				if ValidateImage(mod.image) and not mod.image:find(" ") then
 					image = "<image " .. mod.image .. ">\n\n"
 				end

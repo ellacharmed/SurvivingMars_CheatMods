@@ -1,3 +1,6 @@
+v0.4
+Rollover got stuck on screen.
+
 v0.3
 Added green icon filter to list.
 

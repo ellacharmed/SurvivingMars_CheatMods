@@ -13,6 +13,6 @@ return PlaceObj("ModDef", {
 		"Code/Script.lua",
 	},
 	"description", [[
-Enable Trailblazer Skins.
+Enable Trailblazer skins (pre-order bonus).
 ]],
 })

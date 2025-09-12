@@ -1,12 +1,20 @@
 return PlaceObj("ModDef", {
+	"dependencies", {
+		PlaceObj("ModDependency", {
+			"id", "ChoGGi_Library",
+			"title", "ChoGGi's Library",
+			"version_major", 12,
+			"version_minor", 8,
+		}),
+	},
 	"title", "Expedition Rocket Launch Button",
 	"id", "ChoGGi_ExpeditionRocketLaunchButton",
 	"steam_id", "1776123839",
 	"pops_any_uuid", "1d8fc47a-1956-462e-83f1-adc1b353916a",
 	"lua_revision", 1007000, -- Picard
-	"version", 1,
+	"version", 2,
 	"version_major", 0,
-	"version_minor", 1,
+	"version_minor", 2,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {

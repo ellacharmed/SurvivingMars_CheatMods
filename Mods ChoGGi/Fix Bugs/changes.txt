@@ -1,3 +1,10 @@
+v11.8
+Found a save with the same as 11.6, but for Residences (GetFreeSpace log spam).
+This might not be from a mod.
+
+v11.7
+Some mod isn't checking for a table beforehand (maybe?).
+
 v11.6
 Didn't fully cleanup Workplaces that had buildings added to the wrong label (GetFreeWorkSlots log spam).
 
