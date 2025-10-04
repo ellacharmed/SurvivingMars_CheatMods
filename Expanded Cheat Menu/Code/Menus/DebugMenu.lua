@@ -44,7 +44,7 @@ Actions[c] = {ActionName = T(302535920000069--[[Examine]]),
 	RolloverText = Translate(302535920000492--[[Opens the object examiner for the selected or moused-over obj.
 Use %s to show a list of all objects in a radius around cursor.]]):format(ChoGGi_Funcs.Common.GetShortcut(".Keys.Examine Objects Radius")),
 	OnAction = ChoGGi_Funcs.Menus.ExamineObject,
-	ActionShortcut = what_game == "Mars" and "F4" or "Shift-F4",
+	ActionShortcut = what_game == "Mars" and "F4" or "Shift-F4", --fixme
 	ActionBindable = true,
 }
 c = c + 1
@@ -59,6 +59,14 @@ Actions[c] = {ActionName = T(302535920000069--[[Examine]]) .. " " .. T(302535920
 		)
 	end,
 	OnAction = ChoGGi_Funcs.Menus.ExamineObjectRadius_Set,
+	ActionBindable = true,
+}
+-- Doesn't have a menuitem
+c = c + 1
+Actions[c] = {ActionName = T(302535920000069--[[Examine]]) .. " " .. T(302535920001103--[[Objects]]) .. " " .. T(302535920000163--[[Radius]]),
+	ActionId = ".Keys.Examine Objects Radius",
+	OnAction = ChoGGi_Funcs.Menus.ExamineObjectRadius,
+	ActionShortcut = what_game == "Mars" and "Shift-F4" or "Ctrl-Shift-F4", --fixme
 	ActionBindable = true,
 }
 

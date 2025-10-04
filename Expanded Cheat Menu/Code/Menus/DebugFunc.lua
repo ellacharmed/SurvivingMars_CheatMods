@@ -4,6 +4,8 @@ if ChoGGi.what_game ~= "Mars" then
 	return
 end
 
+local testing = ChoGGi.testing
+
 local pairs, type, tostring, table = pairs, type, tostring, table
 local IsValid = IsValid
 local GetCursorWorldPos = GetCursorWorldPos
@@ -457,13 +459,17 @@ end -- do
 function ChoGGi_Funcs.Menus.ExamineObject()
 	printC("ChoGGi_Funcs.Menus.ExamineObject")
 
-	-- try to get object in-game first
-	local objs = ChoGGi_Funcs.Common.SelObjects()
-	local c = #objs
-	if c > 0 then
-		-- If it's a single obj then examine that, otherwise the whole list
-		OpenExamine(c == 1 and objs[1] or objs)
-		return
+	local gameplay = GameState.gameplay
+
+	if gameplay then
+		-- Try to get object in-game first
+		local objs = ChoGGi_Funcs.Common.SelObjects()
+		local c = #objs
+		if c > 0 then
+			-- If it's a single obj then examine that, otherwise the whole list
+			OpenExamine(c == 1 and objs[1] or objs)
+			return
+		end
 	end
 
 --~ 	if UseGamepadUI() then
@@ -479,14 +485,18 @@ function ChoGGi_Funcs.Menus.ExamineObject()
 		return OpenExamineReturn(target)
 	end
 
-	-- If in main menu then open examine and console
-	if not Dialogs.HUD then
-		local dlg = OpenExamineReturn(terminal.desktop)
-		-- off centre of central monitor
+	-- If in main menu then open examine and console (I don't think this will ever fire?)
+	if gameplay then
+		return
+	end
+	local dlg = OpenExamineReturn(terminal.desktop)
+	-- off centre
+	if testing then
 		local width = (terminal.desktop.measure_width or 1920) - (dlg.dialog_width_scaled + 100)
 		dlg:SetPos(point(width, 100))
-		ChoGGi_Funcs.Common.ShowConsole(true)
 	end
+	-- Not sure why I'm opening the console?
+	ChoGGi_Funcs.Common.ShowConsole(true)
 end
 
 function ChoGGi_Funcs.Menus.OpenInGedObjectEditor()
@@ -732,7 +742,7 @@ function ChoGGi_Funcs.Menus.ViewAllEntities()
 			CheatMapExplore("deep scanned")
 			realm:ResumePassEdits("ChoGGi_Funcs.Menus.ViewAllEntities")
 
-			if ChoGGi.testing then
+			if testing then
 				WaitMsg("OnRender")
 				ChoGGi_Funcs.Common.CloseDialogsECM()
 				cls()
@@ -751,7 +761,7 @@ function ChoGGi_Funcs.Menus.ViewAllEntities()
 		end)
 	end
 
-	if ChoGGi.testing then
+	if testing then
 		return CallBackFunc(true)
 	end
 

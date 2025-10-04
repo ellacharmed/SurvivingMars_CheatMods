@@ -49,11 +49,3 @@ Actions[c] = {ActionName = T(302535920001350--[[Place Last Selected/Constructed 
 	ActionShortcut = "Ctrl-Space",
 	ActionBindable = true,
 }
-
-c = c + 1
-Actions[c] = {ActionName = T(302535920000069--[[Examine]]) .. " " .. T(302535920001103--[[Objects]]) .. " " .. T(302535920000163--[[Radius]]),
-	ActionId = ".Keys.Examine Objects Radius",
-	OnAction = ChoGGi_Funcs.Menus.ExamineObjectRadius,
-	ActionShortcut = what_game == "Mars" and "Shift-F4" or "F4",
-	ActionBindable = true,
-}

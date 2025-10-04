@@ -83,11 +83,34 @@ end
 
 local function SaveProfile(params)
 	print("Save Mission Profiles: Ignore this error it doesn't matter")
-	local choice_str = WaitInputText(
-		T(302535920011253, "Save Profile"),
-		T(302535920011254, "Type a profile name to use.")
-	)
+--~ 	local choice_str = WaitInputText(
+--~ 		T(302535920011253, "Save Profile"),
+--~ 		T(302535920011254, "Type a profile name to use.")
+--~ 	)
+
+	-- copy paste of WaitInputText() with the dialog so I can move it
+	local caption = T(302535920011253, "Save Profile")
+	local text = T(302535920011254, "Type a profile name to use.")
+--~   if not caption or caption == "" then
+--~     caption = "Enter text:"
+--~   end
+--~   if not text or text == "" then
+--~     text = "Text..."
+--~   end
+  local dialog = StdInputDialog:new({}, terminal.desktop, {title = caption, default = text})
+  dialog:Open()
+--~   return dialog:Wait()
+
+	-- Move to just above buttons, so it's out of the way of other stuff
+	dialog:SetHAlign("left")
+	dialog:SetVAlign("bottom")
+	dialog:SetMargins(box(250, 0, 0, 150))
+
+	local choice_str = dialog:Wait()
+
 	if choice_str and choice_str ~= "" then
+
+
 		-- remove modded stuff
 		CleanGameRules(g_CurrentMissionParams)
 

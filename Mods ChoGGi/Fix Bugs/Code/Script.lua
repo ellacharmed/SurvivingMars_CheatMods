@@ -24,6 +24,7 @@ local TestSunPanelRange = TestSunPanelRange
 local ValidateBuilding = ValidateBuilding
 local WorldToHex = WorldToHex
 
+local InvalidPos = InvalidPos()
 local empty_table = empty_table
 local g_AvailableDlc = g_AvailableDlc
 
@@ -519,6 +520,33 @@ do
 		-- Anything that only needs a specific event
 		if event == "LoadGame" then
 
+			--
+			--
+			--
+			--
+
+			--
+			-- If an expedition fails (only from storybits?) then the rover doesn't get deleted. (1/2)
+			objs = GetCityLabels("Rover")
+			for i = #objs, 1, -1 do
+				local obj = objs[i]
+
+				-- The ifs are ordered for stuff that doesn't call a func first, not in a way that makes human sense.
+
+				-- It's normally WaitToAppear for rovers on expeditions (and probably other rockets/elevators)
+				if obj.command == "Idle"
+					-- Not in a holder (rocket/elevator?/etc where objs are normally in the InvalidPos)
+					and not IsValid(obj.holder)
+					-- It's not on a map
+					and obj:GetPos() == InvalidPos
+				then
+					obj:delete()
+				end
+			end
+
+
+
+			--
 			-- Dust Sickness storybit will give Biorobots (and other colonists) dust sickness.
 			-- It may not remove it from the colonists, and since Biorobots live forever then they have it forever.
 			-- This will remove the dust sickness trait from Biorobots.
@@ -723,7 +751,6 @@ do
 			-- Fix Stuck Malfunctioning Drones At DroneHub
 			local positions = {}
 			local radius = 100 * guim
-			local InvalidPos = InvalidPos()
 
 			objs = GetCityLabels("DroneHub")
 			for i = 1, #objs do
@@ -972,7 +999,7 @@ do
 		--
 		-- Fix Storybits
  		local StoryBits = StoryBits
-		-- Just in case something changes (hah)
+		-- Just in case something changes (hah...  well maybe a mod will change one around)
 		pcall(function()
 
 
@@ -1210,21 +1237,6 @@ do
 		-- Fix Storybits end
 		end)
 
-		-- -------------------- -- GetCityLabels below -- -------------------- --
-
-		--
-		-- Force heat grid to update (if you paused game on new game load then cold areas don't update till you get a working Subsurface Heater).
-		objs = GetCityLabels("SubsurfaceHeater")
-		if #objs == 0 then
-			CreateGameTimeThread(function()
-				Sleep(5000)
-				-- When game isn't paused wait 5 secs and call it for main city (no cold areas underground?, eh can always do it later).
-				surface_map.heat_grid:WaitLerpFinish()
-			end)
-		end
-
-		-- -------------------- -- GetCityLabels above -- -------------------- --
-
 		--
 		if colony and colony.underground_map_unlocked then
 
@@ -1393,15 +1405,27 @@ do
 			--
 		end -- underground_map_unlocked
 
+		--
+		--
+		--
+		--
 
-		-- New fixes go here
 		--
-		--
-		--
-		--
-		--
-		--
-		--
+		-- Force heat grid to update (if you paused game on new game load then cold areas don't update till you get a working Subsurface Heater).
+		objs = GetCityLabels("SubsurfaceHeater")
+		if #objs == 0 then
+			CreateGameTimeThread(function()
+				Sleep(5000)
+				-- When game isn't paused wait 5 secs and call it for main city.
+				surface_map.heat_grid:WaitLerpFinish()
+				-- Case a mod makes it cold underground
+				if underground_map then
+					underground_map.heat_grid:WaitLerpFinish()
+				end
+				-- Should probably add asteroids as well?
+				-- Hopefully most of this mod isn't needed for SMR...
+			end)
+		end
 
 		--
 		-- Rare Anomaly Analyzed: Fossils choices list always shows Global Support even if you don't have Space Race
@@ -2574,6 +2598,24 @@ function table.insert_unique(t, ...)
 		return false
 	end
 	return ChoOrig_table_insert_unique(t, ...)
+end
+
+--
+-- If an expedition fails (only from storybits?) then the rover doesn't get deleted. (2/2)
+local ChoOrig_RocketExpedition_KillExpedition = RocketExpedition.KillExpedition
+function RocketExpedition:KillExpedition(...)
+	if not mod_EnableMod then
+		return ChoOrig_RocketExpedition_KillExpedition(self, ...)
+	end
+
+	-- They removed crews/drones/singular rovers, but not the .rovers table for some reason.
+	-- I can't find where singular rovers are added though, so maybe it's always been borked? (since the code hasn't changed since gagarin)
+	local objs = self.expedition.rovers or ""
+	for i = #objs, 1, -1 do
+		objs[i]:delete()
+	end
+
+	return ChoOrig_RocketExpedition_KillExpedition(self, ...)
 end
 
 --

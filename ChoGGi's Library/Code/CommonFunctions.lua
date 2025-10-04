@@ -8184,6 +8184,10 @@ function ChoGGi_Funcs.Common.RetMapType(obj, map_id, city)
 		end
 	end
 
+	if not UIColony then
+		return ""
+	end
+
 	if map_id == UIColony.surface_map_id then
 		return "surface"
 	elseif map_id == UIColony.underground_map_id then

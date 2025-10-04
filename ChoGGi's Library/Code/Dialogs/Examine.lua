@@ -4296,11 +4296,12 @@ function ChoGGi_Funcs.Common.OpenInExamineDlg(obj, parent, title, ...)
 	local params, parent_type
 
 	params, parent, parent_type = RetParamsParents(parent, params, ...)
-	-- preserve the orig params
+	-- Preserve the orig params
 	params.obj = obj
 	if parent then
 		params.parent = parent
 	end
+	-- See what we got for a title
 	if params.title or title then
 		if title then
 			params.title = Translate(title)
@@ -4309,45 +4310,46 @@ function ChoGGi_Funcs.Common.OpenInExamineDlg(obj, parent, title, ...)
 		end
 		params.override_title = true
 	end
+	--  In case I set title to something that isn't a string
+	if type(params.title) ~= "string" then
+		params.title = nil
+	end
 
-	-- check if the parent has an id and use it
+	-- Check if the parent has an id and use it
 	if params.parent and parent_type == "table" and params.parent.parent_id then
 		params.parent_id = params.parent.parent_id
 	end
 
-	-- workaround for ChoGGi_dlgs_examine
+	-- Workaround for ChoGGi_dlgs_examine
 	if type(params.obj) == "nil" then
 		params.obj = "nil"
 	end
 
-	-- already examining? if so focus and return ( :new() doesn't return the opened dialog).
+	-- Already examining? if so focus and return ( :new() doesn't return the opened dialog).
 	local opened = ChoGGi_dlgs_examine[params.obj]
 
 	if opened then
-		-- dialog was closed, but ref remains
+		-- Dialog was closed, but ref remains
 		if not IsValidXWin(opened) then
 			ChoGGi_dlgs_examine[params.obj] = nil
 		-- examine gets confused with children (first examined one that is)
 		elseif not params.parent
 			or params.parent and not (params.parent.child_lock and params.parent.child_lock_dlg)
 		then
-			-- hit refresh, cause i'm that kinda guy
+			-- Hit refresh, cause I'm that kinda guy
 			opened:RefreshExamine()
-			-- and flash the titlebar
+			-- And flash the titlebar
 			CreateRealTimeThread(FlashTitlebar, opened.idMoveControl)
 			return opened
 		end
 	end
 
-
+	-- ...?  If .parent isn't a proper parent obj?
 	if params.parent ~= "str" and not (IsKindOf(params.parent, "XWindow") or IsPoint(params.parent)) then
 		params.parent = nil
 	end
-	if type(params.title) ~= "string" then
-		params.title = nil
-	end
 
-	-- are we using child lock?
+	-- Are we using child lock? (examine in same dlg)
 	local new_child_lock_dlg
 	if params.skip_child then
 		if params.parent and IsKindOf(params.parent, "ChoGGi_DlgExamine") then
@@ -4376,7 +4378,7 @@ function ChoGGi_Funcs.Common.OpenInExamineDlg(obj, parent, title, ...)
 
 	local dlg = ChoGGi_DlgExamine:new({}, terminal.desktop, params)
 
-	-- update parent examine with new child
+	-- Update parent examine with new child
 	if new_child_lock_dlg then
 		parent.child_lock_dlg = dlg
 	end

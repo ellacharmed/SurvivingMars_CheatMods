@@ -74,6 +74,7 @@ if what_game == "Mars" then
 				obj = MultiSelectionWrapper:new({selection_class = selection_class, objects = new_objs})
 			end
 		end
+		-- Why am I sometimes getting "Attempt to use an undefined global 'SelectedObj'" from here when closing a bunch of ecm dialogs?
 		SelectObj(obj)
 		return "break"
 	end
