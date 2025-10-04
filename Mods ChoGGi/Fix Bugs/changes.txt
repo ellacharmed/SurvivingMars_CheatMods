@@ -1,5 +1,6 @@
 v11.9
 If an expedition fails (only from storybits?) then the rover doesn't get deleted (Thanks arl85).
+This also fixes log spam from RC Transports trying to unload resources when on expeditions.
 
 v11.8
 Found a save with the same as 11.6, but for Residences (GetFreeSpace log spam).

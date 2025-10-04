@@ -10,6 +10,7 @@ See mod options to toggle certain fixes.
 ```
 Uneven terrain from Flatten tool (mod option to disable).
 If an expedition fails (only from storybits?) then the rover doesn't get deleted.
+Log spam from RC Transports trying to unload resources when on expeditions.
 RC Harvester doesn't collect waste rock.
 RC Constructor/RC Terraformer missing Create Transport Route button.
 Meteor landed on under construction track while dismantling.

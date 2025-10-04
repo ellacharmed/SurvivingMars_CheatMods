@@ -2602,20 +2602,70 @@ end
 
 --
 -- If an expedition fails (only from storybits?) then the rover doesn't get deleted. (2/2)
-local ChoOrig_RocketExpedition_KillExpedition = RocketExpedition.KillExpedition
-function RocketExpedition:KillExpedition(...)
+do
+	local function CleanUpExpedRovers(func, self, ...)
+		if not mod_EnableMod then
+			return func(self, ...)
+		end
+
+		-- They removed crews/drones/singular rovers, but not the .rovers table for some reason.
+		-- I can't find where singular rovers are added though, so maybe it's always been borked? (since the code hasn't changed since gagarin)
+		local objs = self.expedition.rovers or ""
+		for i = #objs, 1, -1 do
+			objs[i]:delete()
+		end
+
+		return func(self, ...)
+	end
+
+
+	local ChoOrig_RocketExpedition_KillExpedition = RocketExpedition.KillExpedition
+	function RocketExpedition:KillExpedition(...)
+		return CleanUpExpedRovers(ChoOrig_RocketExpedition_KillExpedition, self, ...)
+	end
+
+	local ChoOrig_RocketExpedition_Done = RocketExpedition.Done
+	function RocketExpedition:Done(...)
+		return CleanUpExpedRovers(ChoOrig_RocketExpedition_Done, self, ...)
+	end
+end
+
+--
+-- Log spam from deleting a rover on an expedition
+-- Normally deleting them off-map doesn't cause this, the exped ones are calling Done() twice for some reason
+-- and it's invalid the second go
+local ChoOrig_RCTransport_Done = RCTransport.Done
+function RCTransport:Done(...)
 	if not mod_EnableMod then
-		return ChoOrig_RocketExpedition_KillExpedition(self, ...)
+		return ChoOrig_RCTransport_Done(self, ...)
 	end
 
-	-- They removed crews/drones/singular rovers, but not the .rovers table for some reason.
-	-- I can't find where singular rovers are added though, so maybe it's always been borked? (since the code hasn't changed since gagarin)
-	local objs = self.expedition.rovers or ""
-	for i = #objs, 1, -1 do
-		objs[i]:delete()
+	-- Checking invalid pos so it skips self:ReturnStockpiledResources() for expeds
+	if IsValid(self) and self:GetPos() ~= InvalidPos then
+		return ChoOrig_RCTransport_Done(self, ...)
+	end
+end
+--
+local ChoOrig_BaseRover_Done = BaseRover.Done
+function BaseRover:Done(...)
+	if not mod_EnableMod then
+		return ChoOrig_BaseRover_Done(self, ...)
 	end
 
-	return ChoOrig_RocketExpedition_KillExpedition(self, ...)
+	if IsValid(self) then
+		return ChoOrig_BaseRover_Done(self, ...)
+	end
+end
+--
+local ChoOrig_Unit_Done = Unit.Done
+function Unit:Done(...)
+	if not mod_EnableMod then
+		return ChoOrig_Unit_Done(self, ...)
+	end
+
+	if IsValid(self) then
+		return ChoOrig_Unit_Done(self, ...)
+	end
 end
 
 --
