@@ -32,6 +32,7 @@ local g_AvailableDlc = g_AvailableDlc
 -- Fix for Silva's Orion Rocket mod (part 1/2, backing up the func he overrides)
 local ChoOrig_PlacePlanet = PlacePlanet
 
+-- Mod options
 local mod_EnableMod
 local mod_FarmOxygen
 local mod_DustDevilsBlockBuilding
@@ -101,7 +102,8 @@ end
 local function FixDepositsWrongMap_UpdateMaps()
 	-- Scan all maps, since there can be main map concrete on asteroids
 	for _, map in pairs(GameMaps) do
-		local objs = map.realm:MapGet(true, "TerrainDeposit")
+		local objs = map.realm:MapGet("map", "TerrainDeposit")
+		-- Does the ref get removed from these lists like labels or can I go forward?
 		for i = #objs, 1, -1 do
 			-- TerrainDeposit should only spawn on
 			local obj = objs[i]
@@ -112,7 +114,7 @@ end
 SavegameFixups.ChoGGi_FixDepositsStuckUnderground = FixDepositsWrongMap_UpdateMaps
 
 --
--- Used for fix for more than one art sun
+-- Used for more than one art sun fix
 local function UpdateSolarPanel(panel, suns)
 	local found_suns = {}
 	local c = 0
@@ -139,6 +141,7 @@ local function UpdateSolarPanel(panel, suns)
 end
 
 --
+-- Used to fix colonists on wrong map
 -- Colonists are in the underground labels, but live on surface (or newly arrived and sometimes Elevator doesn't fully move them?).
 -- .arriving is I think from colonists fresh off the boat.
 -- a .holder is a diner/bar/etc, so try that next
@@ -162,7 +165,7 @@ local function CheckColonistMap(obj, colony)
 end
 
 --
--- Storybit wrong category fix
+-- Used for Storybit wrong category fix
 local function FixWrongCatStorybit(storybit_id)
 	local bit_state = g_StoryBitStates[storybit_id]
 	if not bit_state then
@@ -198,6 +201,8 @@ local function FixWrongCatStorybit(storybit_id)
 	return bit_state
 end
 
+--
+-- Used for non-workplaces being added to the Workplace label fix
 local function CleanupLabels(label)
 	local objs = GetCityLabels(label)
 	for i = #objs, 1, -1 do
@@ -254,7 +259,8 @@ local function ModOptions(id)
 		tt[297691849913] = "I'm honored, but it would be fine if you continue working from Earth."
 	end
 
-	if not UIColony then
+--~ 	if not UIColony then
+	if not GameState.gameplay then
 		return
 	end
 
@@ -275,13 +281,14 @@ OnMsg.ApplyModOptions = ModOptions
 --
 -- OnMsgs
 
--- Early enough on new games to be before storybit stuff, but late enough for mod options
--- Not sure how often (if ever) this fires during normal gameplay
--- Fine for what I'm changing though
 function OnMsg.OnRealmLoad()
 	if not mod_EnableMod then
 		return
 	end
+
+	-- Early enough on new games to be before storybit stuff, but late enough for mod options
+	-- Not sure how often (if ever) this fires during normal gameplay
+	-- Fine for what I'm changing though
 
 	--
 	--[[
@@ -473,6 +480,7 @@ end
 
 function OnMsg.TechResearched(tech_id)
 	--
+	-- Gene Forging tech doesn't increase rare traits chance.
 	-- GeneForging doesn't interact with anything unlike GeneSelection
 	-- and you can only have GeneForging if you have GeneSelection
 	-- This boosts GeneSelection to 150 (seems a safe enough way of doing it).
@@ -480,9 +488,6 @@ function OnMsg.TechResearched(tech_id)
 		TechDef.GeneSelection.param1 = 150
 	end
 end
-
---
---
 
 --
 -- CityStart/LoadGame
@@ -1619,6 +1624,159 @@ end
 
 
 --
+-- Log Spam fixes start
+
+--
+-- log spam April13 found
+-- [LUA ERROR] Mars/Lua/Buildings/CargoTransporter.lua:1062: attempt to index a nil value (field '?')
+local ChoOrig_CargoTransporter_DroneLoadResource = CargoTransporter.DroneLoadResource
+function CargoTransporter:DroneLoadResource(drone, request, resource, ...)
+	if not mod_EnableMod then
+		return ChoOrig_CargoTransporter_DroneLoadResource(self, drone, request, resource, ...)
+	end
+
+	if self.cargo[resource] then
+		return ChoOrig_CargoTransporter_DroneLoadResource(self, drone, request, resource, ...)
+	end
+end
+
+--
+-- Log spam if you call this func with an invalid dome
+local ChoOrig_IsBuildingInDomeRange = IsBuildingInDomeRange
+function IsBuildingInDomeRange(bld, dome, ...)
+	if not mod_EnableMod then
+		return ChoOrig_IsBuildingInDomeRange(bld, dome, ...)
+	end
+
+	-- Looking at IsBuildingInDomeRange(), I don't think I need to valid the bld
+	if ValidateBuilding(dome) then
+		return ChoOrig_IsBuildingInDomeRange(bld, dome, ...)
+	end
+	return false
+end
+
+--
+-- These were moved from City to Colony, shouldn't hurt anything...
+-- Mostly for clearing up log spam from Horticulture Workshop
+function City.IsTechResearched(self, ...)
+	-- Checking for UIColony needed for old saves
+	return Research.IsTechResearched(UIColony or self, ...)
+end
+function City.IsTechDiscovered(self, ...)
+	return Research.IsTechDiscovered(UIColony or self, ...)
+end
+
+--
+-- Remove log spam (SetScale doesn't like anything below 0 and above 2047)
+local ChoOrig_CObject_SetScale = CObject.SetScale
+function CObject:SetScale(scale, ...)
+	if not mod_EnableMod then
+		return ChoOrig_CObject_SetScale(self, scale, ...)
+	end
+
+	if scale < 0 then
+		scale = 0
+	elseif scale > 2047 then
+		scale = 2047
+	end
+
+	return ChoOrig_CObject_SetScale(self, scale, ...)
+end
+
+--
+-- Some deposit mod causing log spam from a deleted? concrete deposit
+local ChoOrig_TerrainDepositExtractor_OnDepositDepleted = TerrainDepositExtractor.OnDepositDepleted
+function TerrainDepositExtractor:OnDepositDepleted(...)
+	if not mod_EnableMod then
+		return ChoOrig_TerrainDepositExtractor_OnDepositDepleted(self, ...)
+	end
+
+	if IsValid(self:GetDeposit()) then
+		return ChoOrig_TerrainDepositExtractor_OnDepositDepleted(self, ...)
+	end
+
+	-- Might as well set this (from OnDepositDepleted())
+	self.depleted = true
+end
+
+--
+-- Toggling power to domes with passages in certain instances will create some log spam.
+-- I don't think it'll cause any big issue as toggling it again doesn't cause the same log spam.
+-- There's a chance it may not restore power to domes connected with passages?
+-- Looking at other funcs nearby, the devs did check for existence in those, just not this func
+do -- Dome:PropagateSetSupplyToPassages()
+	local fake_pge = {
+		passage_obj = {
+			UpdateElectricityAvailability = empty_func
+		}
+	}
+	-- Setup override
+	local ChoOrig_HexGetPassageGridElement = HexGetPassageGridElement
+	local ChoFake_HexGetPassageGridElement = function(...)
+		local pge = ChoOrig_HexGetPassageGridElement(...)
+		if pge then
+			return pge
+		end
+		return fake_pge
+	end
+
+	local ChoOrig_Dome_PropagateSetSupplyToPassages = Dome.PropagateSetSupplyToPassages
+	function Dome.PropagateSetSupplyToPassages(...)
+		if not mod_EnableMod then
+			return ChoOrig_Dome_PropagateSetSupplyToPassages(...)
+		end
+
+		HexGetPassageGridElement = ChoFake_HexGetPassageGridElement
+		pcall(ChoOrig_Dome_PropagateSetSupplyToPassages, ...)
+		HexGetPassageGridElement = ChoOrig_HexGetPassageGridElement
+
+		-- func has no return value
+	end
+end
+
+--
+-- Log spam from deleting a rover on an expedition
+-- Normally deleting them off-map doesn't cause this, the exped ones are calling Done() twice for some reason
+-- and it's invalid the second go
+local ChoOrig_RCTransport_Done = RCTransport.Done
+function RCTransport:Done(...)
+	if not mod_EnableMod then
+		return ChoOrig_RCTransport_Done(self, ...)
+	end
+
+	-- Checking invalid pos so it skips self:ReturnStockpiledResources() for expeds
+	if IsValid(self) and self:GetPos() ~= InvalidPos then
+		return ChoOrig_RCTransport_Done(self, ...)
+	end
+end
+--
+local ChoOrig_BaseRover_Done = BaseRover.Done
+function BaseRover:Done(...)
+	if not mod_EnableMod then
+		return ChoOrig_BaseRover_Done(self, ...)
+	end
+
+	if IsValid(self) then
+		return ChoOrig_BaseRover_Done(self, ...)
+	end
+end
+--
+local ChoOrig_Unit_Done = Unit.Done
+function Unit:Done(...)
+	if not mod_EnableMod then
+		return ChoOrig_Unit_Done(self, ...)
+	end
+
+	if IsValid(self) then
+		return ChoOrig_Unit_Done(self, ...)
+	end
+end
+
+--
+-- Log Spam fixes end
+
+
+--
 -- Clearing waste rock
 local ChoOrig_ClearWasteRockConstructionSite_InitBlockPass = ClearWasteRockConstructionSite.InitBlockPass
 function ClearWasteRockConstructionSite:InitBlockPass(ls, ...)
@@ -1747,7 +1905,7 @@ end
 
 --
 -- AreDomesConnectedWithPassage (Fix Colonists Long Walks, not that it actually does or at least not every way they try for a long walk)
-do
+do -- AreDomesConnectedWithPassage()
 	--[[
 	Changes the AreDomesConnectedWithPassage func to also check the walking distance instead of assuming passages == walkable.
 	This [i]should[/i] stop the random colonist has died from dehydration events we know and love.
@@ -1788,20 +1946,6 @@ function SA_Exec:Exec(sequence_player, ip, seq, ...)
 end
 
 --
--- log spam April13 found
--- [LUA ERROR] Mars/Lua/Buildings/CargoTransporter.lua:1062: attempt to index a nil value (field '?')
-local ChoOrig_CargoTransporter_DroneLoadResource = CargoTransporter.DroneLoadResource
-function CargoTransporter:DroneLoadResource(drone, request, resource, ...)
-	if not mod_EnableMod then
-		return ChoOrig_CargoTransporter_DroneLoadResource(self, drone, request, resource, ...)
-	end
-
-	if self.cargo[resource] then
-		return ChoOrig_CargoTransporter_DroneLoadResource(self, drone, request, resource, ...)
-	end
-end
-
---
 -- Mars/Lua/Buildings/RocketBase.lua:319: attempt to get length of a boolean value (local 'cargo')
 -- Guessing a mod?
 local ChoOrig_RocketBase_RemovePassengers = RocketBase.RemovePassengers
@@ -1819,8 +1963,8 @@ function RocketBase:RemovePassengers(...)
 end
 
 --
--- Stop buildings placed on top of dust devils
-do
+-- Stop buildings from being placed on top of dust devils
+do --ConstructionController:FinalizeStatusGathering()
 	local ChoGGi_OnTopOfDustDevil = {
 		type = "error",
 		priority = 100,
@@ -1849,21 +1993,6 @@ do
 		return ChoOrig_ConstructionController_FinalizeStatusGathering(self, ...)
 	end
 end -- do
-
---
--- Log spam if you call this with an invalid dome
-local ChoOrig_IsBuildingInDomeRange = IsBuildingInDomeRange
-function IsBuildingInDomeRange(bld, dome, ...)
-	if not mod_EnableMod then
-		return ChoOrig_IsBuildingInDomeRange(bld, dome, ...)
-	end
-
-	-- Looking at IsBuildingInDomeRange(), I don't think I need to valid the bld
-	if ValidateBuilding(dome) then
-		return ChoOrig_IsBuildingInDomeRange(bld, dome, ...)
-	end
-	return false
-end
 
 --
 -- Uneven Terrain
@@ -1979,17 +2108,6 @@ function Tunnel:AddPFTunnel(...)
 end
 
 --
--- These were moved from City to Colony, shouldn't hurt anything...
--- Mostly for clearing up log spam from Horticulture Workshop
-function City.IsTechResearched(self, ...)
-	-- Checking for UIColony needed for old saves
-	return Research.IsTechResearched(UIColony or self, ...)
-end
-function City.IsTechDiscovered(self, ...)
-	return Research.IsTechDiscovered(UIColony or self, ...)
-end
-
---
 -- St. Elmo's Fire: Stop meteoroids from destroying sinkholes
 if g_AvailableDlc.contentpack1 then
 	local ChoOrig_Sinkhole_GameInit = Sinkhole.GameInit
@@ -2048,7 +2166,6 @@ end
 
 --
 -- Colonists on an expedition show unknown as their status, since their command is WaitToAppear instead of Embark
-
 -- WaitToAppear isn't listed in ColonistCommands, though Embark = T(4321, "On an expedition") is listed...
 -- Maybe they planned to use WaitToAppear elsewhere?
 local ChoOrig_Colonist_Getui_command = Colonist.Getui_command
@@ -2104,23 +2221,6 @@ function PinsDlg:GetPinConditionImage(obj, ...)
 end
 
 --
--- Remove log spam (SetScale doesn't like anything below 0 and above 2047)
-local ChoOrig_CObject_SetScale = CObject.SetScale
-function CObject:SetScale(scale, ...)
-	if not mod_EnableMod then
-		return ChoOrig_CObject_SetScale(self, scale, ...)
-	end
-
-	if scale < 0 then
-		scale = 0
-	elseif scale > 2047 then
-		scale = 2047
-	end
-
-	return ChoOrig_CObject_SetScale(self, scale, ...)
-end
-
---
 -- Modded sponsor using DLC user doesn't have results in black screen in new game second screen
 local ChoOrig_GetRocketClass = GetRocketClass
 function GetRocketClass(...)
@@ -2135,22 +2235,6 @@ function GetRocketClass(...)
 	end
 
 	return rocket_class
-end
-
---
--- Some deposit mod causing log spam from a deleted? concrete deposit
-local ChoOrig_TerrainDepositExtractor_OnDepositDepleted = TerrainDepositExtractor.OnDepositDepleted
-function TerrainDepositExtractor:OnDepositDepleted(...)
-	if not mod_EnableMod then
-		return ChoOrig_TerrainDepositExtractor_OnDepositDepleted(self, ...)
-	end
-
-	if IsValid(self:GetDeposit()) then
-		return ChoOrig_TerrainDepositExtractor_OnDepositDepleted(self, ...)
-	end
-
-	-- Might as well set this (from OnDepositDepleted())
-	self.depleted = true
 end
 
 --
@@ -2233,7 +2317,7 @@ end
 
 --
 -- Key binding certain buildings that use hide_from_build_menu won't work when pressing the key (Power Switch/Pipe Valve)
-do
+do -- UIGetBuildingPrerequisites()/UIItemMenu()
 	local hidden_items = {
 		ElectricitySwitch = true,
 		LifesupportSwitch = true,
@@ -2296,41 +2380,6 @@ function SolarPanelBase:GameInit(...)
 	end
 
 	return ChoOrig_SolarPanelBase_GameInit(self, ...)
-end
-
---
--- Toggling power to domes with passages in certain instances will create some log spam.
--- I don't think it'll cause any big issue as toggling it again doesn't cause the same log spam.
--- There's a chance it may not restore power to domes connected with passages?
--- Looking at other funcs nearby, the devs did check for existence in those, just not this func
-do -- Dome:PropagateSetSupplyToPassages(...)
-	local fake_pge = {
-		passage_obj = {
-			UpdateElectricityAvailability = empty_func
-		}
-	}
-	-- Setup override
-	local ChoOrig_HexGetPassageGridElement = HexGetPassageGridElement
-	local ChoFake_HexGetPassageGridElement = function(...)
-		local pge = ChoOrig_HexGetPassageGridElement(...)
-		if pge then
-			return pge
-		end
-		return fake_pge
-	end
-
-	local ChoOrig_Dome_PropagateSetSupplyToPassages = Dome.PropagateSetSupplyToPassages
-	function Dome.PropagateSetSupplyToPassages(...)
-		if not mod_EnableMod then
-			return ChoOrig_Dome_PropagateSetSupplyToPassages(...)
-		end
-
-		HexGetPassageGridElement = ChoFake_HexGetPassageGridElement
-		pcall(ChoOrig_Dome_PropagateSetSupplyToPassages, ...)
-		HexGetPassageGridElement = ChoOrig_HexGetPassageGridElement
-
-		-- func has no return value
-	end
 end
 
 --
@@ -2548,7 +2597,7 @@ end
 --
 -- RC Constructor/RC Terraformer missing Create Transport Route
 -- For some reason they aren't supposed to be able to create routes...
-do -- RCTerraformer.ShouldShowRouteButton/RCTerraformer.ToggleCreateRouteMode_Update/RCConstructor.ShouldShowRouteButton/RCConstructor.ToggleCreateRouteMode_Update
+do -- RCTerraformer:ShouldShowRouteButton()/RCTerraformer:ToggleCreateRouteMode_Update()/RCConstructor:ShouldShowRouteButton()/RCConstructor:ToggleCreateRouteMode_Update()
 	local function ShowRCTRansportButton(orig, func, ...)
 		if not mod_EnableMod then
 			return orig(...)
@@ -2602,7 +2651,7 @@ end
 
 --
 -- If an expedition fails (only from storybits?) then the rover doesn't get deleted. (2/2)
-do
+do -- RocketExpedition:KillExpedition()/RocketExpedition:Done()
 	local function CleanUpExpedRovers(func, self, ...)
 		if not mod_EnableMod then
 			return func(self, ...)
@@ -2627,44 +2676,6 @@ do
 	local ChoOrig_RocketExpedition_Done = RocketExpedition.Done
 	function RocketExpedition:Done(...)
 		return CleanUpExpedRovers(ChoOrig_RocketExpedition_Done, self, ...)
-	end
-end
-
---
--- Log spam from deleting a rover on an expedition
--- Normally deleting them off-map doesn't cause this, the exped ones are calling Done() twice for some reason
--- and it's invalid the second go
-local ChoOrig_RCTransport_Done = RCTransport.Done
-function RCTransport:Done(...)
-	if not mod_EnableMod then
-		return ChoOrig_RCTransport_Done(self, ...)
-	end
-
-	-- Checking invalid pos so it skips self:ReturnStockpiledResources() for expeds
-	if IsValid(self) and self:GetPos() ~= InvalidPos then
-		return ChoOrig_RCTransport_Done(self, ...)
-	end
-end
---
-local ChoOrig_BaseRover_Done = BaseRover.Done
-function BaseRover:Done(...)
-	if not mod_EnableMod then
-		return ChoOrig_BaseRover_Done(self, ...)
-	end
-
-	if IsValid(self) then
-		return ChoOrig_BaseRover_Done(self, ...)
-	end
-end
---
-local ChoOrig_Unit_Done = Unit.Done
-function Unit:Done(...)
-	if not mod_EnableMod then
-		return ChoOrig_Unit_Done(self, ...)
-	end
-
-	if IsValid(self) then
-		return ChoOrig_Unit_Done(self, ...)
 	end
 end
 
