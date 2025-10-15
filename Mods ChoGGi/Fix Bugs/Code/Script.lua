@@ -14,6 +14,7 @@ local GetRandomPassableAround = GetRandomPassableAround
 local GetRandomPassableAroundOnMap = GetRandomPassableAroundOnMap
 local GetRealm = GetRealm
 local GetRealmByID = GetRealmByID
+local HasColdWave = HasColdWave
 local HexGetUnits = HexGetUnits
 local IsKindOf = IsKindOf
 local IsUnitInDome = IsUnitInDome
@@ -226,6 +227,23 @@ local function CleanupLabels(label)
 	end
 end
 
+--
+-- Long Winter Cold Wave timer can disappear at 4 Sols, this will make it show up again.
+-- copy pasta from ExtendColdWave()
+local function ShowColdWaveTimer()
+	if HasColdWave() and g_ColdWaveStartTime and g_ColdWaveEndTime then
+		local map_id = MainCity.map_id
+		g_ColdWaveEndTime = g_ColdWaveEndTime
+		AddDisasterNotification("ColdWaveDuration", {start_time = g_ColdWaveStartTime, expiration = g_ColdWaveEndTime - g_ColdWaveStartTime}, "extended", map_id)
+		g_ColdWaveExtend = true
+		Msg("ColdWaveCancel", map_id)
+	end
+end
+
+--
+--
+--
+--
 
 -- -------------------- New Local Funcs Above Here!
 
@@ -362,6 +380,9 @@ function OnMsg.NewDay()
 	if not mod_EnableMod then
 		return
 	end
+
+	-- Long Winter (1/2)
+	ShowColdWaveTimer()
 
 	--
 	-- Fix Landscaping Freeze
@@ -529,6 +550,10 @@ do
 			--
 			--
 			--
+
+			--
+			-- Long Winter (2/2)
+			ShowColdWaveTimer()
 
 			--
 			-- If an expedition fails (only from storybits?) then the rover doesn't get deleted. (1/2)

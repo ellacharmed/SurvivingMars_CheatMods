@@ -1,3 +1,6 @@
+v12.0
+Long Winter Cold Wave timer can disappear at 4 Sols (Thanks Dark Master).
+
 v11.9
 If an expedition fails (only from storybits?) then the rover doesn't get deleted (Thanks arl85).
 This also fixes log spam from RC Transports trying to unload resources when on expeditions.
