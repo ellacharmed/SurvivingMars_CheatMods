@@ -512,17 +512,20 @@ end -- do
 if what_game == "Mars" or what_game == "MarsR" then
 
 	-- Show cheat menu items
-	local ChoOrig_DeveloperInterface_Init = DeveloperInterface.Init
-	AddToOriginal("DeveloperInterface.Init")
-	function DeveloperInterface:Init(...)
-		local cheats = Platform.cheats
-		Platform.cheats = true
-		local _, ret_value = pcall(ChoOrig_DeveloperInterface_Init, self, ...)
-		Platform.cheats = cheats
-		-- not needed for init, but I do it for any func
-		return ret_value
+	if what_game == "MarsR" then
+		local ChoOrig_DeveloperInterface_Init = DeveloperInterface.Init
+		AddToOriginal("DeveloperInterface.Init")
+		function DeveloperInterface:Init(...)
+			local cheats = Platform.cheats
+			Platform.cheats = true
+			local _, ret_value = pcall(ChoOrig_DeveloperInterface_Init, self, ...)
+			Platform.cheats = cheats
+			-- not needed for init, but I do it for any func
+			return ret_value
+		end
 	end
 
+	-- Ignore dome reqs
 	local ChoOrig_ConstructionController_UpdateConstructionStatuses = ConstructionController.UpdateConstructionStatuses
 	AddToOriginal("ConstructionController.UpdateConstructionStatuses")
 	function ConstructionController:UpdateConstructionStatuses(...)
@@ -539,7 +542,7 @@ if what_game == "Mars" or what_game == "MarsR" then
 		return ChoOrig_ConstructionController_UpdateConstructionStatuses(self, ...)
 	end
 
-	-- update production (OnMsgs.lua)
+	-- Update production (OnMsgs.lua)
 	local ChoOrig_SingleResourceProducer_Init = SingleResourceProducer.Init
 	AddToOriginal("SingleResourceProducer.Init")
 	function SingleResourceProducer:Init(...)

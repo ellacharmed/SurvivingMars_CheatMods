@@ -3,6 +3,7 @@
 --~ box(left/x, top/y, right/w, bottom/h) :minx() :miny() :sizex() :sizey()
 --~ box() or sizebox()
 
+local what_game = ChoGGi.what_game
 local ChoGGi_Funcs = ChoGGi_Funcs
 local T = T
 local Translate = ChoGGi_Funcs.Common.Translate
@@ -604,6 +605,7 @@ function ChoGGi_XWindow:AddElements(_, context)
 		or what_game == "MarsR" and GetSafeMargins()
 		or what_game == "JA3" and GetSafeMargins()
 
+--~ 	local _, _, x, y = GetSafeAreaBox():xyxy()
 	local _ ,_ ,x, y = UIL.GetSafeArea()
 	-- JA3 GetSafeAreaBox sometimes is a number?
 	if IsBox(safe) then
@@ -612,7 +614,6 @@ function ChoGGi_XWindow:AddElements(_, context)
 
 
 	-- make sure the size i use is below the game res w/h
---~ 	local _, _, x, y = GetSafeAreaBox():xyxy()
 	if self.dialog_width_scaled > x then
 		self.dialog_width_scaled = x - 50
 	end

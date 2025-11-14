@@ -2271,10 +2271,11 @@ do -- Rebuildshortcuts
 			-- [LUA ERROR] CommonLua/X/XShortcuts.lua:136: attempt to compare string with table
 			a.ActionName = _InternalTranslate(a.ActionName)
 
+			-- SMR
+			local replace_matching_id = true
+
 			-- added by ECM
 			if a.ChoGGi_ECM then
-				-- SMR
-				local replace_matching_id = true
 				-- Can we enable ECM actions?
 				if not DisableECM then
 					XShortcutsTarget[func_name](XShortcutsTarget, XAction:new(a), replace_matching_id)
