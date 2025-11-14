@@ -1,3 +1,6 @@
+v0.5
+Replaces Vegans description with Wikipedia entry.
+
 v0.4
 Added Ronald Reagan.
 

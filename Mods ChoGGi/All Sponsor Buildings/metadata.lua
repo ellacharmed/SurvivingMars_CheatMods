@@ -16,6 +16,8 @@ return PlaceObj("ModDef", {
 	"description", [[
 Removes sponsor limit placed on certain buildings/vehicles (Space Race DLC).
 Some buildings can be locked behind tech: Advanced Stirling Generator, Jumper ShuttleHub, and Low-G Lab.
+Certain sponsors/commanders will unlock the tech needed to unlock these buildings.
+
 
 Mod Options:
 You need to research tech to unlock certain buildings (reload game to take effect).

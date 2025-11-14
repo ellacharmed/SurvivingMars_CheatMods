@@ -15,4 +15,18 @@ return {
 		"MinValue", 1,
 		"MaxValue", 100,
 	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "SingleUnits",
+		"DisplayName", T(0000, "Single Units"),
+		"Help", T(0000, "Instead of unlocking a building this will give a prefab when you reach it, and another one each 10 sols."),
+		"DefaultValue", false,
+	}),
+	PlaceObj("ModItemOptionNumber", {
+		"name", "SingleUnitsSols",
+		"DisplayName", T(0000, "Single Units Sols"),
+		"Help", T(0000, "How many Sols to give a new building prefab."),
+		"DefaultValue", 10,
+		"MinValue", 1,
+		"MaxValue", 100,
+	}),
 }

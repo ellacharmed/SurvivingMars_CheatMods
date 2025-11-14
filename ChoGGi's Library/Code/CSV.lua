@@ -1,7 +1,9 @@
 -- See LICENSE for terms
 
 local what_game = ChoGGi.what_game
-if ChoGGi.what_game ~= "Mars" then
+
+-- FIX ME
+if what_game ~= "Mars" then
 	return
 end
 
@@ -50,7 +52,8 @@ do -- MapData
 	-- I could do an if, but best keep it simple for whatever speed I can get
 	local north, east, south, west = "N", "E", "S", "W"
 
-	local MapData = ChoGGi.is_gp and MapData or MapDataPresets
+	local MapData = what_game == "MarsGP" and MapData or MapDataPresets
+
 	local temp_g_SelectedSpotChallengeMods = {}
 
 	local limit_count = 13

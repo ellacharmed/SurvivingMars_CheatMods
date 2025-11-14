@@ -11,6 +11,7 @@ local RetName = ChoGGi_Funcs.Common.RetName
 local LaunchHumanMeteor = ChoGGi_Funcs.Common.LaunchHumanMeteor
 local RetObjMapId = ChoGGi_Funcs.Common.RetObjMapId
 local InvalidPos = ChoGGi.Consts.InvalidPos
+local GetCityLabels = ChoGGi_Funcs.Common.GetCityLabels
 
 -- build list of traits/mod options
 local mod_options = {}
@@ -37,30 +38,36 @@ AddColonists(t.OtherTraits)
 
 -- call down the wrath of Zeus for miscreants
 local function UpdateMurderPods()
-	local objs = UIColony:GetCityLabels("Colonist")
---~ 	for i = 1, c do
-	for i = 1, #objs do
+	local objs = GetCityLabels("Colonist")
+	for i = #objs, 1, -1 do
 		local obj = objs[i]
 		-- If colonist already has a pod after it then skip
-		if obj and not IsValid(obj.ChoGGi_MurderPod) then
-			-- quicker to check age instead of looping all traits, so ageism rules
-			if mod_options[obj.age_trait] then
-				if not mod_SkipTourists or mod_SkipTourists and not obj.traits.Tourist then
+		if IsValid(obj.ChoGGi_MurderPod) then
+			goto continue1
+		end
+
+		-- quicker to check age instead of looping all traits, so ageism rules
+		if mod_options[obj.age_trait] then
+			if not mod_SkipTourists or mod_SkipTourists and not obj.traits.Tourist then
+				obj:ChoGGi_MP_LaunchPod()
+			end
+		else
+			-- loop through colonist traits for bad ones
+			for id in pairs(obj.traits) do
+				if not mod_options[id] then
+					goto continue2
+				end
+				-- found a trait, so stop checking rest of traits and on to next victim
+				if not mod_SkipTourists or mod_SkipTourists and id ~= "Tourist" then
 					obj:ChoGGi_MP_LaunchPod()
+					break
 				end
-			else
-				-- loop through colonist traits for bad ones
-				for id in pairs(obj.traits) do
-					-- we found it, so stop checking rest of traits and on to next victim
-					if mod_options[id] then
-						if not mod_SkipTourists or mod_SkipTourists and id ~= "Tourist" then
-							obj:ChoGGi_MP_LaunchPod()
-							break
-						end
-					end
-				end
+				--
+				::continue2::
 			end
 		end
+		--
+		::continue1::
 	end
 end
 OnMsg.NewHour = UpdateMurderPods
@@ -84,7 +91,7 @@ local function ModOptions(id)
 		mod_options[id] = options:GetProperty("Trait_" .. id)
 	end
 
-	-- make sure we're in-game
+	-- Make sure we're in-game
 	if not GameMaps then
 		return
 	end
@@ -319,7 +326,7 @@ end
 -- remove any invalid colonists from passages
 function OnMsg.NewHour()
 	local remove = table.remove
-	local objs = UIColony:GetCityLabels("Passage")
+	local objs = GetCityLabels("Passage")
 	for i = 1, #objs do
 		local traversing = objs[i].traversing_colonists or ""
 		for j = #traversing, 1, -1 do
@@ -339,7 +346,7 @@ end
 --~ 	if not g_ChoGGi_RemoveUnwantedColonists_StuckPassageFix then
 --~ 		local remove = table.remove
 
---~ 		local objs = UIColony:GetCityLabels("Passage")
+--~ 		local objs = GetCityLabels("Passage")
 --~ 		for i = 1, #objs do
 --~ 			local traversing = objs[i].traversing_colonists or ""
 --~ 			for j = #traversing, 1, -1 do
@@ -354,7 +361,7 @@ end
 --~ 	end
 
 --~ 	if not g_ChoGGi_RemoveUnwantedColonists_StuckAirColonist then
---~ 		local objs = UIColony:GetCityLabels("Colonist")
+--~ 		local objs = GetCityLabels("Colonist")
 --~ 		for i = 1, #objs do
 --~ 			local obj = objs[i]
 --~ 			if obj.ChoGGi_MurderPod and not IsValid(obj.ChoGGi_MurderPod) then
@@ -709,7 +716,7 @@ end
 function OnMsg.LoadGame()
 	CreateRealTimeThread(function()
 		-- Crash fix for lastest update (probably, guessing it was tracking people out of bounds)
-		local objs = UIColony:GetCityLabels("MurderPod")
+		local objs = GetCityLabels("MurderPod")
 		for i = 1, #objs do
 			local obj = objs[i]
 			-- actually 33325, but it'll do

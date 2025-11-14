@@ -4,9 +4,9 @@ return PlaceObj("ModDef", {
 	"steam_id", "3422540402",
 	"pops_any_uuid", "8a1515a0-0343-40ba-b605-d0b98032e032",
 	"lua_revision", 1007000, -- Picard
-	"version", 4,
+	"version", 5,
 	"version_major", 0,
-	"version_minor", 4,
+	"version_minor", 5,
 	"image", "Preview.jpg",
 	"author", "ChoGGi",
 	"code", {
@@ -23,6 +23,7 @@ Added so far:
 Elon Musk > Nwabudike Morgan
 Vladimir Putin > Sergei Korolev
 Ronald Reagan > Jimmy Carter
+Vegans description
 
 Requests are welcome.
 I speak English, so this mod only has English quotes (the info will be in the original language).

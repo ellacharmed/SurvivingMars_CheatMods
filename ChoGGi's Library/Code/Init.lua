@@ -43,8 +43,6 @@ ChoGGi = {
 	Defaults = false,
 	-- Means of communication
 	email = "SurvivingMarsMods@choggi.org",
-	-- Font used for various UI stuff
-	font = "droid",
 	-- Wha'choo talkin' 'bout, Willis?
 	lang = GetLanguage(),
 	-- Path to this mods' folder
@@ -88,8 +86,6 @@ ChoGGi = {
 	testing = false,
 	-- For text dumping (yep .pc means windows desktop, I guess .linux/.osx aren't personal computers)
 	newline = Platform.pc and "\r\n" or Platform.linux and "\n" or "\r",
-	-- Pre Abstraction Games (Before Tourism update rev 1,001,514)
-	is_gp = LuaRevision < 1001000,
 	-- temporary... stuff
 	Temp = {
 		-- Collect error msgs to be displayed in console after game is loaded
@@ -144,8 +140,31 @@ ChoGGi.ConsoleFuncs = ChoGGi_Funcs.Console
 -- What game are we playing?
 local c = const
 if c.HaeraldProjectName and c.HaeraldProjectName == "Mars" then
-	-- Surviving Mars
-	ChoGGi.what_game = "Mars"
+	-- Surviving Mars Relaunched
+	if rawget(_G, "DeveloperInterface") then
+		ChoGGi.what_game = "MarsR"
+	else
+		-- Surviving Mars
+		if rawget(_G, "GetCursorWorldPos") then
+			ChoGGi.what_game = "Mars"
+		else
+			-- Pre Abstraction Games (Before Tourism update rev 1,001,514)
+			ChoGGi.what_game = "MarsGP"
+		end
+	end
+	print(ChoGGi.what_game,"ChoGGi.what_game")
+	-- LuaRevision for SMR is lower than GP rev, so I'm using func names.
+
+--~ 	if LuaRevision > 1006999 then
+--~ 		ChoGGi.what_game = "Mars"
+--~ 	else
+--~ 		if rawget(_G, "GetCursorWorldPos" then
+--~ 			ChoGGi.what_game = "MarsR"
+--~ 		else
+--~ 			-- Pre Abstraction Games (Before Tourism update rev 1,001,514)
+--~ 			ChoGGi.what_game = "MarsGP"
+--~ 		end
+--~ 	end
 elseif c.HaeraldProjectName and c.HaeraldProjectName == "FVH" then
 	-- Victor Vran
 	ChoGGi.what_game = "VV"
@@ -159,6 +178,15 @@ else
 	ChoGGi.what_game = "Unknown"
 end
 -- It's called Sol Engine (used to be called HGEngine till SM came out and someone decided it needed a name)
+
+-- Font used for various UI stuff
+if ChoGGi.what_game == "Mars" then
+	ChoGGi.font = "droid"
+	ChoGGi.font_bold = "droid"
+elseif ChoGGi.what_game == "MarsR" or ChoGGi.what_game == "JA3" then
+	ChoGGi.font = "Droid Sans"
+	ChoGGi.font_bold = "Droid Sans Bold"
+end
 
 do -- Translate (todo update code to not need this, maybe use T() for menus)
 	local locale_path = ChoGGi.library_path .. "Locales/"

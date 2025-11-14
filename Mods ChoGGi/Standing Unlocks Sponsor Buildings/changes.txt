@@ -1,3 +1,6 @@
+v0.9
+Added mod option to get prefabs instead of unlocking buildings.
+
 v0.8
 Notification only showed two rivals.
 

@@ -51,6 +51,8 @@ TextStyles.DevMenuBar.TextColor = white
 if what_game == "Mars" then
 	-- Changed from 10000000
 	XShortcutsHost.ZOrder = 4
+elseif what_game == "MarsR" or what_game == "JA3" then
+	DeveloperInterface.ZOrder = 4
 end
 
 -- Cheat menu names
@@ -94,7 +96,12 @@ end
 -- Should be more than enough?
 local log_limit = 100
 
-GlobalVar("g_StoryBitsLog", {})
+if what_game == "Mars" then
+	GlobalVar("g_StoryBitsLog", {})
+elseif what_game == "MarsR" or what_game == "JA3" then
+	GameVar("g_StoryBitsLog", {})
+end
+
 g_StoryBitsLogOld = false
 function OnMsg.ChangeMap()
 	g_StoryBitsLogOld = table.copy(g_StoryBitsLog)

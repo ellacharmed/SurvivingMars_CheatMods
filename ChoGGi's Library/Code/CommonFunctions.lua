@@ -56,13 +56,12 @@ local UseGamepadUI = UseGamepadUI
 local ViewObjectMars = ViewObjectMars
 local WorldToHex = WorldToHex
 
-
 -- Remove some log spam on older versions
 local is_gp = ChoGGi.is_gp
-local GetBuildableGrid = not is_gp and GetBuildableGrid
-local GetObjectHexGrid = not is_gp and GetObjectHexGrid
+local GetBuildableGrid = what_game ~= "MarsGP" and GetBuildableGrid
+local GetObjectHexGrid = what_game ~= "MarsGP" and GetObjectHexGrid
 -- cursor position on map (GP compat)
-GetCursorWorldPos = not is_gp and GetCursorWorldPos or function()
+GetCursorWorldPos = what_game ~= "MarsGP" and GetCursorWorldPos or function()
 	return UseGamepadUI() and GetTerrainGamepadCursor() or GetTerrainCursor()
 end
 
@@ -185,7 +184,7 @@ do -- RetName
 			point = getmetatable(point20),
 			box = getmetatable(empty_box),
 		}
-		if what_game == "Mars" then
+		if what_game == "Mars" and not what_game == "MarsR" then
 			userdata_tables.TaskRequest = Request_GetMeta()
 			userdata_tables.quaternion = getmetatable(quaternion(point20, 0))
 			userdata_tables.RandState = getmetatable(RandState())
@@ -234,7 +233,7 @@ do -- RetName
 		"id",
 		"Id",
 		"ActionId",
-		"template_name",
+
 		"template_class",
 		"__class",
 		"__template",
@@ -246,6 +245,9 @@ do -- RetName
 		-- most stuff has a class
 		"class",
 	}
+	if what_game ~= "MarsR" then
+		table.insert(values_lookup, 8, "template_name")
+	end
 
 	do -- stuff we need to be in-game for
 		local function AddFuncsChoGGi(name, skip)
@@ -397,9 +399,14 @@ do -- RetName
 			end)
 
 			lookup_table[g.g_Classes] = "g_Classes"
-			if what_game == "Mars" then
-				for i = 1, #g.GlobalVars do
-					local var = g.GlobalVars[i]
+			if what_game == "Mars" or what_game == "MarsR" then
+				local tbl = "GlobalVars"
+				if what_game == "MarsR" then
+					tbl = "GameVars"
+				end
+
+				for i = 1, #g[tbl] do
+					local var = g[tbl][i]
 					local obj = g_env[var]
 					if not lookup_table[obj] then
 						lookup_table[obj] = var
@@ -498,16 +505,19 @@ do -- RetName
 					name = Translate(obj.display_name)
 				end
 			else
-				for i = 1, #values_lookup do
-					local value_name = values_lookup[i]
-					if obj[value_name] then
-						local value = obj[value_name]
-						if value ~= "" then
-							name = value
-							break
+				--
+				pcall(function()
+					for i = 1, #values_lookup do
+						local value_name = values_lookup[i]
+						if obj[value_name] then
+							local value = obj[value_name]
+							if value ~= "" then
+								name = value
+								break
+							end
 						end
 					end
-				end
+				end)
 				--
 
 				local meta = getmetatable(name)
@@ -2213,9 +2223,6 @@ do -- Rebuildshortcuts
 				a.ActionShortcut = nil
 				a.ActionShortcut2 = nil
 			end
-
-
-
 		end
 
 		if testing then
@@ -2253,7 +2260,7 @@ do -- Rebuildshortcuts
 --~ 		}
 
 		local func_name = "AddAction"
-		if what_game == "JA3" then
+		if what_game == "MarsR" or what_game == "JA3" then
 			func_name = "_InternalAddAction"
 		end -- what_game
 
@@ -2266,14 +2273,14 @@ do -- Rebuildshortcuts
 
 			-- added by ECM
 			if a.ChoGGi_ECM then
+				-- SMR
+				local replace_matching_id = true
 				-- Can we enable ECM actions?
 				if not DisableECM then
---~ 					XShortcutsTarget:AddAction(XAction:new(a))
-					XShortcutsTarget[func_name](XShortcutsTarget, XAction:new(a))
+					XShortcutsTarget[func_name](XShortcutsTarget, XAction:new(a), replace_matching_id)
 				end
 			else
---~ 				XShortcutsTarget:AddAction(XAction:new(a))
-				XShortcutsTarget[func_name](XShortcutsTarget, XAction:new(a))
+				XShortcutsTarget[func_name](XShortcutsTarget, XAction:new(a), replace_matching_id)
 			end
 		end
 
@@ -3825,10 +3832,9 @@ do -- UpdateConsoleMargins
 	local box = box
 
 	local margins
-	if what_game == "Mars" then
+	if what_game == "Mars" or what_game == "MarsR" then
 		margins = GetSafeMargins()
-	else
-		--JA3
+	elseif what_game == "JA3" then
 		margins = GetSafeAreaBox()
 	end
 
@@ -4633,7 +4639,6 @@ end -- do
 
 -- this only adds a parent, no ___BuildingUpdate/__Init or anything
 -- ChoGGi_Funcs.Common.AddParentToClass(DontBuildHere, "InfopanelObj")
---~ ChoGGi_Funcs.Common.AddParentToClass(Electrolyzer, "LifeSupportConsumer")
 function ChoGGi_Funcs.Common.AddParentToClass(class_obj, parent_name)
 	local p = class_obj.__parents
 	if p and not table.find(p, parent_name) then
@@ -8014,15 +8019,16 @@ function ChoGGi_Funcs.Common.SetAnimState(obj)
 	}
 end
 
+-- Drop a human shaped meteor (I'd change the name, but... we'll say it's launched from an orbiting station)
 function ChoGGi_Funcs.Common.LaunchHumanMeteor(entity, min, max, city)
+	if not CurrentThread() then
+		return CreateGameTimeThread(ChoGGi_Funcs.Common.LaunchHumanMeteor, entity, min, max, city)
+	end
+
 	if not IsValidEntity(entity) then
 		entity = "Unit_Astronaut_All_Child_01"
 		min = 0
 		max = 1
-	end
-
-	if not CurrentThread() then
-		return CreateGameTimeThread(ChoGGi_Funcs.Common.LaunchHumanMeteor, entity, min, max, city)
 	end
 
 	--	1 to 4 sols
@@ -8045,11 +8051,11 @@ function ChoGGi_Funcs.Common.LaunchHumanMeteor(entity, min, max, city)
 
 	descr.meteor:Fall(descr.start)
 	descr.meteor:ChangeEntity(entity)
-	-- frozen meat popsicle (dark blue)
+	-- Meat Popsicle (dark blue)
 	descr.meteor:SetColorModifier(-16772609)
 	-- It looks reasonable
 	descr.meteor:SetState("sitSoftChairIdle")
-	-- I don't maybe they swelled up from the heat and moisture permeating in space (makes it easier to see the popsicle)
+	-- I don't know maybe they swelled up from the heat and moisture permeating in space? (makes it easier to see the popsicle)
 	descr.meteor:SetScale(500)
 end
 

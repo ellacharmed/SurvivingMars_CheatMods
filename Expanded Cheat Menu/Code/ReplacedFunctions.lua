@@ -146,7 +146,7 @@ do
 end -- do
 
 -- non-class obj funcs (mars)
-if what_game == "Mars" then
+if what_game == "Mars" or what_game == "MarsR" then
 
 	-- this will reset override, so we sleep and reset it
 	local ChoOrig_ClosePlanetCamera = ClosePlanetCamera
@@ -509,9 +509,20 @@ do
 
 end -- do
 
-if what_game == "Mars" then
+if what_game == "Mars" or what_game == "MarsR" then
 
-	-- Remove more building limits (underground wonders)
+	-- Show cheat menu items
+	local ChoOrig_DeveloperInterface_Init = DeveloperInterface.Init
+	AddToOriginal("DeveloperInterface.Init")
+	function DeveloperInterface:Init(...)
+		local cheats = Platform.cheats
+		Platform.cheats = true
+		local _, ret_value = pcall(ChoOrig_DeveloperInterface_Init, self, ...)
+		Platform.cheats = cheats
+		-- not needed for init, but I do it for any func
+		return ret_value
+	end
+
 	local ChoOrig_ConstructionController_UpdateConstructionStatuses = ConstructionController.UpdateConstructionStatuses
 	AddToOriginal("ConstructionController.UpdateConstructionStatuses")
 	function ConstructionController:UpdateConstructionStatuses(...)
@@ -724,13 +735,23 @@ if what_game == "Mars" then
 		end
 	end
 
-	-- UI transparency cheats menu
-	local ChoOrig_XShortcutsHost_SetVisible = XShortcutsHost.SetVisible
-	AddToOriginal("XShortcutsHost.SetVisible")
-	function XShortcutsHost:SetVisible(...)
-		SetDlgTrans(self)
-		return ChoOrig_XShortcutsHost_SetVisible(self, ...)
-	end
+	do -- UI transparency cheats menu
+		local menu_func = "XShortcutsHost"
+		if what_game == "MarsR" or what_game == "JA3" then
+			menu_func = "DeveloperInterface"
+		end
+		local class_obj = _G[menu_func]
+
+		-- now DeveloperInterface doesn't have SetVisible in smr?
+		if class_obj.SetVisible then
+			local ChoOrig_cheatsmenu_SetVisible = class_obj.SetVisible
+			AddToOriginal(menu_func .. ".SetVisible")
+			function class_obj:SetVisible(...)
+				SetDlgTrans(self)
+				return ChoOrig_cheatsmenu_SetVisible(self, ...)
+			end
+		end
+	end -- do
 
 	-- Larger trib/subsurfheater radius
 	local ChoOrig_UIRangeBuilding_SetUIRange = UIRangeBuilding.SetUIRange
@@ -970,7 +991,7 @@ function OnMsg.ClassesPostprocess()
 	function Console:Show(show, ...)
 		ChoOrig_Console_Show(self, show, ...)
 		if show then
-			-- JA3
+			-- JA3/SMR
 			self:SetModal(false)
 			-- adding transparency for console stuff
 			SetDlgTrans(self)

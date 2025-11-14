@@ -589,17 +589,27 @@ function ChoGGi_XWindow:AddElements(_, context)
 
 	-- Scale to UI (See OnMsgs.lua for UIScale)
 	local UIScale = ChoGGi.Temp.UIScale
-	self.dialog_width_scaled = self.dialog_width * UIScale
-	self.dialog_height_scaled = self.dialog_height * UIScale
+	if what_game == "Mars" then
+		self.dialog_width_scaled = self.dialog_width * UIScale
+		self.dialog_height_scaled = self.dialog_height * UIScale
+	elseif what_game == "MarsR" then
+		-- Not sure why I added floatfloor, check it out later
+		-- fixme
+		self.dialog_width_scaled = floatfloor(self.dialog_width * UIScale)
+		self.dialog_height_scaled = floatfloor(self.dialog_height * UIScale)
+	end
 	self.header_scaled = self.header * UIScale
 
-	-- GetSafeAreaBox doesn't always return a box on JA3...
-	local safe = GetSafeAreaBox()
+	local safe = what_game == "Mars" and GetSafeAreaBox()
+		or what_game == "MarsR" and GetSafeMargins()
+		or what_game == "JA3" and GetSafeMargins()
+
 	local _ ,_ ,x, y = UIL.GetSafeArea()
 	-- JA3 GetSafeAreaBox sometimes is a number?
 	if IsBox(safe) then
 		_, _, x, y = safe:xyxy()
 	end
+
 
 	-- make sure the size i use is below the game res w/h
 --~ 	local _, _, x, y = GetSafeAreaBox():xyxy()
@@ -911,7 +921,10 @@ function ChoGGi_XWindow:PostInit(parent, pt, title_skip)
 	x = x < 0 and 100 or x
 
 	-- res of game window
-	local safe = GetSafeAreaBox()
+	local safe = what_game == "Mars" and GetSafeAreaBox()
+		or what_game == "MarsR" and GetSafeMargins()
+		or what_game == "JA3" and GetSafeMargins()
+
 	local _ ,_ ,winw, winh = UIL.GetSafeArea()
 	-- JA3 GetSafeAreaBox sometimes is a number?
 	if IsBox(safe) then

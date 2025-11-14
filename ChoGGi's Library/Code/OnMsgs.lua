@@ -96,7 +96,8 @@ local function Startup()
 		ChoGGi_Funcs.Common.RetName_Update()
 
 		local ChoGGi = ChoGGi
-		local UIColony = ChoGGi.is_gp and UICity or UIColony
+		local UIColony = what_game == "MarsGP" and UICity or UIColony
+
 		if not UIColony.ChoGGi then
 			-- A place to store per-game values... that i'll use one of these days (tm)
 			UIColony.ChoGGi = {}
@@ -143,6 +144,7 @@ ChoGGi.Temp.UIScale = (LocalStorage.Options.UIScale + 0.0) / 100
 -- obj cleanup if mod is removed from saved game
 local function RemoveChoGGiObjects()
 
+	-- CurrentMap / Maps / GameMaps
 	local GameMaps = GameMaps
 	for _, map in pairs(GameMaps) do
 		map.realm:SuspendPassEdits("ChoGGi_Library.OnMsgs.RemoveChoGGiObjects")

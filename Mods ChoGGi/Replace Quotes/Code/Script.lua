@@ -2,10 +2,11 @@
 
 local TGetID = TGetID
 
+local mod_RemoveQuotes
 local mod_ElonMusk
 local mod_VladimirPutin
 local mod_RonaldReagan
-local mod_RemoveQuotes
+local mod_Vegans
 
 local quotes_list = {
 	[7933] = [[<grey>"I plan to live forever, of course, but barring that I'd settle for a couple thousand years. Even five hundred would be pretty nice."
@@ -16,11 +17,16 @@ local quotes_list = {
 <right>Nwabudike Morgan</grey><left>]],
 	[825589330974] = [[<grey>"Resources exist to be consumed. And consumed they will be, if not by this generation then by some future. By what right does this forgotten future seek to deny us our birthright? None I say! Let us take what is ours, chew and eat our fill."
 <right>Nwabudike Morgan</grey><left>]],
-	[11782] = [[Nwabudike]],
 	[10515] = [[<grey>"Today the dreams of the best sons of mankind have come true. The assault on space has begun."
 <right>Sergei Korolev</grey><left>]],
 	[6512] = [[<grey>"This is a present from a small, distant world, a token of our sounds, our science, our images, our music, our thoughts and our feelings. We are attempting to survive our time so we may live into yours."
 <right>Jimmy Carter</grey><left>]],
+	-- Not tech
+	[1249] = [[Carter]],
+	[11782] = [[Nwabudike]],
+	[12573] = [[Veganism is the practice of abstaining from the use of animal products and the consumption of animal source foods.<if(has_dlc('shepard'))>
+
+Has decreased Comfort when living near a Ranch and won't work in such buildings. Has increased Comfort when away from Ranches.</if>]],
 }
 
 local function ReplaceQuote(tt, string_idx, replace_text, search_text)
@@ -58,8 +64,6 @@ local function ChangeStrings()
 			ReplaceQuote(tt, 6356, quotes_list[6356])
 			ReplaceQuote(tt, 6497, quotes_list[6497])
 			ReplaceQuote(tt, 825589330974, quotes_list[825589330974])
-			-- Single word, no search just replace
-			tt[11782] = quotes_list[11782]
 		end
 
 		if mod_VladimirPutin then
@@ -67,8 +71,18 @@ local function ChangeStrings()
 		end
 		if mod_RonaldReagan then
 			ReplaceQuote(tt, 6512, quotes_list[6512])
-			tt[1249] = quotes_list[1249]
 		end
+	end
+
+	-- Not tech
+	if mod_ElonMusk then
+		tt[11782] = quotes_list[11782]
+	end
+	if mod_RonaldReagan then
+		tt[1249] = quotes_list[1249]
+	end
+	if mod_Vegans then
+		tt[1249] = quotes_list[1249]
 	end
 
 	-- Probably don't need this
@@ -95,6 +109,7 @@ local function ModOptions(id)
 	mod_ElonMusk = CurrentModOptions:GetProperty("ElonMusk")
 	mod_VladimirPutin = CurrentModOptions:GetProperty("VladimirPutin")
 	mod_RonaldReagan = CurrentModOptions:GetProperty("RonaldReagan")
+	mod_Vegans = CurrentModOptions:GetProperty("Vegans")
 
 	ChangeStrings()
 end

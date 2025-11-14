@@ -125,7 +125,7 @@ function OnMsg.ClassesPostprocess()
 	end
 
 	local object, cls_name
-	if what_game == "Mars" then
+	if what_game == "Mars" or what_game == "MarsR" then
 		object = XMarsMessageBox
 		cls_name = "XMarsMessageBox"
 	elseif what_game == "JA3" then

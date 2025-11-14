@@ -29,6 +29,11 @@ local GetCityLabels = ChoGGi_Funcs.Common.GetCityLabels
 local blacklist = ChoGGi.blacklist
 local testing = ChoGGi.testing
 
+local menu_id = "idMenuBar"
+if what_game == "MarsR" then
+	menu_id = "idViewport"
+end
+
 do -- custom msgs
 
 	-- make sure they use with our new values
@@ -248,7 +253,7 @@ local function ModOptions(id)
 	-- Rebuild cheats menu to hide items
 	local desktop = terminal.desktop
 	for i = 1, #desktop do
-		local dlg = desktop[i].idMenuBar
+		local dlg = desktop[i][menu_id]
 		if dlg and dlg.MenuEntries == "DevMenu" then
 			dlg:RebuildActions(dlg:GetActionsHost())
 		end
@@ -446,7 +451,7 @@ s = SelectedObj, c() = GetCursorWorldPos(), restart() = quit(""restart"")"]])
 
 				-- add some ids for easier selection later on
 				if IsKindOf(item, "XMenuBar") then
-					XShortcutsTarget.idMenuBar = item
+					XShortcutsTarget[menu_id] = item
 				elseif IsKindOf(item, "XWindow") then
 					XShortcutsTarget.idToolbar = item
 					break
@@ -455,7 +460,7 @@ s = SelectedObj, c() = GetCursorWorldPos(), restart() = quit(""restart"")"]])
 
 			-- add a hint about rightclicking
 			if UserSettings.EnableToolTips then
-				local toolbar = XShortcutsTarget.idMenuBar
+				local toolbar = XShortcutsTarget[menu_id]
 				if toolbar then
 					toolbar:SetRolloverTemplate("Rollover")
 					toolbar:SetRolloverTitle(T(302535920001717--[[Info]]))
@@ -963,8 +968,10 @@ end
 
 function OnMsg.ChangeMapDone(map)
 	if ChoGGi.UserSettings.UnlockOverview then
-		local mapdata = ChoGGi.is_gp and mapdata or ActiveMapData
-		mapdata.IsAllowedToEnterOverview = true
+		local mapdata = what_game == "MarsGP" and mapdata or ActiveMapData
+		if mapdata then
+			mapdata.IsAllowedToEnterOverview = true
+		end
 	end
 
 	-- first time run info
@@ -1473,8 +1480,8 @@ do -- LoadGame/CityStart
 
 		-- bloody hint popups
 		if UserSettings.DisableHints then
-			local mapdata = ChoGGi.is_gp and mapdata or ActiveMapData
-			if mapdata.DisableHints == false then
+			local mapdata = what_game == "MarsGP" and mapdata or ActiveMapData
+			if mapdata and mapdata.DisableHints == false then
 				mapdata.DisableHints = true
 			end
 			HintsEnabled = false

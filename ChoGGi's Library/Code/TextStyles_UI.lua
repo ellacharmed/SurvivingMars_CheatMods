@@ -10,7 +10,7 @@ local disabled_gray = -4737097
 local disabled_darker = -9013642
 --~
 --[[ from TextStyle
-TextFont
+TextFont = FontName+FontSize (sm = smr)
 TextColor
 RolloverTextColor
 DisabledTextColor
@@ -32,6 +32,7 @@ local gray32_128 = -2145378272
 local gray32_255 = -14671840
 
 local font = ChoGGi.font
+local font_bold = ChoGGi.font_bold
 local GedDefault = font .. ", 15, aa"
 local Editor14Bold = font .. ", 14, bold, aa"
 local Editor12Bold = font .. ", 12, bold, aa"
@@ -46,11 +47,17 @@ DefineClass.ChoGGi_XTextStyle = {
 	DisabledRolloverTextColor = gray40_128,
 	DisabledTextColor = gray32_128,
 	TextFont = GedDefault,
+	FontName = font,
+	FontSize = 15,
 	-- close enough?
 	group = "Common",
 	save_in = "Common",
 	-- we get an error from Preset:Register() if we don't have this (still works fine)
 	PresetClass = "TextStyle",
+	-- smr?
+	ShadowColor = -16777216,
+	ShadowSize = 1,
+	save_in = "Common",
 }
 
 function OnMsg.ClassesPostprocess()
@@ -108,24 +115,32 @@ function OnMsg.ClassesPostprocess()
 		TextColor = white,
 		RolloverTextColor = white,
 		TextFont = Editor12Bold,
+		FontName = font_bold,
+		FontSize = 12,
 		id = "ChoGGi_Text12",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = white,
 		TextFont = Editor14Bold,
+		FontName = font_bold,
+		FontSize = 14,
 		id = "ChoGGi_Text14",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = white,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_Text16",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = white,
 		TextFont = Editor18Bold,
+		FontName = font_bold,
+		FontSize = 18,
 		id = "ChoGGi_Text18",
 	})
 	-- TextList
@@ -133,18 +148,24 @@ function OnMsg.ClassesPostprocess()
 		TextColor = white,
 		RolloverTextColor = light_gray,
 		TextFont = Editor12Bold,
+		FontName = font_bold,
+		FontSize = 12,
 		id = "ChoGGi_TextList12",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = light_gray,
 		TextFont = Editor14Bold,
+		FontName = font_bold,
+		FontSize = 14,
 		id = "ChoGGi_TextList14",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = light_gray,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_TextList16",
 	})
 	-- MultiLineEdit
@@ -152,6 +173,8 @@ function OnMsg.ClassesPostprocess()
 		TextColor = white,
 		RolloverTextColor = white,
 		TextFont = Editor16,
+		FontName = font,
+		FontSize = 16,
 		id = "ChoGGi_MultiLineEdit",
 	})
 	-- ChoGGi_TextInput
@@ -159,12 +182,16 @@ function OnMsg.ClassesPostprocess()
 		TextColor = -14671840,
 		RolloverTextColor = -16777216,
 		TextFont = Editor16,
+		FontName = font,
+		FontSize = 16,
 		id = "ChoGGi_TextInput",
 	})
 	-- Label
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		TextFont = Editor14Bold,
+		FontName = font_bold,
+		FontSize = 14,
 		id = "ChoGGi_Label",
 	})
 	-- Buttons
@@ -172,12 +199,16 @@ function OnMsg.ClassesPostprocess()
 		TextColor = gray32_255,
 		RolloverTextColor = white,
 		TextFont = Editor14Bold,
+		FontName = font_bold,
+		FontSize = 14,
 		id = "ChoGGi_Buttons",
 	})
 	-- ConsoleButton
 	PlaceObj("ChoGGi_XTextStyle", {
 		RolloverTextColor = white,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_ConsoleButton",
 	})
 	-- ComboButton
@@ -190,12 +221,16 @@ function OnMsg.ClassesPostprocess()
 		TextColor = white,
 		RolloverTextColor = light_gray,
 		TextFont = Editor14Bold,
+		FontName = font_bold,
+		FontSize = 14,
 		id = "ChoGGi_CheckButton",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = white,
 		RolloverTextColor = black,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_CheckButtonMenuOpp",
 	})
 	-- List
@@ -210,6 +245,8 @@ function OnMsg.ClassesPostprocess()
 		TextColor = black,
 		RolloverTextColor = white,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_ButtonMenu",
 	})
 
@@ -218,17 +255,23 @@ function OnMsg.ClassesPostprocess()
 		TextColor = black,
 		RolloverTextColor = white,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_CheckButtonMenu",
 	})
 	-- ButtonMenuDisabled
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = disabled_gray,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_ButtonMenuDisabled",
 	})
 	PlaceObj("ChoGGi_XTextStyle", {
 		TextColor = disabled_darker,
 		TextFont = Editor16Bold,
+		FontName = font_bold,
+		FontSize = 16,
 		id = "ChoGGi_ButtonMenuDisabledDarker",
 	})
 end

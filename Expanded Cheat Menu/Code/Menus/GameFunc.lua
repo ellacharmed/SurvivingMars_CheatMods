@@ -1429,10 +1429,15 @@ do -- SetTransparencyUI
 		local desk = terminal.desktop
 		local igi = Dialogs.InGameInterface
 
+		local menu_func = "XShortcutsHost"
+		if what_game == "MarsR" or what_game == "JA3" then
+			menu_func = "DeveloperInterface"
+		end
+
 		local item_list = {
 			{text = "ConsoleLog", value = GetSetTrans(1, "ConsoleLog", desk, igi), hint = T(302535920000994--[[Console logging text]])},
 			{text = "Console", value = GetSetTrans(1, "Console", desk, igi), hint = T(302535920000996--[[Console text input]])},
-			{text = "XShortcutsHost", value = GetSetTrans(1, "XShortcutsHost", desk, igi), hint = T(302535920000998--[[Cheat Menu]])},
+			{text = menu_func, value = GetSetTrans(1, menu_func, desk, igi), hint = T(302535920000998--[[Cheat Menu]])},
 
 			{text = "HUD", value = GetSetTrans(2, "HUD", desk, igi), hint = T(302535920001000--[[Buttons at bottom]])},
 			{text = "XBuildMenu", value = GetSetTrans(2, "XBuildMenu", desk, igi), hint = T(302535920000993--[[Build menu]])},
@@ -1453,7 +1458,7 @@ do -- SetTransparencyUI
 				if type(value) == "number" then
 
 					if text ~= "XRolloverWindow" then
-						if text == "XShortcutsHost" or text == "Console" or text == "ConsoleLog" then
+						if text == menu_func or text == "Console" or text == "ConsoleLog" then
 							GetSetTrans(1, text, desk, igi, value)
 						else
 							GetSetTrans(2, text, desk, igi, value)

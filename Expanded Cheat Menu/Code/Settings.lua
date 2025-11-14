@@ -4,6 +4,7 @@
 
 -- stores default values and some tables
 
+local what_game = ChoGGi.what_game
 local ChoGGi_Funcs = ChoGGi_Funcs
 local next, pairs, type, os = next, pairs, type, os
 
@@ -122,6 +123,7 @@ ChoGGi.Defaults = {
 		"g_Classes",
 		"g_CObjectFuncs",
 		"GlobalVars",
+		"GameVars",
 		"Mods",
 		"Presets",
 		"StoryBits",
@@ -149,6 +151,7 @@ if testing then
 		HUD = 50,
 		PinsDlg = 50,
 		XShortcutsHost = 100,
+		DeveloperInterface = 100,
 	}
 	-- probably not useful for anyone who isn't loading up borked saves to test
 	Defaults.SkipMissingMods = true
@@ -336,9 +339,19 @@ end
 
 -- bloody hint popups
 if UserSettings.DisableHints then
-	local mapdata = ChoGGi.is_gp and mapdata or ActiveMapData
-	if mapdata.DisableHints == false then
-		mapdata.DisableHints = true
+	local mapdata_obj
+	if what_game == "MarsGP" then
+		mapdata_obj = mapdata
+	elseif what_game == "MarsR" then
+		-- FIX ME
+		-- CurrentMap is ng
+		mapdata_obj = CurrentMap
+	elseif what_game == "Mars" then
+		mapdata_obj = ActiveMapData
+	end
+
+	if mapdata_obj and mapdata_obj.DisableHints == false then
+		mapdata_obj.DisableHints = true
 	end
 	HintsEnabled = false
 end

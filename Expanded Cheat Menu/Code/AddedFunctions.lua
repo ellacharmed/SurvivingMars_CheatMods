@@ -26,18 +26,26 @@ cs = terminal.GetMousePos -- cursor pos on screen
 s = false -- used to store SelectedObj
 FlushLog = FlushLogFile -- easier to remember
 
-if what_game == "Mars" then
+if what_game == "Mars" or what_game == "MarsR" then
+	local menu_id = "idMenuBar"
+	local menu_func = "XShortcutsHost"
+	if what_game == "MarsR" or what_game == "JA3" then
+		menu_id = "idViewport"
+		menu_func = "DeveloperInterface"
+	end
+
+	local func = _G[menu_func]
 	-- add some simple functions to the cheatmenu for moving it/getting pos
-	function XShortcutsHost:SetPos(pt)
+	function func:SetPos(pt)
 		-- doesn't "stick"
 		self:SetBox(pt:x(), pt:y(), self.box:sizex(), self.box:sizey())
 	end
-	function XShortcutsHost:GetPos()
-		return ChoGGi_XWindow.GetPos(self, "idMenuBar")
+	function func:GetPos()
+		return ChoGGi_XWindow.GetPos(self, menu_id)
 	end
-	function XShortcutsHost:GetSize()
+	function func:GetSize()
 		local GetSize = ChoGGi_XWindow.GetSize
-		return GetSize(self, "idMenuBar") + GetSize(self, "idBottomContainer")
+		return GetSize(self, menu_id) + GetSize(self, "idBottomContainer")
 	end
 
 	local function DiscoverTech(tech_id)

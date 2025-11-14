@@ -29,11 +29,15 @@ function OnMsg.ChoGGi_UpdateBlacklistFuncs(env)
 end
 
 function ChoGGi_Funcs.Common.SetCheatsMenuPos(pos)
+	if not XShortcutsTarget.SetPos then
+		return
+	end
+
 	pos = pos or ChoGGi.UserSettings.KeepCheatsMenuPosition
 	if pos then
 		XShortcutsTarget:SetPos(pos)
 	else
-		if what_game == "Mars" then
+		if what_game == "Mars" or what_game == "MarsR" then
 			XShortcutsTarget:SetPos(GetSafeMargins():min())
 		end
 	end
@@ -53,9 +57,14 @@ function ChoGGi_Funcs.Common.DraggableCheatsMenu(enable)
 		}, XShortcutsTarget)
 	end
 
+	local menu = "idMenuBar"
+	if what_game == "MarsR" then
+		menu = "idViewport"
+	end
+
 	if enable then
 		-- add a bit of spacing above menu
-		XShortcutsTarget.idMenuBar:SetPadding(box(0, 6, 0, 0))
+		XShortcutsTarget[menu]:SetPadding(box(0, 6, 0, 0))
 
 		-- move the move control to the padding space we created above
 		CreateRealTimeThread(function()
@@ -66,7 +75,7 @@ function ChoGGi_Funcs.Common.DraggableCheatsMenu(enable)
 		end)
 	else
 		-- remove my padding
-		XShortcutsTarget.idMenuBar:SetPadding(box(0, 0, 0, 0))
+		XShortcutsTarget[menu]:SetPadding(box(0, 0, 0, 0))
 		-- restore to original pos
 		SetCheatsMenuPos()
 	end
@@ -583,7 +592,11 @@ function ChoGGi_Funcs.Common.ToggleConsoleLog()
 			log:SetVisible(true)
 		end
 	else
-		dlgConsoleLog = ConsoleLog:new({}, terminal.desktop)
+		if what_game == "Mars" then
+			dlgConsoleLog = ConsoleLog:new({}, terminal.desktop)
+		elseif what_game == "MarsR" then
+			dlgConsoleLog = ConsoleLog:new({}, GetDevUIViewport())
+		end
 	end
 end
 
@@ -2005,13 +2018,15 @@ do -- UnpublishParadoxMod
 end -- do
 
 function ChoGGi_Funcs.Common.VerticalCheatMenu_Toggle(toggle)
-	if what_game ~= "Mars" then
+	if what_game ~= "Mars"
+--~ 		and what_game ~= "MarsR"
+--~ 		and what_game ~= "JA3"
+	then
 		return
 	end
 
-
 	local cheatmenu_id = "XShortcutsHost"
-	if what_game == "JA3" then
+	if what_game == "JA3" or what_game == "MarsR" then
 		cheatmenu_id = "DeveloperInterface"
 	end
 

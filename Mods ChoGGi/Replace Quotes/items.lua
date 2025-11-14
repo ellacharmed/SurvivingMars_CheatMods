@@ -25,4 +25,10 @@ return {
 		"Help", T(0000, "Replaces Ronald Reagan with Jimmy Carter."),
 		"DefaultValue", false,
 	}),
+	PlaceObj("ModItemOptionToggle", {
+		"name", "Vegans",
+		"DisplayName", T(0000, "Vegans"),
+		"Help", T(0000, "Replaces Vegans description with Wikipedia entry."),
+		"DefaultValue", false,
+	}),
 }
