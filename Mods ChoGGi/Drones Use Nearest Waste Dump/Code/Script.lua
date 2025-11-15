@@ -1,5 +1,8 @@
 -- See LICENSE for terms
 
+local IsValid = IsValid
+local FindNearestObject = FindNearestObject
+
 local mod_EnableMod
 
 -- Update mod options
@@ -15,9 +18,6 @@ end
 OnMsg.ModsReloaded = ModOptions
 -- Fired when Mod Options>Apply button is clicked
 OnMsg.ApplyModOptions = ModOptions
-
-local IsValid = IsValid
-local FindNearestObject = FindNearestObject
 
 local ChoOrig_TaskRequestHub_FindDemandRequest = TaskRequestHub.FindDemandRequest
 function TaskRequestHub:FindDemandRequest(obj, resource, amount, ...)
@@ -57,6 +57,9 @@ function TaskRequestHub:FindDemandRequest(obj, resource, amount, ...)
 
 	local nearest_obj = FindNearestObject(sites, obj)
 	-- Doesn't hurt to check
-	return IsValid(nearest_obj) and nearest_obj.demand.WasteRock
-		or ChoOrig_TaskRequestHub_FindDemandRequest(self, obj, resource, amount, ...)
+	if not IsValid(nearest_obj) then
+		return ChoOrig_TaskRequestHub_FindDemandRequest(self, obj, resource, amount, ...)
+	end
+
+	return nearest_obj.demand.WasteRock
 end

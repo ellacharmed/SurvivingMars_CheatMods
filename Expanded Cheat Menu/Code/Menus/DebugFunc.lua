@@ -96,6 +96,26 @@ function ChoGGi_Funcs.Menus.InfoPanelDlg_Toggle()
 	end
 end
 
+function ChoGGi_Funcs.Menus.ExamineObjectRadius()
+	local radius = ChoGGi.UserSettings.ExamineObjectRadius or 2500
+	local objs = ChoGGi_Funcs.Common.SelObjects(radius)
+	if objs[1] then
+		local pt = GetCursorWorldPos()
+		-- sort by nearest
+		table.sort(objs, function(a, b)
+			return a:GetDist2D(pt) < b:GetDist2D(pt)
+		end)
+
+		OpenExamine(objs, {
+			has_params = true,
+			override_title = true,
+			title = T(302535920000069--[[Examine]]) .. " "
+				.. T(302535920001103--[[Objects]]) .. " "
+				.. T(302535920000163--[[Radius]]) .. ": " .. radius,
+		})
+	end
+end
+
 function ChoGGi_Funcs.Menus.ExamineObjectRadius_Set()
 	local item_list = {
 		{text = 100, value = 100},

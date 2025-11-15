@@ -2,7 +2,7 @@
 
 local what_game = ChoGGi.what_game
 
--- FIX ME
+-- fixme
 if what_game ~= "Mars" then
 	return
 end

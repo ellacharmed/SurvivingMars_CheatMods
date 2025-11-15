@@ -196,6 +196,15 @@ function OnMsg.LoadGame()
 				end
 
 			elseif r.command == "Countdown" or r.command == "Takeoff" then
+
+				-- Trying to take off and there's a tourist wandering around
+				if r.command == "Countdown" and r.status == "countdown"
+					and #r.boarding > 0
+					and type(r.launch_time) == "number"
+				then
+					table.iclear(r.boarding)
+					goto skip
+				end
 				-- exited means exited (unless it's really really close, close enough)
 				if type(r.drones_exiting) == "table" then
 					for j = #r.drones_exiting, 1, -1 do
@@ -213,13 +222,14 @@ function OnMsg.LoadGame()
 					end
 				end
 				-- bugged rocket trying to do a trade (only has priority button)
-				if r.command == "Takeoff" and r.expedition and r.expedition.route_id
+				if r.command == "Takeoff"
+					and r.expedition and r.expedition.route_id
 					and r.refuel_request:GetActualAmount() == 0 and not r:IsRefueling()
 				then
 					r.boarded = false
 					r:CheatLaunch()
 				end
-
+				::skip::
 			-- seems easiest to just ignore it
 			elseif r.command == "WaitMaintenance" then
 				-- drop res piles for any fuel/rare metals

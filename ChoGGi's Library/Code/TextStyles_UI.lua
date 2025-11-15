@@ -54,10 +54,9 @@ DefineClass.ChoGGi_XTextStyle = {
 	save_in = "Common",
 	-- we get an error from Preset:Register() if we don't have this (still works fine)
 	PresetClass = "TextStyle",
-	-- smr?
-	ShadowColor = -16777216,
-	ShadowSize = 1,
-	save_in = "Common",
+	-- Adds thick text
+--~ 	ShadowColor = -16777216,
+--~ 	ShadowSize = 1,
 }
 
 function OnMsg.ClassesPostprocess()

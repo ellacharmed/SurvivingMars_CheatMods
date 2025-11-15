@@ -29,6 +29,8 @@ This is a slightly less cheaty version of All Sponsor Buildings. Shows a notific
 Mod Options:
 Show Notification: Show a notification when unlocked buildings have changed.
 Minimum Standing: Your standing needs to be at or above this to unlock buildings.
+Single Units: Instead of unlocking a building this will give a prefab when you reach it, and another one each 10 sols.
+Single Units Sols: How many Sols to give a new building prefab.
 
 Known Issues:
 You'll need to restart the game to reset unlocked buildings between different saves.

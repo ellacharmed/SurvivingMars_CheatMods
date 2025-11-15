@@ -1,3 +1,6 @@
+v2.7
+Rocket trying to takeoff with a tourist wandering around.
+
 v2.6
 Tweaked how colonists are spawned (added mapid to :new() func).
 

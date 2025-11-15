@@ -213,16 +213,14 @@ Actions[#Actions+1] = {ActionName = T(302535920011667, "Examine Objects"),
 	ActionShortcut = "Shift-F4",
 	replace_matching_id = true,
 	OnAction = function()
-		local pt
-		local function SortDist(a, b)
-			return a:GetDist2D(pt) < b:GetDist2D(pt)
-		end
 		local radius = ChoGGi.UserSettings.ExamineObjectRadius or mod_ExamineObjectsRadius
 		local objs = ChoGGi_Funcs.Common.SelObjects(radius)
 		if objs[1] then
-			pt = GetCursorWorldPos()
+			local pt = GetCursorWorldPos()
 			-- sort by nearest
-			table.sort(objs, SortDist)
+			table.sort(objs, function(a, b)
+				return a:GetDist2D(pt) < b:GetDist2D(pt)
+			end)
 
 			OpenExamine(objs, {
 				has_params = true,

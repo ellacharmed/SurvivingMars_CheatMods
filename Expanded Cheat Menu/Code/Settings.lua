@@ -343,8 +343,8 @@ if UserSettings.DisableHints then
 	if what_game == "MarsGP" then
 		mapdata_obj = mapdata
 	elseif what_game == "MarsR" then
-		-- FIX ME
-		-- CurrentMap is ng
+		-- fixme
+		-- CurrentMap is no good
 		mapdata_obj = CurrentMap
 	elseif what_game == "Mars" then
 		mapdata_obj = ActiveMapData

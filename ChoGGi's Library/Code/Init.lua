@@ -110,6 +110,21 @@ ChoGGi = {
 --
 local ChoGGi = ChoGGi
 
+-- Fake mod used to tell if it's my comp, if you want some extra msgs and .testing funcs have at it (Testing.lua)
+if Mods.ChoGGi_testing or Mods.TESTING then
+	local print = print
+	local FlushLogFile = FlushLogFile
+
+	ChoGGi.testing = {}
+	printC = function(...)
+		print(...)
+		FlushLogFile()
+	end
+else
+	printC = empty_func
+end
+
+
 ChoGGi_Funcs = {
 	_LICENSE = LICENSE,
 
@@ -139,51 +154,51 @@ ChoGGi.ConsoleFuncs = ChoGGi_Funcs.Console
 
 -- What game are we playing?
 local c = const
+local what_game = "Unknown"
 if c.HaeraldProjectName and c.HaeraldProjectName == "Mars" then
 	-- Surviving Mars Relaunched
 	if rawget(_G, "DeveloperInterface") then
-		ChoGGi.what_game = "MarsR"
+		what_game = "MarsR"
 	else
 		-- Surviving Mars
 		if rawget(_G, "GetCursorWorldPos") then
-			ChoGGi.what_game = "Mars"
+			what_game = "Mars"
 		else
 			-- Pre Abstraction Games (Before Tourism update rev 1,001,514)
-			ChoGGi.what_game = "MarsGP"
+			what_game = "MarsGP"
 		end
 	end
-	print(ChoGGi.what_game,"ChoGGi.what_game")
 	-- LuaRevision for SMR is lower than GP rev, so I'm using func names.
 
 --~ 	if LuaRevision > 1006999 then
---~ 		ChoGGi.what_game = "Mars"
+--~ 		what_game = "Mars"
 --~ 	else
 --~ 		if rawget(_G, "GetCursorWorldPos" then
---~ 			ChoGGi.what_game = "MarsR"
+--~ 			what_game = "MarsR"
 --~ 		else
 --~ 			-- Pre Abstraction Games (Before Tourism update rev 1,001,514)
---~ 			ChoGGi.what_game = "MarsGP"
+--~ 			what_game = "MarsGP"
 --~ 		end
 --~ 	end
 elseif c.HaeraldProjectName and c.HaeraldProjectName == "FVH" then
 	-- Victor Vran
-	ChoGGi.what_game = "VV"
+	what_game = "VV"
 elseif c.ProjectName and c.ProjectName == "Zulu" then
 	-- Jagged Alliance 3
-	ChoGGi.what_game = "JA3"
+	what_game = "JA3"
 elseif c.ProjectName and c.ProjectName == "Bacon" then
 	-- Stranded: Alien Dawn
-	ChoGGi.what_game = "SAD"
-else
-	ChoGGi.what_game = "Unknown"
+	what_game = "SAD"
 end
--- It's called Sol Engine (used to be called HGEngine till SM came out and someone decided it needed a name)
+ChoGGi.what_game = what_game
+printC("what_game", what_game)
+-- It's called Sol Engine (used to be called HG Engine till SM came out and someone decided it needed a name)
 
 -- Font used for various UI stuff
-if ChoGGi.what_game == "Mars" then
+if what_game == "Mars" then
 	ChoGGi.font = "droid"
 	ChoGGi.font_bold = "droid"
-elseif ChoGGi.what_game == "MarsR" or ChoGGi.what_game == "JA3" then
+elseif what_game == "MarsR" or what_game == "JA3" then
 	ChoGGi.font = "Droid Sans"
 	ChoGGi.font_bold = "Droid Sans Bold"
 end
@@ -197,20 +212,6 @@ do -- Translate (todo update code to not need this, maybe use T() for menus)
 
 	Msg("TranslationChanged")
 end -- do
-
--- Fake mod used to tell if it's my comp, if you want some extra msgs and .testing funcs have at it (Testing.lua)
-if Mods.ChoGGi_testing or Mods.TESTING then
-	local print = print
-	local FlushLogFile = FlushLogFile
-
-	ChoGGi.testing = {}
-	printC = function(...)
-		print(...)
-		FlushLogFile()
-	end
-else
-	printC = empty_func
-end
 
 -- Maybe they'll update the game again?
 --~ -- Is ECM shanghaied by the blacklist?
