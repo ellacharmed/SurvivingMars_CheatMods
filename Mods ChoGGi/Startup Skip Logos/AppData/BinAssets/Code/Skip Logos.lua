@@ -6,6 +6,10 @@ local load_mods = true
 --~ local load_dialog = true
 local load_dialog = false
 
+-- Enable disabled DLC
+--~ local disabled_DLC = true
+local disabled_DLC = false
+
 -- Remove Missing Mods Msg on loading saves (Needs: load_mods = true)
 local skip_missing_msg = true
 --~ local skip_missing_msg = false
@@ -21,8 +25,10 @@ function OnMsg.DesktopCreated()
 	ParadoxBuildsModManagerWarning = true
 	-- Custom cursors in main menu
 --~   MountFolder("UI/Cursors","AppData/Mods/Replace Cursors/Cursors/")
-	-- Enable disabled DLC
-	DLCConfigPreload = empty_func
+
+	if disabled_DLC then
+		DLCConfigPreload = empty_func
+	end
 
   CreateRealTimeThread(function()
 		local WaitMsg = WaitMsg

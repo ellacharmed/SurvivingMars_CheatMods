@@ -24,6 +24,8 @@ HumanNames[nation_id] = {
 		T(0000, "Ricky"),
 		T(0000, "Julian"),
 		T(0000, "Bubbles"),
+		T(0000, "Jim"),
+		T(0000, "Randy"),
 		T(0000, "J-Roc"),
 		T(0000, "Ray"),
 		T(0000, "Cory"),
@@ -34,6 +36,7 @@ HumanNames[nation_id] = {
 		T(0000, "Sarah"),
 		T(0000, "Lucy"),
 		T(0000, "Desiree"),
+		T(0000, "Barbara"),
 	},
 	Family = {
 		T(0000, "McKenzie"),
@@ -46,6 +49,7 @@ HumanNames[nation_id] = {
 		T(0000, "Jim Lahey") ,
 		T(0000, "Michael Jackson"),
 		T(0000, [[Philadelphia "Phil" Collins ]]),
+		T(0000, "The Liquor"),
 	},
 
 }

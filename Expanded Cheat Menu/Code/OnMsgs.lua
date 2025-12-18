@@ -409,7 +409,7 @@ function OnMsg.ModsReloaded()
 
 @@EntityData prints type(EntityData).
 
-%""UI/Vignette.tga"" opens image in image viewer.
+%""UI/Menu Background 01.tga"" opens image in image viewer.
 
 $123 or $EffectDeposit.display_name prints translated string.
 

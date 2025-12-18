@@ -23,7 +23,7 @@ return PlaceObj("ModDef", {
 	"TagTerraforming", true,
 	"TagLandscaping", true,
 	"description", [[
-Adds a rock you place to mark a lake spot (with a button to raise/lower the level).
+Adds a rock you place to mark a spot for a custom lake (with a button to raise/lower the level).
 This will ignore the uneven terrain limitation.
 
 This is a purely visual mod.

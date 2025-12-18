@@ -25,6 +25,7 @@ return PlaceObj("ModDef", {
 	"TagInterface", true,
 	"description", [[
 Removes rotate limit imposed on certain buildings.
-Lets you rotate the Underground Entrance to pick where the elevator entrance goes (objs too close may interfere when rotating).
+
+Also lets you rotate the Underground Entrance to pick where the elevator entrance goes (objs too close may interfere when rotating).
 ]],
 })

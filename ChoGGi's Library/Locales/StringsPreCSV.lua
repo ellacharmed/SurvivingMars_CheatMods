@@ -418,7 +418,7 @@ If this isn't a new install, then see Menu>Help>ECM>Changelog and search for ""T
 
 <color ChoGGi_green>@@</color><color ChoGGi_yellow>EntityData</color> prints type of obj, use <color ChoGGi_red>type(<color ChoGGi_yellow>obj</color>)</color> in lua code.
 
-<color ChoGGi_green>%</color><color ChoGGi_yellow>""UI/Vignette.tga""</color> opens image in image viewer, use <color ChoGGi_red>OpenImageViewer(<color ChoGGi_yellow>image</color>)</color> in lua code.
+<color ChoGGi_green>%</color><color ChoGGi_yellow>""UI/Menu Background 01.tga""</color> opens image in image viewer, use <color ChoGGi_red>OpenImageViewer(<color ChoGGi_yellow>image</color>)</color> in lua code.
 
 <color ChoGGi_green>^</color><color ChoGGi_yellow>""text string""</color> opens text in text editor, use <color ChoGGi_red>OpenTextViewer(<color ChoGGi_yellow>string</color>)</color> in lua code.
 

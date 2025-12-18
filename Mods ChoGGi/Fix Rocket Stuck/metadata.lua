@@ -32,6 +32,7 @@ Trade rocket with 0 res.
 Trade rockets stuck in orbit?
 Unloading colonist crew from expedition.
 Unloading colonists.
+I've stopped adding to this list, lets just say it fixes lots of issues.
 
 
 [b]If this doesn't fix it for you, then I'll need a copy of your saved game.[/b]
